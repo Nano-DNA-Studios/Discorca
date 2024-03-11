@@ -4,7 +4,9 @@
   "description": "A Discord Bot that Hosts the Necessary Orca and OpenMPI Packages, can Run Orca Simulations through simple commands",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npm run build && node index.js",
+    "build": "cls && tsc"
   },
   "repository": {
     "type": "git",
@@ -17,6 +19,7 @@
   },
   "homepage": "https://github.com/MrDNAlex/Orca-Discord-Bot#readme",
   "dependencies": {
+    "dna-discord-framework": "^1.0.33",
     "typescript": "^5.4.2"
   }
 }
