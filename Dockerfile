@@ -23,11 +23,11 @@ COPY . /home/orca/OrcaBot
 
 RUN npm install
 
-RUN adduser orca sudo
+#RUN adduser orca sudo
 
-RUN echo 'orca ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+#RUN echo 'orca ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
-RUN chmod -R u+w /home/orca/OrcaBot
+#RUN chmod -R u+w /home/orca/OrcaBot
 
 RUN chown -R orca /home/orca/OrcaBot
 
