@@ -7,6 +7,8 @@ import { BotData, OptionTypes, BotDataManager } from "dna-discord-framework"
 import { CacheType, ChatInputCommandInteraction } from "discord.js";
 import fs from "fs";
 import path from "path";
+import axios from "axios";
+//import got from 'got';
 
 //Start works
 class Orca extends BashScript implements IBashCommand {
@@ -14,39 +16,22 @@ class Orca extends BashScript implements IBashCommand {
     CommandDescription = "Pings the Server to determine if it is Online";
     CustomCode =
         `
-/Orca/orca /home/orca/water.inp
+/Orca/orca /home/orca/input.inp
 `;
     SubCommands = [BashScriptsEnum.Custom];
     CommandFunction = async (interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
         console.log("Ping Command Executed");
 
-
         const data = interaction.options.getAttachment("orcafile");
 
         console.log(data);
 
-       // const {default: fetch} = await import('node-fetch');
-
-       //const fetch = (args:string) => import('node-fetch').then(({default: fetch}) => fetch(args));
-
-       /*
-       const fetch = (await import('node-fetch')).default;
-
-        
-
-       
-
         const saveLocation = "/home/orca";
 
         if (data) {
-
-            const response = await fetch(data.url);
-            const buffer = await response.buffer();
-            await fs.writeFile(path.join(saveLocation, 'downloads', data.name), buffer, () =>
-                console.log('finished downloading!'));
-            
+            await downloadFile(data.url, path.join(saveLocation, "input.inp"));
         }
-        */
+
     }
     ReplyMessage = "Server is being Pinged :arrows_clockwise:";
     LogMessage = "Server is being Pinged :arrows_clockwise:";
@@ -63,6 +48,27 @@ class Orca extends BashScript implements IBashCommand {
     ];
     MaxOutTimer = 0;
     CommandHandler = BashCommandHandler.Instance();
+}
+
+async function downloadFile(fileUrl: string, outputPath: string) {
+    try {
+        const response = await axios({
+            method: 'GET',
+            url: fileUrl,
+            responseType: 'stream',
+        });
+
+        const writer = fs.createWriteStream(outputPath);
+
+        response.data.pipe(writer);
+
+        return new Promise((resolve, reject) => {
+            writer.on('finish', resolve);
+            writer.on('error', reject);
+        });
+    } catch (error) {
+        console.error(`Failed to download the file: ${error}`);
+    }
 }
 
 export = Orca;

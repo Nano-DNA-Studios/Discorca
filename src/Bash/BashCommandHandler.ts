@@ -25,7 +25,7 @@ class BashCommandHandler implements ICommandHandler {
 
                     CommandLogger.LogAndRespond(bashInstance.LogMessage);
 
-                    bashInstance.CommandFunction(interaction, dataManager);
+                    await bashInstance.CommandFunction(interaction, dataManager);
 
                     try {
 

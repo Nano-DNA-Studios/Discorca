@@ -19,7 +19,9 @@
   },
   "homepage": "https://github.com/MrDNAlex/Orca-Discord-Bot#readme",
   "dependencies": {
+    "axios": "^1.6.7",
     "dna-discord-framework": "^1.0.33",
+    "got": "^14.2.1",
     "node-fetch": "^3.3.2",
     "ssh2": "^1.15.0",
     "typescript": "^5.4.2"

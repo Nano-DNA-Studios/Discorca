@@ -3,7 +3,8 @@ FROM mrdnalex/orca:latest
 USER root
 
 # Update and install necessary packages
-RUN apt-get update && apt-get upgrade -y && apt-get install -y curl xz-utils build-essential
+RUN apt-get update && apt-get upgrade -y && apt-get install -y curl xz-utils build-essential && apt-get install -y sudo
+
 
 # Set the Node.js version
 ENV NODE_VERSION=20.11.1
@@ -20,8 +21,17 @@ WORKDIR /home/orca/OrcaBot
 
 COPY . /home/orca/OrcaBot
 
-
 RUN npm install
+
+RUN adduser orca sudo
+
+RUN echo 'orca ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+
+RUN chmod -R u+w /home/orca/OrcaBot
+
+RUN chown -R orca /home/orca/OrcaBot
+
+USER orca
 
 CMD ["node", "index.js"]
 

@@ -29,7 +29,7 @@ class BashCommandHandler {
                     yield dna_discord_framework_1.CommandLogger.InitializeResponse(interaction, client, dataManager);
                     for (const bashInstance of bashInstances) {
                         dna_discord_framework_1.CommandLogger.LogAndRespond(bashInstance.LogMessage);
-                        bashInstance.CommandFunction(interaction, dataManager);
+                        yield bashInstance.CommandFunction(interaction, dataManager);
                         try {
                             let BashResult = yield new BashScriptRunner_1.default(bashInstance, dataManager).RunBashScript();
                             if (BashResult)

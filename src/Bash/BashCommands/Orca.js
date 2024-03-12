@@ -15,6 +15,10 @@ const BashScriptsEnum_1 = __importDefault(require("../BashScriptsEnum"));
 const BashCommandHandler_1 = __importDefault(require("../BashCommandHandler"));
 const BashScript_1 = __importDefault(require("../BashScript"));
 const dna_discord_framework_1 = require("dna-discord-framework");
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
+const axios_1 = __importDefault(require("axios"));
+//import got from 'got';
 //Start works
 class Orca extends BashScript_1.default {
     constructor() {
@@ -22,33 +26,17 @@ class Orca extends BashScript_1.default {
         this.CommandName = "orca";
         this.CommandDescription = "Pings the Server to determine if it is Online";
         this.CustomCode = `
-/Orca/orca /home/orca/water.inp
+/Orca/orca /home/orca/input.inp
 `;
         this.SubCommands = [BashScriptsEnum_1.default.Custom];
         this.CommandFunction = (interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
             console.log("Ping Command Executed");
             const data = interaction.options.getAttachment("orcafile");
             console.log(data);
-            // const {default: fetch} = await import('node-fetch');
-            //const fetch = (args:string) => import('node-fetch').then(({default: fetch}) => fetch(args));
-            /*
-            const fetch = (await import('node-fetch')).default;
-     
-             
-     
-            
-     
-             const saveLocation = "/home/orca";
-     
-             if (data) {
-     
-                 const response = await fetch(data.url);
-                 const buffer = await response.buffer();
-                 await fs.writeFile(path.join(saveLocation, 'downloads', data.name), buffer, () =>
-                     console.log('finished downloading!'));
-                 
-             }
-             */
+            const saveLocation = "/home/orca";
+            if (data) {
+                yield downloadFile(data.url, path_1.default.join(saveLocation, "input.inp"));
+            }
         });
         this.ReplyMessage = "Server is being Pinged :arrows_clockwise:";
         this.LogMessage = "Server is being Pinged :arrows_clockwise:";
@@ -66,5 +54,25 @@ class Orca extends BashScript_1.default {
         this.MaxOutTimer = 0;
         this.CommandHandler = BashCommandHandler_1.default.Instance();
     }
+}
+function downloadFile(fileUrl, outputPath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const response = yield (0, axios_1.default)({
+                method: 'GET',
+                url: fileUrl,
+                responseType: 'stream',
+            });
+            const writer = fs_1.default.createWriteStream(outputPath);
+            response.data.pipe(writer);
+            return new Promise((resolve, reject) => {
+                writer.on('finish', resolve);
+                writer.on('error', reject);
+            });
+        }
+        catch (error) {
+            console.error(`Failed to download the file: ${error}`);
+        }
+    });
 }
 module.exports = Orca;
