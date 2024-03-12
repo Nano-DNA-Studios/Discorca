@@ -32,8 +32,10 @@ class BashCommandHandler {
                         yield bashInstance.CommandFunction(interaction, dataManager);
                         try {
                             let BashResult = yield new BashScriptRunner_1.default(bashInstance, dataManager).RunBashScript();
-                            if (BashResult)
+                            if (BashResult) {
                                 dna_discord_framework_1.CommandLogger.LogAndRespond(bashInstance.SuccessMessage);
+                                dna_discord_framework_1.CommandLogger.Response.edit({ content: dna_discord_framework_1.CommandLogger.ResponseMessage, files: ["/home/orca/output.out"] });
+                            }
                             else
                                 dna_discord_framework_1.CommandLogger.LogAndRespond(bashInstance.ErrorMessage);
                         }

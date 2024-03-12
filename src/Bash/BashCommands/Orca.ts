@@ -16,7 +16,7 @@ class Orca extends BashScript implements IBashCommand {
     CommandDescription = "Pings the Server to determine if it is Online";
     CustomCode =
         `
-/Orca/orca /home/orca/input.inp
+/Orca/orca /home/orca/input.inp > /home/orca/output.out
 `;
     SubCommands = [BashScriptsEnum.Custom];
     CommandFunction = async (interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {

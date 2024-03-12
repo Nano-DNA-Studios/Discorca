@@ -26,7 +26,7 @@ class Orca extends BashScript_1.default {
         this.CommandName = "orca";
         this.CommandDescription = "Pings the Server to determine if it is Online";
         this.CustomCode = `
-/Orca/orca /home/orca/input.inp
+/Orca/orca /home/orca/input.inp > /home/orca/output.out
 `;
         this.SubCommands = [BashScriptsEnum_1.default.Custom];
         this.CommandFunction = (interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
