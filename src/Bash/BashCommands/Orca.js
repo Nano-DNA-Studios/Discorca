@@ -30,18 +30,15 @@ class Orca extends BashScript_1.default {
 `;
         this.SubCommands = [BashScriptsEnum_1.default.Custom];
         this.CommandFunction = (interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
-            console.log("Ping Command Executed");
             const data = interaction.options.getAttachment("orcafile");
-            console.log(data);
             const saveLocation = "/home/orca";
-            if (data) {
+            if (data)
                 yield downloadFile(data.url, path_1.default.join(saveLocation, "input.inp"));
-            }
         });
-        this.ReplyMessage = "Server is being Pinged :arrows_clockwise:";
-        this.LogMessage = "Server is being Pinged :arrows_clockwise:";
-        this.ErrorMessage = ":warning: Server is not Online :warning:";
-        this.SuccessMessage = ":white_check_mark: Server is Online :white_check_mark:";
+        this.ReplyMessage = "Server is Running an Orca Calculation :arrows_clockwise:";
+        this.LogMessage = "Server is Running an Orca Calculation :arrows_clockwise:";
+        this.ErrorMessage = ":warning: Server couldn't run the Orca Calculation :warning:";
+        this.SuccessMessage = ":white_check_mark: Server has completed the Orca Calculation :white_check_mark:";
         this.FailMessages = ["Server Not Live"];
         this.Options = [
             {
