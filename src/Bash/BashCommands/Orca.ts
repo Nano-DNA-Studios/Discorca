@@ -20,23 +20,17 @@ class Orca extends BashScript implements IBashCommand {
 `;
     SubCommands = [BashScriptsEnum.Custom];
     CommandFunction = async (interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
-        console.log("Ping Command Executed");
 
         const data = interaction.options.getAttachment("orcafile");
-
-        console.log(data);
-
         const saveLocation = "/home/orca";
 
-        if (data) {
+        if (data) 
             await downloadFile(data.url, path.join(saveLocation, "input.inp"));
-        }
-
     }
-    ReplyMessage = "Server is being Pinged :arrows_clockwise:";
-    LogMessage = "Server is being Pinged :arrows_clockwise:";
-    ErrorMessage = ":warning: Server is not Online :warning:";
-    SuccessMessage = ":white_check_mark: Server is Online :white_check_mark:";
+    ReplyMessage = "Server is Running an Orca Calculation :arrows_clockwise:";
+    LogMessage = "Server is Running an Orca Calculation :arrows_clockwise:";
+    ErrorMessage = ":warning: Server couldn't run the Orca Calculation :warning:";
+    SuccessMessage = ":white_check_mark: Server has completed the Orca Calculation :white_check_mark:";
     FailMessages = ["Server Not Live"];
     Options = [
         {
