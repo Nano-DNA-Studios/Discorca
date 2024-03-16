@@ -18,20 +18,31 @@ RUN cd /tmp \
 # Install npm
 RUN apt-get install npm -y
 
-# Change working directory for npm to install properly
-WORKDIR /home/orca/OrcaBot
+
+
+# Make a Folder for the Bot
+RUN mkdir OrcaBot
 
 # Copy Bot Files into it's folder
-COPY . /home/orca/OrcaBot
+COPY . /OrcaBot
+
+# CD into the bot folder
+RUN cd /OrcaBot
+
+# Set Work directory inside the bot folder
+WORKDIR /OrcaBot
 
 # Install the necessary packages
 RUN npm install
 
+# Go back to root
+RUN cd ..
+
 # Changes the owner of the bot files to the orca user
-RUN chown -R orca /home/orca/OrcaBot
+RUN chown -R orca /OrcaBot
 
 # Change to the orca user
 USER orca
 
 #Starts the Bot
-CMD ["node", "index.js"]
+CMD ["node", "/OrcaBot/index.js"]
