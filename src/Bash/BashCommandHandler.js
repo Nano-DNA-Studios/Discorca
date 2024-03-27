@@ -21,6 +21,7 @@ const dna_discord_framework_1 = require("dna-discord-framework");
 class BashCommandHandler {
     HandleCommand(interaction, client, dataManager) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
                 const Factory = new dna_discord_framework_1.CommandFactory(interaction.commandName);
                 const Bash = Factory.CreateCommand();
@@ -34,7 +35,8 @@ class BashCommandHandler {
                             let BashResult = yield new BashScriptRunner_1.default(bashInstance, dataManager).RunBashScript();
                             if (BashResult) {
                                 dna_discord_framework_1.CommandLogger.LogAndRespond(bashInstance.SuccessMessage);
-                                dna_discord_framework_1.CommandLogger.Response.edit({ content: dna_discord_framework_1.CommandLogger.ResponseMessage, files: ["/home/orca/output.out"] });
+                                dna_discord_framework_1.CommandLogger.Response.edit({ content: dna_discord_framework_1.CommandLogger.ResponseMessage, files: ["/OrcaJobs/water/water.out"] });
+                                (_a = dna_discord_framework_1.CommandLogger.LogChannel) === null || _a === void 0 ? void 0 : _a.send({ content: dna_discord_framework_1.CommandLogger.ResponseMessage, files: ["/OrcaJobs/water/water.out"] });
                             }
                             else
                                 dna_discord_framework_1.CommandLogger.LogAndRespond(bashInstance.ErrorMessage);

@@ -3,7 +3,7 @@ import IBashCommand from "../IBashCommand";
 import BashCommandHandler from "../BashCommandHandler";
 import PalworldBotDataManager from "../../PalworldBotDataManager"
 import BashScript from "../BashScript";
-import { BotData, OptionTypes, BotDataManager } from "dna-discord-framework"
+import { BotData, OptionTypesEnum, BotDataManager } from "dna-discord-framework"
 import { CacheType, ChatInputCommandInteraction } from "discord.js";
 import fs from "fs";
 import path from "path";
@@ -12,20 +12,31 @@ import axios from "axios";
 
 //Start works
 class Orca extends BashScript implements IBashCommand {
+    SaveLocation: string = "/OrcaJobs";
+    InputFileName: string ="";
+    OutputFileName: string ="";
+    JobLocation: string = "";
+    CustomCode: string = `/Orca/orca  ${this.JobLocation}/${this.InputFileName}  > ${this.JobLocation}/${this.OutputFileName}`;
     CommandName = "orca";
     CommandDescription = "Pings the Server to determine if it is Online";
-    CustomCode =
-        `
-/Orca/orca /home/orca/input.inp > /home/orca/output.out
-`;
+    //CustomCode = getCommand(this);
     SubCommands = [BashScriptsEnum.Custom];
     CommandFunction = async (interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
-
         const data = interaction.options.getAttachment("orcafile");
-        const saveLocation = "/home/orca";
 
-        if (data) 
-            await downloadFile(data.url, path.join(saveLocation, "input.inp"));
+        if (data) {
+            const fileName = data.name.split(".")[0];
+            console.log(fileName);
+            this.InputFileName = `${fileName}.inp`;
+            this.OutputFileName = `${fileName}.out`;
+            this.JobLocation = path.join(this.SaveLocation, fileName);
+            console.log(fileName);
+            console.log(fileName);
+            console.log(fileName);
+            fs.mkdirSync(this.JobLocation, { recursive: true });
+            await downloadFile(data.url, path.join(this.JobLocation, this.InputFileName));
+            this.CustomCode = `/Orca/orca  ${this.JobLocation}/${this.InputFileName} > ${this.JobLocation}/${this.OutputFileName}`;
+        }
     }
     ReplyMessage = "Server is Running an Orca Calculation :arrows_clockwise:";
     LogMessage = "Server is Running an Orca Calculation :arrows_clockwise:";
@@ -34,7 +45,7 @@ class Orca extends BashScript implements IBashCommand {
     FailMessages = ["Server Not Live"];
     Options = [
         {
-            type: OptionTypes.Attachment,
+            type: OptionTypesEnum.Attachment,
             name: "orcafile",
             description: "Orca File to Run through Orca",
             required: true,
@@ -63,6 +74,12 @@ async function downloadFile(fileUrl: string, outputPath: string) {
     } catch (error) {
         console.error(`Failed to download the file: ${error}`);
     }
+}
+
+function getCommand (orca: Orca): string 
+{
+    console.log(orca.JobLocation);
+    return `Orca/orca  ${orca.JobLocation}/${orca.InputFileName}  > ${orca.JobLocation}/${orca.OutputFileName}`
 }
 
 export = Orca;

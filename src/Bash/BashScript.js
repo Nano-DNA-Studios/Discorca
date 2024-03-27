@@ -8,7 +8,7 @@ class BashScript {
     constructor() {
         this.CommandName = '';
         this.CommandDescription = '';
-        this.CustomCode = '';
+        this._CustomCode = '';
         this.CommandFunction = () => { };
         this.SubCommands = [];
         this.ReplyMessage = '';
@@ -19,6 +19,12 @@ class BashScript {
         this.Options = [];
         this.MaxOutTimer = 0;
         this.CommandHandler = dna_discord_framework_1.DefaultCommandHandler.Instance();
+    }
+    get CustomCode() {
+        return this._CustomCode;
+    }
+    set CustomCode(value) {
+        this._CustomCode = value;
     }
     /**
      * Gets the Bash Script code to run

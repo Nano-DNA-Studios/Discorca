@@ -23,29 +23,38 @@ const axios_1 = __importDefault(require("axios"));
 class Orca extends BashScript_1.default {
     constructor() {
         super(...arguments);
+        //SaveLocation: string = "/home/orca/Jobs";
+        this.SaveLocation = "/OrcaJobs";
+        this.InputFileName = "";
+        this.OutputFileName = "";
+        this.JobLocation = "";
         this.CommandName = "orca";
         this.CommandDescription = "Pings the Server to determine if it is Online";
-        this.CustomCode = `
-/Orca/orca /home/orca/input.inp > /home/orca/output.out
-`;
+        //CustomCode = getCommand(this);
         this.SubCommands = [BashScriptsEnum_1.default.Custom];
         this.CommandFunction = (interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
-            console.log("Ping Command Executed");
             const data = interaction.options.getAttachment("orcafile");
-            console.log(data);
-            const saveLocation = "/home/orca";
             if (data) {
-                yield downloadFile(data.url, path_1.default.join(saveLocation, "input.inp"));
+                const fileName = data.name.split(".")[0];
+                console.log(fileName);
+                this.InputFileName = `${fileName}.inp`;
+                this.OutputFileName = `${fileName}.out`;
+                this.JobLocation = path_1.default.join(this.SaveLocation, fileName);
+                console.log(fileName);
+                console.log(fileName);
+                console.log(fileName);
+                fs_1.default.mkdirSync(this.JobLocation, { recursive: true });
+                yield downloadFile(data.url, path_1.default.join(this.JobLocation, this.InputFileName));
             }
         });
-        this.ReplyMessage = "Server is being Pinged :arrows_clockwise:";
-        this.LogMessage = "Server is being Pinged :arrows_clockwise:";
-        this.ErrorMessage = ":warning: Server is not Online :warning:";
-        this.SuccessMessage = ":white_check_mark: Server is Online :white_check_mark:";
+        this.ReplyMessage = "Server is Running an Orca Calculation :arrows_clockwise:";
+        this.LogMessage = "Server is Running an Orca Calculation :arrows_clockwise:";
+        this.ErrorMessage = ":warning: Server couldn't run the Orca Calculation :warning:";
+        this.SuccessMessage = ":white_check_mark: Server has completed the Orca Calculation :white_check_mark:";
         this.FailMessages = ["Server Not Live"];
         this.Options = [
             {
-                type: dna_discord_framework_1.OptionTypes.Attachment,
+                type: dna_discord_framework_1.OptionTypesEnum.Attachment,
                 name: "orcafile",
                 description: "Orca File to Run through Orca",
                 required: true,
@@ -54,6 +63,10 @@ class Orca extends BashScript_1.default {
         this.MaxOutTimer = 0;
         this.CommandHandler = BashCommandHandler_1.default.Instance();
     }
+    get CustomCode() {
+        return `/Orca/orca  ${this.JobLocation}/${this.InputFileName}  > ${this.JobLocation}/${this.OutputFileName}`;
+    }
+    ;
 }
 function downloadFile(fileUrl, outputPath) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -74,5 +87,9 @@ function downloadFile(fileUrl, outputPath) {
             console.error(`Failed to download the file: ${error}`);
         }
     });
+}
+function getCommand(orca) {
+    console.log(orca.JobLocation);
+    return `Orca/orca  ${orca.JobLocation}/${orca.InputFileName}  > ${orca.JobLocation}/${orca.OutputFileName}`;
 }
 module.exports = Orca;

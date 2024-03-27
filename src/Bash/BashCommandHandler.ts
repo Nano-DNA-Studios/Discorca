@@ -34,8 +34,8 @@ class BashCommandHandler implements ICommandHandler {
                         if (BashResult)
                         {
                             CommandLogger.LogAndRespond(bashInstance.SuccessMessage);
-                            CommandLogger.Response.edit({ content: CommandLogger.ResponseMessage, files: ["/home/orca/output.out"]});
-                            CommandLogger.LogChannel?.send({ content: CommandLogger.ResponseMessage, files: ["/home/orca/output.out"]});
+                            CommandLogger.Response.edit({ content: CommandLogger.ResponseMessage, files: ["/OrcaJobs/water/water.out"]});
+                            CommandLogger.LogChannel?.send({ content: CommandLogger.ResponseMessage, files: ["/OrcaJobs/water/water.out"]});
                         }
                         else
                             CommandLogger.LogAndRespond(bashInstance.ErrorMessage);
