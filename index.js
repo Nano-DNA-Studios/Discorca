@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const dna_discord_framework_1 = require("dna-discord-framework");
-const PalworldBotDataManager_1 = __importDefault(require("./src/PalworldBotDataManager"));
-const Bot = new dna_discord_framework_1.DiscordBot(PalworldBotDataManager_1.default);
+const OrcaBotDataManager_1 = __importDefault(require("./src/OrcaBotDataManager"));
+const Bot = new dna_discord_framework_1.DiscordBot(OrcaBotDataManager_1.default);
 Bot.StartBot();
 console.log("Bot Started");

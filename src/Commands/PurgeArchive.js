@@ -12,22 +12,22 @@ const dna_discord_framework_1 = require("dna-discord-framework");
 /**
  * Command that Purges all Job Folders in the Job Directory
  */
-class PurgeJobs extends dna_discord_framework_1.Command {
+class PurgeArchive extends dna_discord_framework_1.Command {
     constructor() {
         super(...arguments);
         /* <inheritdoc> */
-        this.CommandName = "purgejobs";
+        this.CommandName = "purgearchives";
         /* <inheritdoc> */
-        this.CommandDescription = "Purges all Jobs from the Server, clears the Job Folder";
+        this.CommandDescription = "Purges all Archives from the Server, clears the Archive Folder";
         /* <inheritdoc> */
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
             let runner = new dna_discord_framework_1.BashScriptRunner();
-            this.InitializeUserResponse(interaction, "Purging Jobs from the Server");
-            yield runner.RunLocally("rm -rf /OrcaJobs/*");
-            this.AddToResponseMessage(":white_check_mark: Server has Purged all Jobs :white_check_mark:");
+            this.InitializeUserResponse(interaction, "Purging Archive from the Server");
+            yield runner.RunLocally("rm -rf /OrcaJobsArchive/*");
+            this.AddToResponseMessage(":white_check_mark: Server has Purged all Archives :white_check_mark:");
         });
         /* <inheritdoc> */
         this.IsEphemeralResponse = false;
     }
 }
-module.exports = PurgeJobs;
+module.exports = PurgeArchive;

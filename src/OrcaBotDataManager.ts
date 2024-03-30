@@ -4,7 +4,7 @@ import { BotDataManager } from "dna-discord-framework";
 /**
  * Class Handling Data Management
  */
-class PalworldBotDataManager extends BotDataManager {
+class OrcaBotDataManager extends BotDataManager {
 
     /**
      * Name of the Process that Handles the Palworld Server
@@ -100,4 +100,4 @@ class PalworldBotDataManager extends BotDataManager {
     }
 }
 
-export default PalworldBotDataManager;
+export default OrcaBotDataManager;

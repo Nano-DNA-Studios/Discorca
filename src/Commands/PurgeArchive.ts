@@ -4,26 +4,26 @@ import { BashScriptRunner, BotDataManager, Command } from "dna-discord-framework
 /**
  * Command that Purges all Job Folders in the Job Directory
  */
-class PurgeJobs extends Command {
+class PurgeArchive extends Command {
     /* <inheritdoc> */
-    public CommandName = "purgejobs";
+    public CommandName = "purgearchives";
 
     /* <inheritdoc> */
-    public CommandDescription = "Purges all Jobs from the Server, clears the Job Folder";
+    public CommandDescription = "Purges all Archives from the Server, clears the Archive Folder";
 
     /* <inheritdoc> */
     public RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
         let runner = new BashScriptRunner();
 
-        this.InitializeUserResponse(interaction, "Purging Jobs from the Server");
+        this.InitializeUserResponse(interaction, "Purging Archive from the Server");
 
-        await runner.RunLocally("rm -rf /OrcaJobs/*");
+        await runner.RunLocally("rm -rf /OrcaJobsArchive/*");
 
-        this.AddToResponseMessage(":white_check_mark: Server has Purged all Jobs :white_check_mark:");
+        this.AddToResponseMessage(":white_check_mark: Server has Purged all Archives :white_check_mark:");
     };
 
     /* <inheritdoc> */
     public IsEphemeralResponse = false;
 }
 
-export = PurgeJobs;
+export = PurgeArchive;

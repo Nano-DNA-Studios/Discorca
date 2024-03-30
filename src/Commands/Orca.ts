@@ -5,26 +5,70 @@ import fsp from "fs/promises"
 import path from "path";
 import axios from "axios";
 
-//Start works
+/**
+ * Command that Runs an Orca Calculation on the Device the Bot is hosted by
+ */
 class Orca extends Command {
+    /* <inheritdoc> */
     CommandName = "orca";
+
+    /* <inheritdoc> */
     CommandDescription = "Runs an Orca Calculation on the Server";
+
+    /* <inheritdoc> */
     IsEphemeralResponse = false;
+
+    /**
+     * The Location a new Orca Job will be saved to
+     */
     SaveLocation: string = "/OrcaJobs";
 
+    /**
+     * The path to the Specific Job Folder. A new Folder is created for the Job so that all files are isolated
+     */
     JobLocation: string = "";
-    //CustomCode: string = `/Orca/orca  ${this.JobLocation}/${this.InputFileName}  > ${this.JobLocation}/${this.OutputFileName}`;
 
+    /**
+     * The Name of the File sent (Without the file extension)
+     */
     FileName: string = "";
+
+    /**
+     * The Folder storing all the Archived Jobs that have already Ran. When the Calculation is complete a copy of the Job is created and sent to the Archive
+     */
     JobArchiveFolder: string = "";
 
-
+    /**
+     * The Name of the Input File (With Extension)
+     */
     InputFileName: string = "";
+
+    /**
+     * The Name of the Output File (With Extension)
+     */
     OutputFileName: string = "";
+
+    /**
+     * The Name of the XYZ File (With Extension)
+     */
     XYZFileName: string = "";
+
+    /**
+     * The Name of the Trajectory XYZ File (With Extension)
+     */
     TrjXYZFileName: string = "";
+
+    /**
+     * 
+     */
     ECEServerArchive = "/homeFAST/OrcaJobArchive";
+
+    /**
+     * The SCP copy command stored and ready if needed
+     */
     CopyCommand: string = "";
+
+    /* <inheritdoc> */
     RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
         const data = interaction.options.getAttachment("orcafile");
 
@@ -35,17 +79,15 @@ class Orca extends Command {
 
         await this.SetPaths(data);
         await this.CreateDirectories();
-        await this.downloadFile(data.url, path.join(this.JobLocation, this.InputFileName));
-
+        await this.DownloadFile(data.url, path.join(this.JobLocation, this.InputFileName));
         await new BashScriptRunner().RunLocally(`/Orca/orca  ${this.JobLocation}/${this.InputFileName} > ${this.JobLocation}/${this.OutputFileName} `);
-
-        // await runner.RunLocally(`/Orca/orca  ${this.JobLocation}/${this.InputFileName} > ${this.JobLocation}/${this.OutputFileName} `);
 
         this.AddToResponseMessage(":white_check_mark: Server has completed the Orca Calculation :white_check_mark:");
 
         await this.SendAllFiles();
-
     };
+
+    /* <inheritdoc> */
     Options = [
         {
             type: OptionTypesEnum.Attachment,
@@ -54,8 +96,14 @@ class Orca extends Command {
             required: true,
         },
     ];
+
+    /* <inheritdoc> */
     CommandHandler = DefaultCommandHandler.Instance();
 
+    /**
+     * Sets all the Path and File Name Variables
+     * @param data The File Attachment sent through the Command
+     */
     SetPaths(data: Attachment) {
         this.FileName = data.name.split(".")[0];
         this.InputFileName = `${this.FileName}.inp`;
@@ -66,6 +114,9 @@ class Orca extends Command {
         this.JobArchiveFolder = `/OrcaJobsArchive/${this.FileName}`;
     }
 
+    /**
+     * Purges Similar Named Directories and Creates them for the Job
+     */
     CreateDirectories() {
         try { fs.rmSync(this.JobLocation, { recursive: true, force: true }); } catch (e) { }
         try { fs.mkdirSync(this.JobLocation, { recursive: true }); } catch (e) { }
@@ -74,12 +125,20 @@ class Orca extends Command {
         try { fs.mkdirSync(this.JobArchiveFolder); } catch (e) { }
     }
 
-    CreateCopyCommand(fileName: string) {
+    /**
+     * Creates the SCP Copy Command for the User to Copy and use in their Terminal
+     * @param fileName The Name of the File to Copy
+     * @returns The SCP Copy Command to Download the File
+     */
+    GetCopyCommand(fileName: string): string {
         let command = `scp WATID@iccad5:${this.ECEServerArchive}/${this.FileName}/${fileName} C:/Users/MrDNA/Downloads`;
 
-        this.CopyCommand = "```" + command + "```"
+        return "```" + command + "```"
     }
 
+    /**
+     * Sends all the Files to the Bot Response to the User
+     */
     async SendAllFiles() {
         await this.SendFile(this.OutputFileName);
         await this.SendFile(this.XYZFileName);
@@ -87,21 +146,21 @@ class Orca extends Command {
         await this.SendFullJobArchive();
     }
 
-
+    /**
+     * Adds the Specified file to the Bot Response for the User to Download. If the File is too Large it sends the SCP Command needed to Download
+     * @param fileName The Name of the File to Add to the Bot Response
+     */
     async SendFile(fileName: string) {
         try {
-            this.CreateCopyCommand(fileName);
-
             let filePath = `${this.JobArchiveFolder}/${fileName}`;
 
             fs.copyFileSync(`${this.JobLocation}/${fileName}`, filePath, fs.constants.COPYFILE_EXCL);
 
             const fileStats = await fsp.stat(filePath);
-
-            let sizeAndFormat = this.GetFileSize(fileStats);
+            const sizeAndFormat = this.GetFileSize(fileStats);
 
             if (sizeAndFormat[0] > 5 && sizeAndFormat[1] == "MB") {
-                this.AddToResponseMessage(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.CopyCommand}`);
+                this.AddToResponseMessage(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.GetCopyCommand(fileName)}`);
             } else {
                 this.AddFileToResponseMessage(filePath);
             }
@@ -110,6 +169,9 @@ class Orca extends Command {
         }
     }
 
+    /**
+     * Sends the Full Job Archive File or if too Large sends the SCp Copy Command to Download it
+     */
     async SendFullJobArchive() {
         try {
             let fileName = `${this.FileName}Full.tar.gz`
@@ -119,13 +181,10 @@ class Orca extends Command {
             await runner.RunLocally(`tar -zcvf ${filePath} -C /OrcaJobs ${this.FileName}`);
 
             const fileStats = await fsp.stat(filePath);
-
-            this.CreateCopyCommand(`${this.FileName}Full.tar.gz`)
-
-            let sizeAndFormat = this.GetFileSize(fileStats)
+            const sizeAndFormat = this.GetFileSize(fileStats)
 
             if (sizeAndFormat[0] > 80 && sizeAndFormat[1] == "MB")
-                this.AddToResponseMessage(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.CopyCommand}`);
+                this.AddToResponseMessage(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.GetCopyCommand(`${this.FileName}Full.tar.gz`)}`);
             else
                 this.AddFileToResponseMessage(filePath);
 
@@ -134,6 +193,11 @@ class Orca extends Command {
         }
     }
 
+    /**
+     * Gets the File Size and Unit 
+     * @param fileStats The File Stats of the File to Check
+     * @returns Returns a Tuple with the File Size associated with the File Size Unit
+     */
     GetFileSize(fileStats: fs.Stats): [number, string] {
         let realsize;
         let sizeFormat;
@@ -158,7 +222,7 @@ class Orca extends Command {
      * @param outputPath The Path to download the file to
      * @returns A promise telling when the download is complete
      */
-    async downloadFile(fileUrl: string, outputPath: string) {
+    async DownloadFile(fileUrl: string, outputPath: string) {
         try {
             const response = await axios({
                 method: 'GET',

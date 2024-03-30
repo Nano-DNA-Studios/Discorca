@@ -4,7 +4,7 @@ const dna_discord_framework_1 = require("dna-discord-framework");
 /**
  * Class Handling Data Management
  */
-class PalworldBotDataManager extends dna_discord_framework_1.BotDataManager {
+class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
     /**
      * Initializes the Data Manager
      * @param botDirectory The Directory that the Bot is located in
@@ -82,4 +82,4 @@ class PalworldBotDataManager extends dna_discord_framework_1.BotDataManager {
         this.SaveData();
     }
 }
-exports.default = PalworldBotDataManager;
+exports.default = OrcaBotDataManager;
