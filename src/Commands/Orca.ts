@@ -1,6 +1,7 @@
 import { OptionTypesEnum, BotDataManager, Command, BashScriptRunner, DefaultCommandHandler } from "dna-discord-framework"
-import { CacheType, ChatInputCommandInteraction, Client } from "discord.js";
+import { Attachment, CacheType, ChatInputCommandInteraction, Client } from "discord.js";
 import fs from "fs";
+import fsp from "fs/promises"
 import path from "path";
 import axios from "axios";
 
@@ -10,11 +11,20 @@ class Orca extends Command {
     CommandDescription = "Runs an Orca Calculation on the Server";
     IsEphemeralResponse = false;
     SaveLocation: string = "/OrcaJobs";
+
+    JobLocation: string = "";
+    //CustomCode: string = `/Orca/orca  ${this.JobLocation}/${this.InputFileName}  > ${this.JobLocation}/${this.OutputFileName}`;
+
+    FileName: string = "";
+    JobArchiveFolder: string = "";
+
+
     InputFileName: string = "";
     OutputFileName: string = "";
-    JobLocation: string = "";
-    CustomCode: string = `/Orca/orca  ${this.JobLocation}/${this.InputFileName}  > ${this.JobLocation}/${this.OutputFileName}`;
-
+    XYZFileName: string = "";
+    TrjXYZFileName: string = "";
+    ECEServerArchive = "/homeFAST/OrcaJobArchive";
+    CopyCommand: string = "";
     RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
         const data = interaction.options.getAttachment("orcafile");
 
@@ -23,24 +33,18 @@ class Orca extends Command {
 
         this.InitializeUserResponse(interaction, `Running Orca Calculation on ${data.name}`);
 
-        const fileName = data.name.split(".")[0];
-        this.InputFileName = `${fileName}.inp`;
-        this.OutputFileName = `${fileName}.out`;
-        this.JobLocation = path.join(this.SaveLocation, fileName);
-        fs.mkdirSync(this.JobLocation, { recursive: true });
+        await this.SetPaths(data);
+        await this.CreateDirectories();
         await this.downloadFile(data.url, path.join(this.JobLocation, this.InputFileName));
 
-        let runner = new BashScriptRunner();
+        await new BashScriptRunner().RunLocally(`/Orca/orca  ${this.JobLocation}/${this.InputFileName} > ${this.JobLocation}/${this.OutputFileName} `);
 
-        await runner.RunLocally(`/Orca/orca  ${this.JobLocation}/${this.InputFileName} > ${this.JobLocation}/${this.OutputFileName} `);
+        // await runner.RunLocally(`/Orca/orca  ${this.JobLocation}/${this.InputFileName} > ${this.JobLocation}/${this.OutputFileName} `);
 
         this.AddToResponseMessage(":white_check_mark: Server has completed the Orca Calculation :white_check_mark:");
 
-        await runner.RunLocally(`tar -zcvf /OrcaJobsArchive/${fileName}.tar.gz -C /OrcaJobs ${fileName}`)
+        await this.SendAllFiles();
 
-        this.Response.files?.push(`/OrcaJobsArchive/${fileName}.tar.gz`);
-
-        this.AddToResponseMessage("Sending Compressed Job Archive");
     };
     Options = [
         {
@@ -51,6 +55,102 @@ class Orca extends Command {
         },
     ];
     CommandHandler = DefaultCommandHandler.Instance();
+
+    SetPaths(data: Attachment) {
+        this.FileName = data.name.split(".")[0];
+        this.InputFileName = `${this.FileName}.inp`;
+        this.OutputFileName = `${this.FileName}.out`;
+        this.XYZFileName = `${this.FileName}.xyz`;
+        this.TrjXYZFileName = `${this.FileName}_trj.xyz`;
+        this.JobLocation = path.join(this.SaveLocation, this.FileName);
+        this.JobArchiveFolder = `/OrcaJobsArchive/${this.FileName}`;
+    }
+
+    CreateDirectories() {
+        try { fs.rmSync(this.JobLocation, { recursive: true, force: true }); } catch (e) { }
+        try { fs.mkdirSync(this.JobLocation, { recursive: true }); } catch (e) { }
+
+        try { fs.rmSync(this.JobArchiveFolder, { recursive: true, force: true }); } catch (e) { }
+        try { fs.mkdirSync(this.JobArchiveFolder); } catch (e) { }
+    }
+
+    CreateCopyCommand(fileName: string) {
+        let command = `scp WATID@iccad5:${this.ECEServerArchive}/${this.FileName}/${fileName} C:/Users/MrDNA/Downloads`;
+
+        this.CopyCommand = "```" + command + "```"
+    }
+
+    async SendAllFiles() {
+        await this.SendFile(this.OutputFileName);
+        await this.SendFile(this.XYZFileName);
+        await this.SendFile(this.TrjXYZFileName);
+        await this.SendFullJobArchive();
+    }
+
+
+    async SendFile(fileName: string) {
+        try {
+            this.CreateCopyCommand(fileName);
+
+            let filePath = `${this.JobArchiveFolder}/${fileName}`;
+
+            fs.copyFileSync(`${this.JobLocation}/${fileName}`, filePath, fs.constants.COPYFILE_EXCL);
+
+            const fileStats = await fsp.stat(filePath);
+
+            let sizeAndFormat = this.GetFileSize(fileStats);
+
+            if (sizeAndFormat[0] > 5 && sizeAndFormat[1] == "MB") {
+                this.AddToResponseMessage(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.CopyCommand}`);
+            } else {
+                this.AddFileToResponseMessage(filePath);
+            }
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async SendFullJobArchive() {
+        try {
+            let fileName = `${this.FileName}Full.tar.gz`
+            let filePath = `${this.JobArchiveFolder}/${fileName}`
+            let runner = new BashScriptRunner();
+
+            await runner.RunLocally(`tar -zcvf ${filePath} -C /OrcaJobs ${this.FileName}`);
+
+            const fileStats = await fsp.stat(filePath);
+
+            this.CreateCopyCommand(`${this.FileName}Full.tar.gz`)
+
+            let sizeAndFormat = this.GetFileSize(fileStats)
+
+            if (sizeAndFormat[0] > 80 && sizeAndFormat[1] == "MB")
+                this.AddToResponseMessage(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.CopyCommand}`);
+            else
+                this.AddFileToResponseMessage(filePath);
+
+        } catch (e) {
+
+        }
+    }
+
+    GetFileSize(fileStats: fs.Stats): [number, string] {
+        let realsize;
+        let sizeFormat;
+
+        if (fileStats.size / (1024 * 1024) >= 1) {
+            realsize = Math.floor(100 * fileStats.size / (1024 * 1024)) / 100;
+            sizeFormat = "MB";
+        } else if (fileStats.size / (1024) >= 1) {
+            realsize = Math.floor(100 * fileStats.size / (1024)) / 100;
+            sizeFormat = "KB";
+        } else {
+            realsize = fileStats.size;
+            sizeFormat = "B";
+        }
+
+        return [realsize, sizeFormat];
+    }
 
     /**
      * Simple function to download a file from a URL
