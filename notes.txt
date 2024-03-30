@@ -1,0 +1,3 @@
+
+Run the Docker container with a mount
+docker run -it --name orcabot --shm-size=100G -v C:\Users\alexe\Downloads\OrcaBind:/OrcaJobsArchive mrdnalex/orcabot

@@ -21,10 +21,6 @@ class Orca extends dna_discord_framework_1.Command {
         super(...arguments);
         this.CommandName = "orca";
         this.CommandDescription = "Runs an Orca Calculation on the Server";
-        this.RunningMessage = "Server is Running an Orca Calculation :arrows_clockwise:";
-        this.LogMessage = "Server is Running an Orca Calculation :arrows_clockwise:";
-        this.ErrorMessage = ":warning: Server couldn't run the Orca Calculation :warning:";
-        this.SuccessMessage = ":white_check_mark: Server has completed the Orca Calculation :white_check_mark:";
         this.IsEphemeralResponse = false;
         this.SaveLocation = "/OrcaJobs";
         this.InputFileName = "";
@@ -45,7 +41,7 @@ class Orca extends dna_discord_framework_1.Command {
             yield this.downloadFile(data.url, path_1.default.join(this.JobLocation, this.InputFileName));
             let runner = new dna_discord_framework_1.BashScriptRunner();
             yield runner.RunLocally(`/Orca/orca  ${this.JobLocation}/${this.InputFileName} > ${this.JobLocation}/${this.OutputFileName} `);
-            this.AddToResponseMessage(this.SuccessMessage);
+            this.AddToResponseMessage(":white_check_mark: Server has completed the Orca Calculation :white_check_mark:");
             yield runner.RunLocally(`tar -zcvf /OrcaJobsArchive/${fileName}.tar.gz -C /OrcaJobs ${fileName}`);
             (_a = this.Response.files) === null || _a === void 0 ? void 0 : _a.push(`/OrcaJobsArchive/${fileName}.tar.gz`);
             this.AddToResponseMessage("Sending Compressed Job Archive");

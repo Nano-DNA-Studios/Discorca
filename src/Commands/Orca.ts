@@ -8,10 +8,6 @@ import axios from "axios";
 class Orca extends Command {
     CommandName = "orca";
     CommandDescription = "Runs an Orca Calculation on the Server";
-    RunningMessage = "Server is Running an Orca Calculation :arrows_clockwise:";
-    LogMessage = "Server is Running an Orca Calculation :arrows_clockwise:";
-    ErrorMessage = ":warning: Server couldn't run the Orca Calculation :warning:";
-    SuccessMessage = ":white_check_mark: Server has completed the Orca Calculation :white_check_mark:";
     IsEphemeralResponse = false;
     SaveLocation: string = "/OrcaJobs";
     InputFileName: string = "";
@@ -38,7 +34,7 @@ class Orca extends Command {
 
         await runner.RunLocally(`/Orca/orca  ${this.JobLocation}/${this.InputFileName} > ${this.JobLocation}/${this.OutputFileName} `);
 
-        this.AddToResponseMessage(this.SuccessMessage);
+        this.AddToResponseMessage(":white_check_mark: Server has completed the Orca Calculation :white_check_mark:");
 
         await runner.RunLocally(`tar -zcvf /OrcaJobsArchive/${fileName}.tar.gz -C /OrcaJobs ${fileName}`)
 
