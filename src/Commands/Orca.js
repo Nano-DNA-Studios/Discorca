@@ -15,7 +15,6 @@ const dna_discord_framework_1 = require("dna-discord-framework");
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const axios_1 = __importDefault(require("axios"));
-//import got from 'got';
 //Start works
 class Orca extends dna_discord_framework_1.Command {
     constructor() {
@@ -33,23 +32,24 @@ class Orca extends dna_discord_framework_1.Command {
         this.JobLocation = "";
         this.CustomCode = `/Orca/orca  ${this.JobLocation}/${this.InputFileName}  > ${this.JobLocation}/${this.OutputFileName}`;
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
             const data = interaction.options.getAttachment("orcafile");
             if (!data)
                 return;
+            this.InitializeUserResponse(interaction, `Running Orca Calculation on ${data.name}`);
             const fileName = data.name.split(".")[0];
-            console.log(fileName);
             this.InputFileName = `${fileName}.inp`;
             this.OutputFileName = `${fileName}.out`;
             this.JobLocation = path_1.default.join(this.SaveLocation, fileName);
-            console.log(fileName);
-            console.log(fileName);
-            console.log(fileName);
             fs_1.default.mkdirSync(this.JobLocation, { recursive: true });
             yield this.downloadFile(data.url, path_1.default.join(this.JobLocation, this.InputFileName));
             let runner = new dna_discord_framework_1.BashScriptRunner();
-            yield runner.RunLocally(`/Orca/orca  ${this.JobLocation}/${this.InputFileName} > ${this.JobLocation}/${this.OutputFileName}`);
+            yield runner.RunLocally(`/Orca/orca  ${this.JobLocation}/${this.InputFileName} > ${this.JobLocation}/${this.OutputFileName} `);
+            this.AddToResponseMessage(this.SuccessMessage);
+            yield runner.RunLocally(`tar -zcvf /OrcaJobsArchive/${fileName}.tar.gz -C /OrcaJobs ${fileName}`);
+            (_a = this.Response.files) === null || _a === void 0 ? void 0 : _a.push(`/OrcaJobsArchive/${fileName}.tar.gz`);
+            this.AddToResponseMessage("Sending Compressed Job Archive");
         });
-        this.FailMessages = ["Server Not Live"];
         this.Options = [
             {
                 type: dna_discord_framework_1.OptionTypesEnum.Attachment,
@@ -58,9 +58,14 @@ class Orca extends dna_discord_framework_1.Command {
                 required: true,
             },
         ];
-        this.MaxOutTimer = 0;
         this.CommandHandler = dna_discord_framework_1.DefaultCommandHandler.Instance();
     }
+    /**
+     * Simple function to download a file from a URL
+     * @param fileUrl The URL of the file to download
+     * @param outputPath The Path to download the file to
+     * @returns A promise telling when the download is complete
+     */
     downloadFile(fileUrl, outputPath) {
         return __awaiter(this, void 0, void 0, function* () {
             try {

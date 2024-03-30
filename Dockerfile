@@ -20,7 +20,13 @@ RUN apt-get install npm -y
 
 # Make a Folder for the Bot and a Folder for the Orca Jobs to Run
 RUN mkdir /OrcaBot \
-    mkdir /OrcaJobs
+    mkdir /OrcaJobs 
+
+RUN mkdir /OrcaJobsArchive
+
+#Changes the owner of the Orca Jobs folder to the orca user
+RUN chown -R orca /OrcaJobs
+RUN chown -R orca /OrcaJobsArchive
 
 # Copy Bot Files into it's folder
 COPY . /OrcaBot
@@ -39,7 +45,6 @@ RUN npm install
 
 # Changes the owner of the bot files to the orca user
 RUN chown -R orca /OrcaBot
-RUN chown -R orca /OrcaJobs
 
 # Change to the orca user
 USER orca
