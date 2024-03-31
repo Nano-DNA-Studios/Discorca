@@ -2,11 +2,13 @@
   "name": "orca-discord-bot",
   "version": "1.0.0",
   "description": "A Discord Bot that Hosts the Necessary Orca and OpenMPI Packages, can Run Orca Simulations through simple commands",
-  "main": "index.js",
+  
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm run build && node index.js",
-    "build": "cls && tsc"
+    "build": "cls && tsc",
+    "docker": "npm run build && docker build -t mrdnalex/orcabot .",
+    "rundocker": "npm run docker && docker rm -f orcabot && cls && docker run -it --name orcabot --restart=always --shm-size=100G -v C:/Users/MrDNA/Downloads/OrcaBind:/OrcaJobsArchive mrdnalex/orcabot"
   },
   "repository": {
     "type": "git",
@@ -20,7 +22,8 @@
   "homepage": "https://github.com/MrDNAlex/Orca-Discord-Bot#readme",
   "dependencies": {
     "axios": "^1.6.7",
-    "dna-discord-framework": "^1.0.33",
+    "discord.js": "^14.14.1",
+    "dna-discord-framework": "^1.0.46",
     "ssh2": "^1.15.0",
     "typescript": "^5.4.2"
   },
