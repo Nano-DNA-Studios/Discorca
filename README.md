@@ -35,6 +35,35 @@ Once built you can Start the Bot using the Following Command. Where 100G can be 
 docker run -it --name orcabot --restart=always --shm-size=100G -v path/on/server/or/device:/OrcaJobsArchive name
 ```
 
+Once The Container has started Running it will prompt you for the Discord Token. This can be Acquired by your Discord Application and is covered in [DNA-Discord-Framework](https://github.com/Nano-DNA-Studios/DNA-Discord-Framework).
+
+Once Started you are free to Close the Command Prompt or Terminal and it should keep running in the Background
+
+The next thing that should be done is setting up the Mount Location and Adding a User
+
+Run the Following Command through Discord
+```
+/setmountlocation
+```
+
+Set the FilePath Option to be the same File Path provided earlier (path/on/server/or/device), and Set the HostName to your IP, Device Name, or whatever appears after you Username in the Terminal (In this case it would be MrDNA-PC, if being hosted on a Server it will most likely be it's IP Address)
+![image](https://github.com/Nano-DNA-Studios/Discorca/assets/93613553/884f2107-7654-4cf5-85a8-c1d1bb41d952)
+
+Once Set Add youself as A User and Set your Download Path, use 
+```
+/adduser
+```
+
+And set the User Option as your Username or Account name on your Device or Server (In this case it would be MrDNA, on a Server it would be the Account Name hosting the Bot)
+![image](https://github.com/Nano-DNA-Studios/Discorca/assets/93613553/884f2107-7654-4cf5-85a8-c1d1bb41d952)
+
+Set the Download Location option to be where yopu want to Download it on your Personal Device. Paste the Entire Path. Example :
+```
+C:\Users\MrDNA\Downloads\OrcaDownload
+```
+
+If Done correctly, when large calculation files cannot be sent through Discord the Bot will send an SCP Copy Command and you should be able to copy it directly into your Terminal or Command Prompt to Download the files quickly
+
 ## Commands
 The Following section covers the Commands that can be run through the Orca Bot, it will go over what the Command does,  how to use it, the Options associated with the Command and it's results
 
