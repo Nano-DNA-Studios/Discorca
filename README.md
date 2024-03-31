@@ -6,8 +6,7 @@ This Repo and Project was created to ease the use of Orca, the Quantum Chemistry
 
 This Project has been Built off [DNA-Discord-Framework](https://github.com/Nano-DNA-Studios/DNA-Discord-Framework), a Typescript Framework that allows for quick and easy developement of Discord Bots
 
-Developer and Creator :
-[MrDNAlex](https://github.com/MrDNAlex)
+This is a Self Hosted Discord Bot, meaning that to use it you will need to Host it yourself on your own Device, Server or Cloud.
 
 ## Setup
 This Section covers how to Setup and Run the Discord Bot
@@ -142,5 +141,9 @@ This is meant to be used in emergencies and will probably never be used. It is m
 The Bash Command that will be Run by the Discord Bot in the Container.
 
 ![runbashcommand](https://github.com/MrDNAlex/Orca-Discord-Bot/assets/93613553/e71e3af2-c901-4a34-8551-4967c20ed47e)
+
+## Developpers
+Developer and Creator :
+[MrDNAlex](https://github.com/MrDNAlex)
 
 
