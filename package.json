@@ -8,7 +8,7 @@
     "start": "npm run build && node index.js",
     "build": "cls && tsc",
     "docker": "npm run build && docker build -t mrdnalex/orcabot .",
-    "rundocker": "npm run docker && docker rm -f orcabot && cls && docker run -it --name orcabot --shm-size=100G -v C:/Users/MrDNA/Downloads/OrcaBind:/OrcaJobsArchive mrdnalex/orcabot"
+    "rundocker": "npm run docker && docker rm -f orcabot && cls && docker run -it --name orcabot --restart=always --shm-size=100G -v C:/Users/MrDNA/Downloads/OrcaBind:/OrcaJobsArchive mrdnalex/orcabot"
   },
   "repository": {
     "type": "git",

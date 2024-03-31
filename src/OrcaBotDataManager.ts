@@ -1,5 +1,4 @@
-import { BotDataManager } from "dna-discord-framework";
-
+import { BotDataManager, ICommandOptionChoice } from "dna-discord-framework";
 
 /**
  * Class Handling Data Management
@@ -11,102 +10,39 @@ class OrcaBotDataManager extends BotDataManager {
      */
     public HOST_DEVICE_MOUNT_LOCATION: string = "";
 
-    public HOSTNAME:string = "";
-
-    public SERVER_USER: Record<string, string> = {};
-
-    public DOWNLOAD_LOCATION: Record<string, string> = {};
-
-
-    // /**
-    //  * Name of the Process that Handles the Palworld Server
-    //  */
-    // public SERVER_PROCESS_NAME: string = "";
-
-    // /**
-    //  * Name of the Script that Starts the Palworld Server
-    //  */
-    // public SERVER_START_SCRIPT: string = "";
-
-    // /**
-    //  * If the Bot is running locally on the same computer as the Palworld Server hosted or will SSH to communicate
-    //  */
-    // public RUN_LOCALLY: boolean = true;
-
-    // /**
-    //  * IP of the Server to SSH into 
-    //  */
-    // public SERVER_IP: string = "";
-
-    // /**
-    //  * User of the Server to SSH into 
-    //  */
-    // public SERVER_USER: string = "";
-
-    // /**
-    //  * Port of the Server to SSH into 
-    //  */
-    // public SERVER_PORT: string = "";
-
-    // /**
-    //  * Password of the Server to SSH into 
-    //  */
-    // public SERVER_PASSWORD: string = "";
-
-    // /**
-    //  * Directory the Palworld Server is installed in
-    //  */
-    // public STEAM_INSTALL_DIR: string = "";
-
-    // /**
-    //  * Directory the Account Information is stored in
-    //  */
-    // public ACCOUNT_PATH: string = "";
+    /**
+     * The Host Name of the Host Device Supporting the Container
+     */
+    public HOSTNAME: string = "";
 
     /**
-     * Initializes the Data Manager
-     * @param botDirectory The Directory that the Bot is located in
+     * A Mapping between the Discord User who sent the Command and the Server User
      */
-    constructor() {
-        super();
-    }
+    public DISCORD_USER_TO_SERVER_USER: Record<string, string> = {};
 
-    // /**
-    //  * Sets the SSH Server Information to login to the Server
-    //  * @param serverIP IP of the Server
-    //  * @param serverUser User on the Server
-    //  * @param serverPort Port of the Server
-    //  * @param serverPassword Password of the Server
-    //  */
-    // public SetSSHSettings(serverIP: string, serverUser: string, serverPort: string, serverPassword: string) {
-    //     this.SERVER_IP = serverIP;
-    //     this.SERVER_USER = serverUser;
-    //     this.SERVER_PORT = serverPort;
-    //     this.SERVER_PASSWORD = serverPassword;
+    /**
+     * A Mapping between the Discord User who sent the Command and the Download Location on their Personal Device
+     */
+    public DISCORD_USER_TO_DOWNLOAD_LOCATION: Record<string, string> = {};
 
-    //     this.SaveData();
-    // }
+    /**
+     * The Maximum File size for a Zip File to be sent through Discord (in MB)
+     */
+    public ZIP_FILE_MAX_SIZE_MB: number = 5;
 
-    // /**
-    //  * Sets the Run Locally Boolean
-    //  * @param runLocally Boolean determining if the server is running locally or not. If true, the server is running locally. If false, the server is running remotely and needs to be SSH'd into.
-    //  */
-    // public SetRunLocally(runLocally: boolean) {
-    //     this.RUN_LOCALLY = runLocally;
+    /**
+     * The Maximum File size for a regular File to be sent through Discord (in MB) 
+     */
+    public FILE_MAX_SIZE_MB: number = 5;
 
-    //     this.SaveData();
-    // }
+    /**
+     * Stores the Job Name and a mapping to the Full Job Archive
+     */
+    public JOB_ARCHIVE_MAP: Record<string, string> = {};
 
-    // /**
-    //  * Sets the Steam Install Directory
-    //  * @param steamInstallDir Directory the Palworld Server is installed in
-    //  */
-    // public SetSteamInstallDir(accountPath: string, steamInstallDir: string) {
-    //     this.STEAM_INSTALL_DIR = steamInstallDir;
-    //     this.ACCOUNT_PATH = accountPath;
+    public JOB_FOLDER: string = "/OrcaJobs";
 
-    //     this.SaveData();
-    // }
+    public JOB_ARCHIVE_FOLDER:string = "/OrcaJobsArchive";
 
     /**
      * Sets the Mounted Directory File Path (Used for creating the SCP Copy Command)
@@ -121,8 +57,7 @@ class OrcaBotDataManager extends BotDataManager {
      * Sets the Host Name / Device Name of the Server
      * @param hostName The Host Name of the Server
      */
-    public SetHostName (hostName: string)
-    {
+    public SetHostName(hostName: string) {
         this.HOSTNAME = hostName;
         this.SaveData();
     }
@@ -133,7 +68,7 @@ class OrcaBotDataManager extends BotDataManager {
      * @param serverUser The Server User of the Discord User
      */
     public AddServerUser(discordUser: string, serverUser: string) {
-        this.SERVER_USER[discordUser] = serverUser;
+        this.DISCORD_USER_TO_SERVER_USER[discordUser] = serverUser;
         this.SaveData();
     }
 
@@ -143,11 +78,19 @@ class OrcaBotDataManager extends BotDataManager {
      * @param downloadLocation The Download Location on the Discord Users Device
      */
     public AddDownloadLocation(discordUser: string, downloadLocation: string) {
-        this.DOWNLOAD_LOCATION[discordUser] = downloadLocation;
+        this.DISCORD_USER_TO_DOWNLOAD_LOCATION[discordUser] = downloadLocation;
         this.SaveData();
     }
 
-
+    /**
+     * Adds a Job and it's Full Archive File Name
+     * @param jobName The Name of the Job to Archive
+     * @param jobArchiveFile The File of the Job Archive
+     */
+    public AddJobArchive(jobName: string, jobArchiveFilePath: string) {
+        this.JOB_ARCHIVE_MAP[jobName] = jobArchiveFilePath;
+        this.SaveData();
+    }
 }
 
 export default OrcaBotDataManager;
