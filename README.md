@@ -4,6 +4,10 @@
 ## About
 This Repo and Project was created to ease the use of Orca, the Quantum Chemistry Software for the University of Waterloo Formula Nano Club, a Nano Car Design team. The Goal of the Project was to allow for Running Orca Calculation wihtout needing to connect to the University VPN Server or Runnning Commands on the ECE Server Provided. This Project has been successful and allows it's users to Run Orca Calculations from anywhere by "Texting" and providing an Orca Input (.inp) File. This has allowed it's Users to Run Quatum Chemistry Simulations and Calculations while at Work for example.
 
+This Project has been Built off [DNA-Discord-Framework](https://github.com/Nano-DNA-Studios/DNA-Discord-Framework), a Typescript Framework that allows for quick and easy developement of Discord Bots
+
+Developer and Creator :
+[MrDNAlex](https://github.com/MrDNAlex)
 
 ## Setup
 This Section covers how to Setup and Run the Discord Bot
