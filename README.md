@@ -1,6 +1,11 @@
 # Discorca
  A Discord Bot that Controls the Orca Quantum Chemistry Software. Using ```/orca``` it will prompt to input a file and this will be sent to the machine hosting the bot and will eventually spit back the resulting output file created from the Orca Calculation. The Bot also hosts an Archive of Previous Calculations in a Compressed Manner and can be Downloaded
 
+The first thing that should be done upon cloning the repository is
+```
+npm update
+```
+
 ## Commands
 The Following section covers the Commands that can be run through the Orca Bot, it will go over what the Command does,  how to use it, the Options associated with the Command and it's results
 
