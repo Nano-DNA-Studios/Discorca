@@ -16,6 +16,7 @@ const fs_1 = __importDefault(require("fs"));
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
 const axios_1 = __importDefault(require("axios"));
+const OrcaBotDataManager_1 = __importDefault(require("../OrcaBotDataManager"));
 /**
  * Command that Runs an Orca Calculation on the Device the Bot is hosted by
  */
@@ -61,18 +62,20 @@ class Orca extends dna_discord_framework_1.Command {
          */
         this.TrjXYZFileName = "";
         /**
-         *
+         * The Location on the Host Device where the Archive Mount is Stored
          */
-        this.ECEServerArchive = "/homeFAST/OrcaJobArchive";
+        this.HostArchiveLocation = "/homeFAST/OrcaJobArchive";
         /**
          * The SCP copy command stored and ready if needed
          */
         this.CopyCommand = "";
+        this.DiscordUser = "";
         /* <inheritdoc> */
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
             const data = interaction.options.getAttachment("orcafile");
             if (!data)
                 return;
+            this.DiscordUser = interaction.user.username;
             this.InitializeUserResponse(interaction, `Running Orca Calculation on ${data.name}`);
             yield this.SetPaths(data);
             yield this.CreateDirectories();
@@ -105,6 +108,7 @@ class Orca extends dna_discord_framework_1.Command {
         this.TrjXYZFileName = `${this.FileName}_trj.xyz`;
         this.JobLocation = path_1.default.join(this.SaveLocation, this.FileName);
         this.JobArchiveFolder = `/OrcaJobsArchive/${this.FileName}`;
+        this.HostArchiveLocation = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default).HOST_DEVICE_MOUNT_LOCATION;
     }
     /**
      * Purges Similar Named Directories and Creates them for the Job
@@ -133,7 +137,12 @@ class Orca extends dna_discord_framework_1.Command {
      * @returns The SCP Copy Command to Download the File
      */
     GetCopyCommand(fileName) {
-        let command = `scp WATID@iccad5:${this.ECEServerArchive}/${this.FileName}/${fileName} C:/Users/MrDNA/Downloads`;
+        const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
+        const mountLocation = dataManager.HOST_DEVICE_MOUNT_LOCATION;
+        const user = dataManager.SERVER_USER[this.DiscordUser];
+        const downloadLocation = dataManager.DOWNLOAD_LOCATION[this.DiscordUser];
+        const hostName = dataManager.HOSTNAME;
+        const command = `scp ${user}@${hostName}:${mountLocation}/${this.FileName}/${fileName} ${downloadLocation}`;
         return "```" + command + "```";
     }
     /**
@@ -182,8 +191,8 @@ class Orca extends dna_discord_framework_1.Command {
                 yield runner.RunLocally(`tar -zcvf ${filePath} -C /OrcaJobs ${this.FileName}`);
                 const fileStats = yield promises_1.default.stat(filePath);
                 const sizeAndFormat = this.GetFileSize(fileStats);
-                if (sizeAndFormat[0] > 80 && sizeAndFormat[1] == "MB")
-                    this.AddToResponseMessage(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.GetCopyCommand(`${this.FileName}Full.tar.gz`)}`);
+                if (sizeAndFormat[0] > 5 && sizeAndFormat[1] == "MB")
+                    this.AddToResponseMessage(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.GetCopyCommand(fileName)}`);
                 else
                     this.AddFileToResponseMessage(filePath);
             }

@@ -6,6 +6,7 @@ docker run -it --name orcabot --shm-size=100G -v C:\Users\alexe\Downloads\OrcaBi
 PC
 docker run -it --name orcabot --shm-size=100G -v C:\Users\MrDNA\Downloads\OrcaBind:/OrcaJobsArchive mrdnalex/orcabot
 
+docker run -it --name orcabot --shm-size=100G -v /homeFAST/OrcaJobsArchive:/Ocd OrcarcaJobsArchive mrdnalex/orcabot
 
 
 scp a3dufres@iccad5:/homeFAST/input.gbw C:\Users\MrDNA\Downloads

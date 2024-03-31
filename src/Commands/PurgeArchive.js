@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const dna_discord_framework_1 = require("dna-discord-framework");
 /**
- * Command that Purges all Job Folders in the Job Directory
+ * Command that Purges all Archive Folders in the Archive Directory
  */
 class PurgeArchive extends dna_discord_framework_1.Command {
     constructor() {

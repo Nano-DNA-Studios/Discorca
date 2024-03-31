@@ -2,7 +2,7 @@ import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
 import { BashScriptRunner, BotDataManager, Command } from "dna-discord-framework";
 
 /**
- * Command that Purges all Job Folders in the Job Directory
+ * Command that Purges all Archive Folders in the Archive Directory
  */
 class PurgeArchive extends Command {
     /* <inheritdoc> */
