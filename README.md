@@ -71,7 +71,7 @@ All Commands can be Used by typing ```/commandname```, you will need to make sur
 
 ---
 ### **SetMountLocation**
-Sets the Mount Location Variable of the Bot to the Folder on the Host Device that is Mounted to the Archive Folder in the Container. This tells the Bot where on the Host Device the "Mirrored" Folder is. It also sets the Host Name of the Device.
+Sets the Mount Location Variable of the Bot to the Folder on the Host Device that is Mounted to the Archive Folder in the Container. This tells the Bot where on the Host Device the "Mirrored" Folder is.
 
 This is meant to only be set once when the bot Starts. It is used to Create the SCP Copy Commands for Users to easily copy Archive Files that Are too large to send through Discord.
 
@@ -79,28 +79,59 @@ This is meant to only be set once when the bot Starts. It is used to Create the 
 **filepath** *(REQUIRED)*
 Sets the Mount Path Variable, this is the Path on the Host Device that is connected to the Job Archive
 
+![image](https://github.com/Nano-DNA-Studios/Discorca/assets/93613553/aca320b4-8cbe-46b1-b27c-5c2e1a910ec0)
+
+---
+
+### SetHostName
+Sets the Host Name of the Host Device that is running the Container holding the Bot.
+
+This is meant to only be set once when the bot Starts. It is used to Create the SCP Copy Commands for Users to easily copy Archive Files that Are too large to send through Discord.
+
+#### Options
 **hostname** *(REQUIRED)*
 Sets the Host Name Variable, this is the Name of the Host Device
 
-![setmountlocation](https://github.com/MrDNAlex/Orca-Discord-Bot/assets/93613553/5bf68537-eb9c-4fcb-8291-40e4a5b7e0b1)
+![image](https://github.com/Nano-DNA-Studios/Discorca/assets/93613553/5c3645f9-1d19-4395-9a91-8b411841c949)
 
 ---
 
 ### AddUser
-Adds your User Account to the Bot with a Mapped Download Location on your Personal Device. This helps the Bot recognize you and create a Download Command that is unique to your device for a quick Download through the Command Line.
+Adds your User Account to the Bot. This helps the Bot recognize you and create a Download Command that is unique to your device for a quick Download through the Command Line.
 
-This is meant to be Used by a new User the Moment they join the Discord Server. This allows them to quickly "create an account" the Discord Bot will recognize and allow them to quickly Download Archive Files to their Personal Device. This Command can be Overwritten if you change devices, usernames or want to change the Download Location
+This is meant to be Used by a new User the Moment they join the Discord Server. This allows them to quickly "create an account" the Discord Bot will recognize and allow them to quickly Download Archive Files to their Personal Device. This Command can be Overwritten if you change devices or usernames.
 
 #### Options
 **user** *(REQUIRED)*
-
 The Name of the Server User or Account.
 
-**downloadlocation** *(REQUIRED)*
+![image](https://github.com/Nano-DNA-Studios/Discorca/assets/93613553/92b67782-65e4-41a8-bd14-b090f581446d)
 
+---
+
+### SetDownloadLocation
+Sets the Download Location on your Personal device to send the SCP Copied files.
+
+This is meant to be Used by a new User the Moment they join the Discord Server. This allows them to quickly "create an account" the Discord Bot will recognize and allow them to quickly Download Archive Files to their Personal Device. This Command can be Overwritten if you change devices, usernames or want to change the Download Location.
+
+#### Options
+**downloadlocation** *(REQUIRED)*
 Sets the Path to the Download Location for the User running the Command. This is a Path on your Personal Device, where you would like to Download any archive Files.
 
-![adduser](https://github.com/MrDNAlex/Orca-Discord-Bot/assets/93613553/18f93e1e-deb7-458a-912c-97e4644c6e1e)
+![image](https://github.com/Nano-DNA-Studios/Discorca/assets/93613553/a11ef7e6-816e-438c-92c1-77c3c6f7652a)
+
+---
+
+### SetPort
+Sets the Port that the Host Device is Port Forwarded to. If Left as 0 or set to 0 it means no Port is being used and will not include the Port in the SCP Command, any other value and it will be included in the command.
+
+Meant to be set immediately once the Bot is launched
+
+#### Options
+**port** *(REQUIRED)*
+The Port number the Host Device is Port Forwarded on.
+
+![image](https://github.com/Nano-DNA-Studios/Discorca/assets/93613553/f8ad9567-fb18-4e0e-acdb-8c21a51558e3)
 
 ---
 
@@ -156,6 +187,19 @@ Allows the User to Clear Or Purge the Jobs Folder of all Previous Calculations. 
 This is meant to Clean Up the Bot from previous Calculations and Data that is taking too much space. The Files Erased are the Uncompressed Job files that May take up a lot more Space on the Server.
 
 ![purgejobs](https://github.com/MrDNAlex/Orca-Discord-Bot/assets/93613553/12dbc707-2c06-461f-b937-097679a6f1f6)
+
+---
+
+### SetMaxZipSize
+Sets the Maximum size the ZIP Archive File can be in order to be sent through Discord, if the file is larger than the set size it will return a SCP Copy command.
+
+This is meant to be set once the bot launches but can also be changed whenever
+
+#### Options
+**maxsize** *(REQUIRED)*
+The Max Size the File can be, there are multiple options to choose from. The Absolute Maximum is 100 MB, but we suggest a max of 80 to leave some wiggle room.
+
+![image](https://github.com/Nano-DNA-Studios/Discorca/assets/93613553/1f686f89-17a5-4ce3-aedb-8f9149c72c03)
 
 ---
 
