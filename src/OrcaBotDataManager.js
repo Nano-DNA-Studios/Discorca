@@ -35,8 +35,18 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
          * Stores the Job Name and a mapping to the Full Job Archive
          */
         this.JOB_ARCHIVE_MAP = {};
+        /**
+         * The Path to the Folder for Orca Jobs that are running
+         */
         this.JOB_FOLDER = "/OrcaJobs";
+        /**
+         * The Path to the Orca Jobs Archive
+         */
         this.JOB_ARCHIVE_FOLDER = "/OrcaJobsArchive";
+        /**
+         * The Port to the Server is Port Forwarded on
+         */
+        this.PORT = 0;
     }
     /**
      * Sets the Mounted Directory File Path (Used for creating the SCP Copy Command)
@@ -70,6 +80,22 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
      */
     AddDownloadLocation(discordUser, downloadLocation) {
         this.DISCORD_USER_TO_DOWNLOAD_LOCATION[discordUser] = downloadLocation;
+        this.SaveData();
+    }
+    /**
+     * Sets the Port Number of the Server
+     * @param port The Port Number
+     */
+    SetPort(port) {
+        this.PORT = port;
+        this.SaveData();
+    }
+    /**
+     * Sets the Maximum Size Zip Files can be before returning a SCP Copy Command
+     * @param maxsize The new Max Size of Zip Files
+     */
+    SetMaxZipSize(maxsize) {
+        this.ZIP_FILE_MAX_SIZE_MB = maxsize;
         this.SaveData();
     }
     /**
