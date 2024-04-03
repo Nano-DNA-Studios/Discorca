@@ -28,18 +28,16 @@ class SetMountLocation extends dna_discord_framework_1.Command {
             this.InitializeUserResponse(interaction, "Setting Host Device Mount Location");
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
             const filePath = interaction.options.getString("filepath");
-            const hostName = interaction.options.getString("hostname");
             if (!dataManager) {
-                this.AddToResponseMessage("Data Manager doesn't Exist, can't set the Mount Location and Host Name");
+                this.AddToResponseMessage("Data Manager doesn't Exist, can't set the Mount Location");
                 return;
             }
-            if (filePath && hostName) {
+            if (filePath) {
                 dataManager.SetMountLocation(filePath);
-                dataManager.SetHostName(hostName);
-                this.AddToResponseMessage(`Host Device Mount has been set to ${filePath} and Host Name has been set to ${hostName}`);
+                this.AddToResponseMessage(`Host Device Mount has been set to ${filePath}.`);
             }
             else
-                this.AddToResponseMessage(`Host Device Mount Location or Host Name has not been set or is invalid.`);
+                this.AddToResponseMessage(`Host Device Mount Location has not been set or is invalid.`);
         });
         /* <inheritdoc> */
         this.IsEphemeralResponse = true;
@@ -50,13 +48,7 @@ class SetMountLocation extends dna_discord_framework_1.Command {
                 description: "The Path to the Archive on the Host Device",
                 required: true,
                 type: dna_discord_framework_1.OptionTypesEnum.String
-            },
-            {
-                name: "hostname",
-                description: "The Server Host Name",
-                required: true,
-                type: dna_discord_framework_1.OptionTypesEnum.String
-            },
+            }
         ];
     }
 }

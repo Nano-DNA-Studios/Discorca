@@ -5,31 +5,31 @@ import OrcaBotDataManager from "../OrcaBotDataManager";
 /**
  * Command that Purges all Job Folders in the Job Directory
  */
-class SetMountLocation extends Command {
+class SetHostName extends Command {
     /* <inheritdoc> */
-    public CommandName = "setmountlocation";
+    public CommandName = "sethostname";
 
     /* <inheritdoc> */
-    public CommandDescription = "Sets the Mount Location Variable for the Bot, (where the Archive is Stored on the Host Device)";
+    public CommandDescription = "Sets the Host Name Variable for the Bot, (The Host Name of the Host Device)";
 
     /* <inheritdoc> */
     public RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
 
-        this.InitializeUserResponse(interaction, "Setting Host Device Mount Location");
+        this.InitializeUserResponse(interaction, "Setting Host Device Name");
 
         const dataManager = BotData.Instance(OrcaBotDataManager);
-        const filePath = interaction.options.getString("filepath");
+        const hostName = interaction.options.getString("hostname");
 
         if (!dataManager) {
-            this.AddToResponseMessage("Data Manager doesn't Exist, can't set the Mount Location")
+            this.AddToResponseMessage("Data Manager doesn't Exist, can't set the Host Name")
             return;
         }
 
-        if (filePath) {
-            dataManager.SetMountLocation(filePath);
-            this.AddToResponseMessage(`Host Device Mount has been set to ${filePath}.`);
+        if (hostName) {
+            dataManager.SetHostName(hostName)
+            this.AddToResponseMessage(`Host Name has been set to ${hostName}`);
         } else
-            this.AddToResponseMessage(`Host Device Mount Location has not been set or is invalid.`);
+            this.AddToResponseMessage(`Host Name has not been set or is invalid.`);
     };
 
     /* <inheritdoc> */
@@ -38,12 +38,12 @@ class SetMountLocation extends Command {
     /* <inheritdoc> */
     Options: ICommandOption[] = [
         {
-            name: "filepath",
-            description: "The Path to the Archive on the Host Device",
+            name: "hostname",
+            description: "The Server Host Name",
             required: true,
             type: OptionTypesEnum.String
-        }
+        },
     ];
 }
 
-export = SetMountLocation;
+export = SetHostName;

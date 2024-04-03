@@ -15,23 +15,21 @@ class AddUser extends Command {
     /* <inheritdoc> */
     public RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
 
-        this.InitializeUserResponse(interaction, "Setting Host Device Mount Location");
+        this.InitializeUserResponse(interaction, "Adding a User");
 
         const dataManager = BotData.Instance(OrcaBotDataManager);
         const user = interaction.options.getString("user");
-        const downloadLocation = interaction.options.getString("downloadlocation");
 
         if (!dataManager) {
-            this.AddToResponseMessage("Data Manager doesn't Exist, can't set the User and Download Location")
+            this.AddToResponseMessage("Data Manager doesn't Exist, can't set the User")
             return;
         }
 
-        if (user && downloadLocation) {
+        if (user) {
             dataManager.AddServerUser(interaction.user.username, user);
-            dataManager.AddDownloadLocation(interaction.user.username, downloadLocation);
-            this.AddToResponseMessage(`The Server User has been set to ${user} and the Download Location has been set to ${downloadLocation}`);
+            this.AddToResponseMessage(`The Server User has been set to ${user}.`);
         } else
-            this.AddToResponseMessage(`The User or Download Location has not been set or is invalid.`);
+            this.AddToResponseMessage(`The User has not been set or is invalid.`);
     };
 
     /* <inheritdoc> */
@@ -44,13 +42,7 @@ class AddUser extends Command {
             description: "The Users Account on the Server",
             required: true,
             type: OptionTypesEnum.String
-        },
-        {
-            name: "downloadlocation",
-            description: "The Download Location on the Users Personal Device",
-            required: true,
-            type: OptionTypesEnum.String
-        },
+        }
     ];
 }
 

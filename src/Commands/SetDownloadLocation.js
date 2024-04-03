@@ -16,40 +16,40 @@ const OrcaBotDataManager_1 = __importDefault(require("../OrcaBotDataManager"));
 /**
  * Command that Adds a User and a Custom Download Location on their Device
  */
-class AddUser extends dna_discord_framework_1.Command {
+class SetDownloadLocation extends dna_discord_framework_1.Command {
     constructor() {
         super(...arguments);
         /* <inheritdoc> */
-        this.CommandName = "adduser";
+        this.CommandName = "setdownloadlocation";
         /* <inheritdoc> */
-        this.CommandDescription = "Adds a User to the Server, Maps the Discord Username, Server User and Custom Download Location.";
+        this.CommandDescription = "Adds a Custom Download Location that is mapped to a Disord User";
         /* <inheritdoc> */
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
-            this.InitializeUserResponse(interaction, "Adding a User");
+            this.InitializeUserResponse(interaction, "Setting Download Location");
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
-            const user = interaction.options.getString("user");
+            const downloadLocation = interaction.options.getString("downloadlocation");
             if (!dataManager) {
-                this.AddToResponseMessage("Data Manager doesn't Exist, can't set the User");
+                this.AddToResponseMessage("Data Manager doesn't Exist, can't set the Download Location");
                 return;
             }
-            if (user) {
-                dataManager.AddServerUser(interaction.user.username, user);
-                this.AddToResponseMessage(`The Server User has been set to ${user}.`);
+            if (downloadLocation) {
+                dataManager.AddDownloadLocation(interaction.user.username, downloadLocation);
+                this.AddToResponseMessage(`The Download Location has been set to ${downloadLocation}`);
             }
             else
-                this.AddToResponseMessage(`The User has not been set or is invalid.`);
+                this.AddToResponseMessage(`The Download Location has not been set or is invalid.`);
         });
         /* <inheritdoc> */
         this.IsEphemeralResponse = true;
         /* <inheritdoc> */
         this.Options = [
             {
-                name: "user",
-                description: "The Users Account on the Server",
+                name: "downloadlocation",
+                description: "The Download Location on the Users Personal Device",
                 required: true,
                 type: dna_discord_framework_1.OptionTypesEnum.String
-            }
+            },
         ];
     }
 }
-module.exports = AddUser;
+module.exports = SetDownloadLocation;
