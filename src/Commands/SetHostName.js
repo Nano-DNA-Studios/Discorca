@@ -14,42 +14,42 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 const dna_discord_framework_1 = require("dna-discord-framework");
 const OrcaBotDataManager_1 = __importDefault(require("../OrcaBotDataManager"));
 /**
- * Command that Adds a User and a Custom Download Location on their Device
+ * Command that Purges all Job Folders in the Job Directory
  */
-class AddUser extends dna_discord_framework_1.Command {
+class SetHostName extends dna_discord_framework_1.Command {
     constructor() {
         super(...arguments);
         /* <inheritdoc> */
-        this.CommandName = "adduser";
+        this.CommandName = "sethostname";
         /* <inheritdoc> */
-        this.CommandDescription = "Adds a User to the Server, Maps the Discord Username, Server User and Custom Download Location.";
+        this.CommandDescription = "Sets the Host Name Variable for the Bot, (The Host Name of the Host Device)";
         /* <inheritdoc> */
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
-            this.InitializeUserResponse(interaction, "Adding a User");
+            this.InitializeUserResponse(interaction, "Setting Host Device Name");
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
-            const user = interaction.options.getString("user");
+            const hostName = interaction.options.getString("hostname");
             if (!dataManager) {
-                this.AddToResponseMessage("Data Manager doesn't Exist, can't set the User");
+                this.AddToResponseMessage("Data Manager doesn't Exist, can't set the Host Name");
                 return;
             }
-            if (user) {
-                dataManager.AddServerUser(interaction.user.username, user);
-                this.AddToResponseMessage(`The Server User has been set to ${user}.`);
+            if (hostName) {
+                dataManager.SetHostName(hostName);
+                this.AddToResponseMessage(`Host Name has been set to ${hostName}`);
             }
             else
-                this.AddToResponseMessage(`The User has not been set or is invalid.`);
+                this.AddToResponseMessage(`Host Name has not been set or is invalid.`);
         });
         /* <inheritdoc> */
         this.IsEphemeralResponse = true;
         /* <inheritdoc> */
         this.Options = [
             {
-                name: "user",
-                description: "The Users Account on the Server",
+                name: "hostname",
+                description: "The Server Host Name",
                 required: true,
                 type: dna_discord_framework_1.OptionTypesEnum.String
-            }
+            },
         ];
     }
 }
-module.exports = AddUser;
+module.exports = SetHostName;
