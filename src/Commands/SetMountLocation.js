@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 const dna_discord_framework_1 = require("dna-discord-framework");
 const OrcaBotDataManager_1 = __importDefault(require("../OrcaBotDataManager"));
 /**
- * Command that Purges all Job Folders in the Job Directory
+ * Command that sets the Docker Mount Location
  */
 class SetMountLocation extends dna_discord_framework_1.Command {
     constructor() {

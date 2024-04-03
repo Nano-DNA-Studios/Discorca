@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 const dna_discord_framework_1 = require("dna-discord-framework");
 const OrcaBotDataManager_1 = __importDefault(require("../OrcaBotDataManager"));
 /**
- * Command that Adds a User and a Custom Download Location on their Device
+ * Command that Sets the Download Locations
  */
 class SetDownloadLocation extends dna_discord_framework_1.Command {
     constructor() {
