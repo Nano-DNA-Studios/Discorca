@@ -3,7 +3,7 @@ import { BotData, BotDataManager, Command, ICommandOption, OptionTypesEnum } fro
 import OrcaBotDataManager from "../OrcaBotDataManager";
 
 /**
- * Command that Purges all Job Folders in the Job Directory
+ * Command that sets the Docker Mount Location
  */
 class SetMountLocation extends Command {
     /* <inheritdoc> */

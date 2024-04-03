@@ -3,7 +3,7 @@ import { BotData, BotDataManager, Command, ICommandOption, OptionTypesEnum } fro
 import OrcaBotDataManager from "../OrcaBotDataManager";
 
 /**
- * Command that Adds a User and a Custom Download Location on their Device
+ * Command that Sets the Download Locations
  */
 class SetDownloadLocation extends Command {
     /* <inheritdoc> */

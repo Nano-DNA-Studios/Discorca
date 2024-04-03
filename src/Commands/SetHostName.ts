@@ -3,7 +3,7 @@ import { BotData, BotDataManager, Command, ICommandOption, OptionTypesEnum } fro
 import OrcaBotDataManager from "../OrcaBotDataManager";
 
 /**
- * Command that Purges all Job Folders in the Job Directory
+ * Command that Sets the Host Name of the device hosting the bot
  */
 class SetHostName extends Command {
     /* <inheritdoc> */
