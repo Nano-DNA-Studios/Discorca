@@ -103,7 +103,12 @@ class OrcaJob {
             const user = dataManager.DISCORD_USER_TO_SERVER_USER[discordUser];
             const downloadLocation = dataManager.DISCORD_USER_TO_DOWNLOAD_LOCATION[discordUser];
             const hostName = dataManager.HOSTNAME;
-            const command = `scp ${user}@${hostName}:${this.GetFullMountFilePath(file)} ${downloadLocation}`;
+
+            let command = "";
+            if (dataManager.PORT == 0)
+                command = `scp ${user}@${hostName}:${this.GetFullMountFilePath(file)} ${downloadLocation}`;
+            else
+                command = `scp -P ${dataManager.PORT} ${user}@${hostName}:${this.GetFullMountFilePath(file)} ${downloadLocation}`;
 
             return "```" + command + "```"
         } catch (e) {
@@ -117,7 +122,7 @@ class OrcaJob {
      * @param fileStats The File Stats of the File to Check
      * @returns Returns a Tuple with the File Size associated with the File Size Unit
      */
-    GetFileSize(fileStats: fs.Stats): [number, string] {
+    GetFileSize(fileStats: fs.Stats): [Number, string] {
         let realsize;
         let sizeFormat;
 
@@ -148,8 +153,6 @@ class OrcaJob {
                 url: fileUrl,
                 responseType: 'stream',
             });
-
-            // const outputPath = path.join(this.OrcaJobDirectory, this.InputFileName);
 
             const writer = fs.createWriteStream(this.GetFullFilePath(OrcaJobFile.InputFile));
 

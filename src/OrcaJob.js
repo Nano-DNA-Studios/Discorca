@@ -68,7 +68,11 @@ class OrcaJob {
             const user = dataManager.DISCORD_USER_TO_SERVER_USER[discordUser];
             const downloadLocation = dataManager.DISCORD_USER_TO_DOWNLOAD_LOCATION[discordUser];
             const hostName = dataManager.HOSTNAME;
-            const command = `scp ${user}@${hostName}:${this.GetFullMountFilePath(file)} ${downloadLocation}`;
+            let command = "";
+            if (dataManager.PORT == 0)
+                command = `scp ${user}@${hostName}:${this.GetFullMountFilePath(file)} ${downloadLocation}`;
+            else
+                command = `scp -P ${dataManager.PORT} ${user}@${hostName}:${this.GetFullMountFilePath(file)} ${downloadLocation}`;
             return "```" + command + "```";
         }
         catch (e) {
@@ -112,7 +116,6 @@ class OrcaJob {
                     url: fileUrl,
                     responseType: 'stream',
                 });
-                // const outputPath = path.join(this.OrcaJobDirectory, this.InputFileName);
                 const writer = fs_1.default.createWriteStream(this.GetFullFilePath(OrcaJobFile_1.default.InputFile));
                 response.data.pipe(writer);
                 return new Promise((resolve, reject) => {
