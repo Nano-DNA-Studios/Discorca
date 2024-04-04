@@ -69,40 +69,6 @@ class ListJobArchive extends dna_discord_framework_1.Command {
                 type: dna_discord_framework_1.OptionTypesEnum.String
             }
         ];
-        // /**
-        // * Creates the SCP Copy Command for the User to Copy and use in their Terminal
-        // * @param fileName The Name of the File to Copy
-        // * @returns The SCP Copy Command to Download the File
-        // */
-        // GetCopyCommand(archiveLocation: string): string {
-        //     const dataManager = BotData.Instance(OrcaBotDataManager);
-        //     const mountLocation = dataManager.HOST_DEVICE_MOUNT_LOCATION;
-        //     const user = dataManager.DISCORD_USER_TO_SERVER_USER[this.DiscordUser];
-        //     const downloadLocation = dataManager.DISCORD_USER_TO_DOWNLOAD_LOCATION[this.DiscordUser];
-        //     const hostName = dataManager.HOSTNAME;
-        //     const command = `scp ${user}@${hostName}:${archiveLocation} ${downloadLocation}`;
-        //     return "```" + command + "```"
-        // }
-        // /**
-        // * Gets the File Size and Unit 
-        // * @param fileStats The File Stats of the File to Check
-        // * @returns Returns a Tuple with the File Size associated with the File Size Unit
-        // */
-        // GetFileSize(fileStats: fs.Stats): [number, string] {
-        //     let realsize;
-        //     let sizeFormat;
-        //     if (fileStats.size / (1024 * 1024) >= 1) {
-        //         realsize = Math.floor(100 * fileStats.size / (1024 * 1024)) / 100;
-        //         sizeFormat = "MB";
-        //     } else if (fileStats.size / (1024) >= 1) {
-        //         realsize = Math.floor(100 * fileStats.size / (1024)) / 100;
-        //         sizeFormat = "KB";
-        //     } else {
-        //         realsize = fileStats.size;
-        //         sizeFormat = "B";
-        //     }
-        //     return [realsize, sizeFormat];
-        // }
     }
 }
 module.exports = ListJobArchive;
