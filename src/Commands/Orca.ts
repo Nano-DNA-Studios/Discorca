@@ -31,30 +31,64 @@ class Orca extends Command {
         },
     ];
 
+    JobIsComplete = false;
     /* <inheritdoc> */
     RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
         const data = interaction.options.getAttachment("orcafile");
-
-        if (!data)
-            return;
-
         this.DiscordUser = interaction.user.username;
+
+        if (!data) {
+            this.InitializeUserResponse(interaction, "No Data Manager found, cannot run Command.")
+            return;
+        }
 
         this.InitializeUserResponse(interaction, `Running Orca Calculation on ${data.name}`);
 
-        let orcaJob: OrcaJob = new OrcaJob(data.name);
+        try {
+            let orcaJob: OrcaJob = new OrcaJob(data.name);
 
-        await orcaJob.CreateDirectories();
-        await orcaJob.DownloadFile(data.url);
-        await orcaJob.RunJob();
+            await orcaJob.CreateDirectories();
+            await orcaJob.DownloadFile(data.url);
 
-        this.AddToResponseMessage(":white_check_mark: Server has completed the Orca Calculation :white_check_mark:");
+            this.AddToResponseMessage(`Server will provide updates for the output file every 10 seconds`);
+            this.UpdateFile(orcaJob);
 
-        await this.SendFile(OrcaJobFile.OutputFile, orcaJob);
-        await this.SendFile(OrcaJobFile.XYZFile, orcaJob);
-        await this.SendFile(OrcaJobFile.TrajectoryXYZFile, orcaJob);
-        await this.SendFullJobArchive(orcaJob);
+            await orcaJob.RunJob();
+
+            this.JobIsComplete = true;
+
+            this.AddToResponseMessage(`${interaction.user} Server has completed the Orca Calculation :white_check_mark:`);
+
+            await this.SendFile(OrcaJobFile.OutputFile, orcaJob);
+            await this.SendFile(OrcaJobFile.XYZFile, orcaJob);
+            await this.SendFile(OrcaJobFile.TrajectoryXYZFile, orcaJob);
+            await this.SendFullJobArchive(orcaJob);
+        } catch (e) {
+            this.AddFileToResponseMessage("An Error Occured. Terminating Orca Job.");
+        }
     };
+
+    /**
+     * Updates the 
+     * @param orcaJob The Job that is currently running
+     */
+    async UpdateFile(orcaJob: OrcaJob) {
+        while (!this.JobIsComplete) {
+            await new Promise(resolve => setTimeout(resolve, 10000));
+
+            try {
+                const filePath = orcaJob.GetFullFilePath(OrcaJobFile.OutputFile);
+                const fileStats = await fsp.stat(filePath);
+                const sizeAndFormat = orcaJob.GetFileSize(fileStats);
+
+                if (sizeAndFormat[0] > BotData.Instance(OrcaBotDataManager).FILE_MAX_SIZE_MB && sizeAndFormat[1] == "MB")
+                    this.AddToResponseMessage(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${orcaJob.GetCopyCommand(OrcaJobFile.OutputFile, this.DiscordUser)}`);
+                else
+                    this.AddFileToResponseMessage(filePath);
+
+            } catch (e) { console.log(e); }
+        }
+    }
 
     /**
       * The Username of the User who called the Command

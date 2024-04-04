@@ -39,27 +39,61 @@ class Orca extends dna_discord_framework_1.Command {
                 required: true,
             },
         ];
+        this.JobIsComplete = false;
         /* <inheritdoc> */
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
             const data = interaction.options.getAttachment("orcafile");
-            if (!data)
-                return;
             this.DiscordUser = interaction.user.username;
+            if (!data) {
+                this.InitializeUserResponse(interaction, "No Data Manager found, cannot run Command.");
+                return;
+            }
             this.InitializeUserResponse(interaction, `Running Orca Calculation on ${data.name}`);
-            let orcaJob = new OrcaJob_1.default(data.name);
-            yield orcaJob.CreateDirectories();
-            yield orcaJob.DownloadFile(data.url);
-            yield orcaJob.RunJob();
-            this.AddToResponseMessage(":white_check_mark: Server has completed the Orca Calculation :white_check_mark:");
-            yield this.SendFile(OrcaJobFile_1.default.OutputFile, orcaJob);
-            yield this.SendFile(OrcaJobFile_1.default.XYZFile, orcaJob);
-            yield this.SendFile(OrcaJobFile_1.default.TrajectoryXYZFile, orcaJob);
-            yield this.SendFullJobArchive(orcaJob);
+            try {
+                let orcaJob = new OrcaJob_1.default(data.name);
+                yield orcaJob.CreateDirectories();
+                yield orcaJob.DownloadFile(data.url);
+                this.AddToResponseMessage(`Server will provide updates for the output file every 10 seconds`);
+                this.UpdateFile(orcaJob);
+                yield orcaJob.RunJob();
+                this.JobIsComplete = true;
+                this.AddToResponseMessage(`${interaction.user} Server has completed the Orca Calculation :white_check_mark:`);
+                yield this.SendFile(OrcaJobFile_1.default.OutputFile, orcaJob);
+                yield this.SendFile(OrcaJobFile_1.default.XYZFile, orcaJob);
+                yield this.SendFile(OrcaJobFile_1.default.TrajectoryXYZFile, orcaJob);
+                yield this.SendFullJobArchive(orcaJob);
+            }
+            catch (e) {
+                this.AddFileToResponseMessage("An Error Occured. Terminating Orca Job.");
+            }
         });
         /**
           * The Username of the User who called the Command
           */
         this.DiscordUser = "";
+    }
+    /**
+     * Updates the
+     * @param orcaJob The Job that is currently running
+     */
+    UpdateFile(orcaJob) {
+        return __awaiter(this, void 0, void 0, function* () {
+            while (!this.JobIsComplete) {
+                yield new Promise(resolve => setTimeout(resolve, 10000));
+                try {
+                    const filePath = orcaJob.GetFullFilePath(OrcaJobFile_1.default.OutputFile);
+                    const fileStats = yield promises_1.default.stat(filePath);
+                    const sizeAndFormat = orcaJob.GetFileSize(fileStats);
+                    if (sizeAndFormat[0] > dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default).FILE_MAX_SIZE_MB && sizeAndFormat[1] == "MB")
+                        this.AddToResponseMessage(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${orcaJob.GetCopyCommand(OrcaJobFile_1.default.OutputFile, this.DiscordUser)}`);
+                    else
+                        this.AddFileToResponseMessage(filePath);
+                }
+                catch (e) {
+                    console.log(e);
+                }
+            }
+        });
     }
     /**
      * Adds the Specified file to the Bot Response for the User to Download. If the File is too Large it sends the SCP Command needed to Download
