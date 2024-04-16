@@ -57,11 +57,12 @@ class Orca extends dna_discord_framework_1.Command {
                 this.UpdateFile(orcaJob);
                 yield orcaJob.RunJob();
                 this.JobIsComplete = true;
-                this.AddToResponseMessage(`${interaction.user} Server has completed the Orca Calculation :white_check_mark:`);
+                this.AddToResponseMessage(`Server has completed the Orca Calculation :white_check_mark:`);
                 yield this.SendFile(OrcaJobFile_1.default.OutputFile, orcaJob);
                 yield this.SendFile(OrcaJobFile_1.default.XYZFile, orcaJob);
                 yield this.SendFile(OrcaJobFile_1.default.TrajectoryXYZFile, orcaJob);
                 yield this.SendFullJobArchive(orcaJob);
+                this.PingUser(interaction, orcaJob.JobName);
             }
             catch (e) {
                 this.AddFileToResponseMessage("An Error Occured. Terminating Orca Job.");
@@ -71,6 +72,15 @@ class Orca extends dna_discord_framework_1.Command {
           * The Username of the User who called the Command
           */
         this.DiscordUser = "";
+    }
+    /**
+     * Sends a Message and Pings the User who Called the Calculation, provides a Link to the Calculation
+     * @param interaction The Message Interaction Created by the User
+     */
+    PingUser(interaction, jobName) {
+        var _a;
+        const link = `https://discord.com/channels/${interaction.guildId}/${interaction.channelId}/${(_a = this.UserResponse) === null || _a === void 0 ? void 0 : _a.id}`;
+        interaction.user.send(`${interaction.user} Server has completed the Orca Calculation ${jobName} :white_check_mark: \n It can be found here : ${link}`);
     }
     /**
      * Updates the

@@ -57,16 +57,27 @@ class Orca extends Command {
 
             this.JobIsComplete = true;
 
-            this.AddToResponseMessage(`${interaction.user} Server has completed the Orca Calculation :white_check_mark:`);
+            this.AddToResponseMessage(`Server has completed the Orca Calculation :white_check_mark:`);
 
             await this.SendFile(OrcaJobFile.OutputFile, orcaJob);
             await this.SendFile(OrcaJobFile.XYZFile, orcaJob);
             await this.SendFile(OrcaJobFile.TrajectoryXYZFile, orcaJob);
             await this.SendFullJobArchive(orcaJob);
+
+            this.PingUser(interaction, orcaJob.JobName);
         } catch (e) {
             this.AddFileToResponseMessage("An Error Occured. Terminating Orca Job.");
         }
     };
+
+    /**
+     * Sends a Message and Pings the User who Called the Calculation, provides a Link to the Calculation
+     * @param interaction The Message Interaction Created by the User
+     */
+    PingUser(interaction: ChatInputCommandInteraction<CacheType>, jobName : string) {
+        const link = `https://discord.com/channels/${interaction.guildId}/${interaction.channelId}/${this.UserResponse?.id}`;
+        interaction.user.send(`${interaction.user} Server has completed the Orca Calculation ${jobName} :white_check_mark: \n It can be found here : ${link}`);
+    }
 
     /**
      * Updates the 
