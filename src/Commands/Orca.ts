@@ -31,7 +31,11 @@ class Orca extends Command {
         },
     ];
 
+    JobName: string = "";
+
+    /* <inheritdoc> */
     JobIsComplete = false;
+
     /* <inheritdoc> */
     RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
         const data = interaction.options.getAttachment("orcafile");
@@ -44,9 +48,9 @@ class Orca extends Command {
 
         this.InitializeUserResponse(interaction, `Running Orca Calculation on ${data.name}`);
 
+        let orcaJob = new OrcaJob(data.name);
         try {
-            let orcaJob: OrcaJob = new OrcaJob(data.name);
-
+            
             await orcaJob.CreateDirectories();
             await orcaJob.DownloadFile(data.url);
 
@@ -64,9 +68,11 @@ class Orca extends Command {
             await this.SendFile(OrcaJobFile.TrajectoryXYZFile, orcaJob);
             await this.SendFullJobArchive(orcaJob);
 
-            this.PingUser(interaction, orcaJob.JobName);
+            this.PingUser(interaction, orcaJob.JobName, true);
         } catch (e) {
-            this.AddFileToResponseMessage("An Error Occured. Terminating Orca Job.");
+            this.AddToResponseMessage("An Error Occured. Terminating Orca Job.\nCheck the Output File for Errors.");
+            this.JobIsComplete = true;
+            this.PingUser(interaction, orcaJob.JobName, false);
         }
     };
 
@@ -74,9 +80,13 @@ class Orca extends Command {
      * Sends a Message and Pings the User who Called the Calculation, provides a Link to the Calculation
      * @param interaction The Message Interaction Created by the User
      */
-    PingUser(interaction: ChatInputCommandInteraction<CacheType>, jobName : string) {
+    PingUser(interaction: ChatInputCommandInteraction<CacheType>, jobName: string, success: boolean) {
         const link = `https://discord.com/channels/${interaction.guildId}/${interaction.channelId}/${this.UserResponse?.id}`;
-        interaction.user.send(`${interaction.user} Server has completed the Orca Calculation ${jobName} :white_check_mark: \n It can be found here : ${link}`);
+
+        if (success)
+            interaction.user.send(`${interaction.user} Server has completed the Orca Calculation ${jobName} :white_check_mark: \n It can be found here : ${link}`);
+        else
+            interaction.user.send(`${interaction.user} Server has encoutered a problem with the Orca Calculation ${jobName} :warning:\nThe Job has been Terminated, check the Output File for Errors. \nIt can be found here : ${link}`);
     }
 
     /**
