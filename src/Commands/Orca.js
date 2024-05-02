@@ -39,6 +39,8 @@ class Orca extends dna_discord_framework_1.Command {
                 required: true,
             },
         ];
+        this.JobName = "";
+        /* <inheritdoc> */
         this.JobIsComplete = false;
         /* <inheritdoc> */
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
@@ -49,8 +51,8 @@ class Orca extends dna_discord_framework_1.Command {
                 return;
             }
             this.InitializeUserResponse(interaction, `Running Orca Calculation on ${data.name}`);
+            let orcaJob = new OrcaJob_1.default(data.name);
             try {
-                let orcaJob = new OrcaJob_1.default(data.name);
                 yield orcaJob.CreateDirectories();
                 yield orcaJob.DownloadFile(data.url);
                 this.AddToResponseMessage(`Server will provide updates for the output file every 10 seconds`);
@@ -62,10 +64,12 @@ class Orca extends dna_discord_framework_1.Command {
                 yield this.SendFile(OrcaJobFile_1.default.XYZFile, orcaJob);
                 yield this.SendFile(OrcaJobFile_1.default.TrajectoryXYZFile, orcaJob);
                 yield this.SendFullJobArchive(orcaJob);
-                this.PingUser(interaction, orcaJob.JobName);
+                this.PingUser(interaction, orcaJob.JobName, true);
             }
             catch (e) {
-                this.AddFileToResponseMessage("An Error Occured. Terminating Orca Job.");
+                this.AddToResponseMessage("An Error Occured. Terminating Orca Job.\nCheck the Output File for Errors.");
+                this.JobIsComplete = true;
+                this.PingUser(interaction, orcaJob.JobName, false);
             }
         });
         /**
@@ -77,10 +81,13 @@ class Orca extends dna_discord_framework_1.Command {
      * Sends a Message and Pings the User who Called the Calculation, provides a Link to the Calculation
      * @param interaction The Message Interaction Created by the User
      */
-    PingUser(interaction, jobName) {
+    PingUser(interaction, jobName, success) {
         var _a;
         const link = `https://discord.com/channels/${interaction.guildId}/${interaction.channelId}/${(_a = this.UserResponse) === null || _a === void 0 ? void 0 : _a.id}`;
-        interaction.user.send(`${interaction.user} Server has completed the Orca Calculation ${jobName} :white_check_mark: \n It can be found here : ${link}`);
+        if (success)
+            interaction.user.send(`${interaction.user} Server has completed the Orca Calculation ${jobName} :white_check_mark: \n It can be found here : ${link}`);
+        else
+            interaction.user.send(`${interaction.user} Server has encoutered a problem with the Orca Calculation ${jobName} :warning:\nThe Job has been Terminated, check the Output File for Errors. \nIt can be found here : ${link}`);
     }
     /**
      * Updates the
