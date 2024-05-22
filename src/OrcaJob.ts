@@ -3,6 +3,7 @@ import OrcaBotDataManager from "./OrcaBotDataManager";
 import fs from "fs";
 import axios from "axios";
 import OrcaJobFile from "./OrcaJobFile";
+import OrcaJobDescription from "./OrcaJobDescription";
 
 class OrcaJob {
 
@@ -59,7 +60,12 @@ class OrcaJob {
     /**
      * The Directory on the Host Device where the Archive Mount is Stored
      */
-    HostArchiveDirectory;
+    HostArchiveDirectory: string;
+
+    /**
+     * The Orca Job Description
+     */
+    JobDescription: OrcaJobDescription;
 
     /**
      * Sets the Job Name 
@@ -79,6 +85,7 @@ class OrcaJob {
         this.OrcaJobDirectory = `${this.JobDirectory}/${this.JobName}`;
         this.OrcaJobArchiveDirectory = `${this.JobArchiveDirectory}/${this.JobName}`;
         this.HostArchiveDirectory = dataManager.HOST_DEVICE_MOUNT_LOCATION;
+        this.JobDescription = new OrcaJobDescription(this);
     }
 
     /**

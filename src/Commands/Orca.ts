@@ -59,6 +59,8 @@ class Orca extends Command {
 
             await orcaJob.RunJob();
 
+            BotData.Instance(OrcaBotDataManager).AddJob(orcaJob);
+
             this.JobIsComplete = true;
 
             this.AddToResponseMessage(`Server has completed the Orca Calculation :white_check_mark:`);
@@ -68,10 +70,13 @@ class Orca extends Command {
             await this.SendFile(OrcaJobFile.TrajectoryXYZFile, orcaJob);
             await this.SendFullJobArchive(orcaJob);
 
+            BotData.Instance(OrcaBotDataManager).RemoveJob(orcaJob);
+
             this.PingUser(interaction, orcaJob.JobName, true);
         } catch (e) {
             this.AddToResponseMessage("An Error Occured. Terminating Orca Job.\nCheck the Output File for Errors.");
             this.JobIsComplete = true;
+            BotData.Instance(OrcaBotDataManager).RemoveJob(orcaJob);
             this.PingUser(interaction, orcaJob.JobName, false);
         }
     };
