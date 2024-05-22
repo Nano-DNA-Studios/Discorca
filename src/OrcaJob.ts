@@ -4,6 +4,7 @@ import fs from "fs";
 import axios from "axios";
 import OrcaJobFile from "./OrcaJobFile";
 import OrcaJobDescription from "./OrcaJobDescription";
+import { Attachment } from "discord.js";
 
 class OrcaJob {
 
@@ -63,11 +64,6 @@ class OrcaJob {
     HostArchiveDirectory: string;
 
     /**
-     * The Orca Job Description
-     */
-    JobDescription: OrcaJobDescription;
-
-    /**
      * Sets the Job Name 
      * @param jobName The Name of the Job / Orca Input File Supplied (Without File Extension)
      */
@@ -85,7 +81,6 @@ class OrcaJob {
         this.OrcaJobDirectory = `${this.JobDirectory}/${this.JobName}`;
         this.OrcaJobArchiveDirectory = `${this.JobArchiveDirectory}/${this.JobName}`;
         this.HostArchiveDirectory = dataManager.HOST_DEVICE_MOUNT_LOCATION;
-        this.JobDescription = new OrcaJobDescription(this);
     }
 
     /**

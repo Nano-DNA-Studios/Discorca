@@ -38,8 +38,11 @@ class Orca extends Command {
 
     /* <inheritdoc> */
     RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
+       
         const data = interaction.options.getAttachment("orcafile");
         this.DiscordUser = interaction.user.username;
+
+        const dataManager = BotData.Instance(OrcaBotDataManager);
 
         if (!data) {
             this.InitializeUserResponse(interaction, "No Data Manager found, cannot run Command.")
@@ -49,17 +52,17 @@ class Orca extends Command {
         this.InitializeUserResponse(interaction, `Running Orca Calculation on ${data.name}`);
 
         let orcaJob = new OrcaJob(data.name);
+
         try {
-            
             await orcaJob.CreateDirectories();
             await orcaJob.DownloadFile(data.url);
 
             this.AddToResponseMessage(`Server will provide updates for the output file every 10 seconds`);
             this.UpdateFile(orcaJob);
 
-            await orcaJob.RunJob();
+            dataManager.AddJob(orcaJob);
 
-            BotData.Instance(OrcaBotDataManager).AddJob(orcaJob);
+            await orcaJob.RunJob();
 
             this.JobIsComplete = true;
 
@@ -70,14 +73,17 @@ class Orca extends Command {
             await this.SendFile(OrcaJobFile.TrajectoryXYZFile, orcaJob);
             await this.SendFullJobArchive(orcaJob);
 
-            BotData.Instance(OrcaBotDataManager).RemoveJob(orcaJob);
+            dataManager.RemoveJob(orcaJob);
 
             this.PingUser(interaction, orcaJob.JobName, true);
         } catch (e) {
-            this.AddToResponseMessage("An Error Occured. Terminating Orca Job.\nCheck the Output File for Errors.");
-            this.JobIsComplete = true;
-            BotData.Instance(OrcaBotDataManager).RemoveJob(orcaJob);
-            this.PingUser(interaction, orcaJob.JobName, false);
+            console.log(e);
+            if (orcaJob) {
+                this.AddToResponseMessage("An Error Occured. Terminating Orca Job.\nCheck the Output File for Errors.");
+                this.JobIsComplete = true;
+                dataManager.RemoveJob(orcaJob);
+                this.PingUser(interaction, orcaJob.JobName, false);
+            }
         }
     };
 

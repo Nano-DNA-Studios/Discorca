@@ -133,10 +133,14 @@ class OrcaBotDataManager extends BotDataManager {
      * @param job The Job to Add to the Running Jobs
      */
    public AddJob (job: OrcaJob) {
-        this.RUNNING_JOBS[job.JobName] = job.JobDescription;
+        this.RUNNING_JOBS[job.JobName] = new OrcaJobDescription(job);
         this.SaveData();
     }
 
+    /**
+     * Removes a Job Instance from the Running Jobs
+     * @param job The Job to Remove from the Running Jobs
+     */
     public RemoveJob (job: OrcaJob) {
         delete this.RUNNING_JOBS[job.JobName];
         this.SaveData();

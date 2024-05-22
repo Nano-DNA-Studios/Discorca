@@ -46,6 +46,7 @@ class Orca extends dna_discord_framework_1.Command {
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
             const data = interaction.options.getAttachment("orcafile");
             this.DiscordUser = interaction.user.username;
+            const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
             if (!data) {
                 this.InitializeUserResponse(interaction, "No Data Manager found, cannot run Command.");
                 return;
@@ -57,6 +58,7 @@ class Orca extends dna_discord_framework_1.Command {
                 yield orcaJob.DownloadFile(data.url);
                 this.AddToResponseMessage(`Server will provide updates for the output file every 10 seconds`);
                 this.UpdateFile(orcaJob);
+                dataManager.AddJob(orcaJob);
                 yield orcaJob.RunJob();
                 this.JobIsComplete = true;
                 this.AddToResponseMessage(`Server has completed the Orca Calculation :white_check_mark:`);
@@ -64,12 +66,17 @@ class Orca extends dna_discord_framework_1.Command {
                 yield this.SendFile(OrcaJobFile_1.default.XYZFile, orcaJob);
                 yield this.SendFile(OrcaJobFile_1.default.TrajectoryXYZFile, orcaJob);
                 yield this.SendFullJobArchive(orcaJob);
+                dataManager.RemoveJob(orcaJob);
                 this.PingUser(interaction, orcaJob.JobName, true);
             }
             catch (e) {
-                this.AddToResponseMessage("An Error Occured. Terminating Orca Job.\nCheck the Output File for Errors.");
-                this.JobIsComplete = true;
-                this.PingUser(interaction, orcaJob.JobName, false);
+                console.log(e);
+                if (orcaJob) {
+                    this.AddToResponseMessage("An Error Occured. Terminating Orca Job.\nCheck the Output File for Errors.");
+                    this.JobIsComplete = true;
+                    dataManager.RemoveJob(orcaJob);
+                    this.PingUser(interaction, orcaJob.JobName, false);
+                }
             }
         });
         /**
