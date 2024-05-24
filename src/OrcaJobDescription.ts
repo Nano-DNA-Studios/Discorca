@@ -2,12 +2,20 @@ import OrcaJob from "./OrcaJob";
 import fs from "fs";
 import OrcaJobFile from "./OrcaJobFile";
 
+
 /**
  * A Class to Describe the Job and it's resources
  */
 class OrcaJobDescription {
+
+    /**
+     * The Name of the Job to Describe
+     */
     public JobName: string;
 
+    /**
+     * The Number of Cores Allocated to the Orca Calculation
+     */
     public OccupiedCores: number;
 
     /**
@@ -34,6 +42,8 @@ class OrcaJobDescription {
         else
             return 1;
     }
+
+   
 }
 
 export default OrcaJobDescription;

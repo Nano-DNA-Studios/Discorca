@@ -26,8 +26,6 @@ class OrcaJobDescription {
         const file = fs_1.default.readFileSync(job.GetFullFilePath(OrcaJobFile_1.default.InputFile), 'utf8');
         const regexPattern = /PAL(\d+)/;
         const match = file.match(regexPattern);
-        console.log(file);
-        console.log(match);
         if (match)
             return parseInt(match[1]);
         else
