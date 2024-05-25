@@ -215,6 +215,20 @@ The Bash Command that will be Run by the Discord Bot in the Container.
 
 ![runbashcommand](https://github.com/MrDNAlex/Orca-Discord-Bot/assets/93613553/e71e3af2-c901-4a34-8551-4967c20ed47e)
 
+---
+
+### Resources
+Displays in an Ephemeral Message the Resources Currently being used by the Discorca Bot. This includes the Number of Cores and the RAM. It also lists all the current Active Jobs that are being run.
+
+![image](https://github.com/Nano-DNA-Studios/Discorca/assets/93613553/fd23996f-b138-4a43-bc9d-77b6df6d1a9a)
+
+---
+
+### GetErrorLogs
+Sends the Error Logs File to the User who requested it through Direct Messages.
+
+![image](https://github.com/Nano-DNA-Studios/Discorca/assets/93613553/934eb809-bbcc-4d9b-ba9e-6c46afa04289)
+
 ## Developpers
 Developer and Creator :
 [MrDNAlex](https://github.com/MrDNAlex)
