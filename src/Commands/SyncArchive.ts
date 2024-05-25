@@ -1,10 +1,7 @@
 import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
-import { BotData, BotDataManager, Command, ICommandOption, OptionTypesEnum } from "dna-discord-framework";
+import { BotData, BotDataManager, Command } from "dna-discord-framework";
 import OrcaBotDataManager from "../OrcaBotDataManager";
-import fs from "fs";
-import fsp from "fs/promises";
 import OrcaJob from "../OrcaJob";
-import OrcaJobFile from "../OrcaJobFile";
 
 /**
  * Command that 

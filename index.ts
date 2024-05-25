@@ -6,4 +6,3 @@ const Bot = new DiscordBot(OrcaBotDataManager);
 Bot.StartBot();
 
 console.log("Bot Started");
-

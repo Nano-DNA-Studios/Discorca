@@ -1,6 +1,10 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const dna_discord_framework_1 = require("dna-discord-framework");
+const OrcaJobDescription_1 = __importDefault(require("./OrcaJobDescription"));
 /**
  * Class Handling Data Management
  */
@@ -47,6 +51,10 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
          * The Port to the Server is Port Forwarded on
          */
         this.PORT = 0;
+        /**
+         * A Dictionary of Running Jobs on the Server
+         */
+        this.RUNNING_JOBS = {};
     }
     /**
      * Sets the Mounted Directory File Path (Used for creating the SCP Copy Command)
@@ -105,6 +113,22 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
      */
     AddJobArchive(jobName, jobArchiveFilePath) {
         this.JOB_ARCHIVE_MAP[jobName] = jobArchiveFilePath;
+        this.SaveData();
+    }
+    /**
+     * Adds a Job Instance to the Running Jobs
+     * @param job The Job to Add to the Running Jobs
+     */
+    AddJob(job) {
+        this.RUNNING_JOBS[job.JobName] = new OrcaJobDescription_1.default(job);
+        this.SaveData();
+    }
+    /**
+     * Removes a Job Instance from the Running Jobs
+     * @param job The Job to Remove from the Running Jobs
+     */
+    RemoveJob(job) {
+        delete this.RUNNING_JOBS[job.JobName];
         this.SaveData();
     }
 }

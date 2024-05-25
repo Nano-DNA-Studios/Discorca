@@ -1,4 +1,6 @@
-import { BotDataManager, ICommandOptionChoice } from "dna-discord-framework";
+import { BotDataManager } from "dna-discord-framework";
+import OrcaJob from "./OrcaJob";
+import OrcaJobDescription from "./OrcaJobDescription";
 
 /**
  * Class Handling Data Management
@@ -54,6 +56,11 @@ class OrcaBotDataManager extends BotDataManager {
      * The Port to the Server is Port Forwarded on
      */
     public PORT: Number = 0;
+
+    /**
+     * A Dictionary of Running Jobs on the Server
+     */
+    public RUNNING_JOBS: Record<string, OrcaJobDescription> = {};
 
     /**
      * Sets the Mounted Directory File Path (Used for creating the SCP Copy Command)
@@ -118,6 +125,24 @@ class OrcaBotDataManager extends BotDataManager {
      */
     public AddJobArchive(jobName: string, jobArchiveFilePath: string) {
         this.JOB_ARCHIVE_MAP[jobName] = jobArchiveFilePath;
+        this.SaveData();
+    }
+
+    /**
+     * Adds a Job Instance to the Running Jobs
+     * @param job The Job to Add to the Running Jobs
+     */
+   public AddJob (job: OrcaJob) {
+        this.RUNNING_JOBS[job.JobName] = new OrcaJobDescription(job);
+        this.SaveData();
+    }
+
+    /**
+     * Removes a Job Instance from the Running Jobs
+     * @param job The Job to Remove from the Running Jobs
+     */
+    public RemoveJob (job: OrcaJob) {
+        delete this.RUNNING_JOBS[job.JobName];
         this.SaveData();
     }
 }

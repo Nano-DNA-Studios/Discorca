@@ -35,6 +35,7 @@ class OrcaJob {
         this.OrcaJobDirectory = `${this.JobDirectory}/${this.JobName}`;
         this.OrcaJobArchiveDirectory = `${this.JobArchiveDirectory}/${this.JobName}`;
         this.HostArchiveDirectory = dataManager.HOST_DEVICE_MOUNT_LOCATION;
+        this.StartTime = Date.now();
     }
     /**
     * Purges Similar Named Directories and Creates them for the Job

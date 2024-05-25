@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 const dna_discord_framework_1 = require("dna-discord-framework");
+const discord_js_1 = require("discord.js");
 const promises_1 = __importDefault(require("fs/promises"));
 const OrcaBotDataManager_1 = __importDefault(require("../OrcaBotDataManager"));
 const OrcaJob_1 = __importDefault(require("../OrcaJob"));
@@ -39,6 +40,9 @@ class Orca extends dna_discord_framework_1.Command {
                 required: true,
             },
         ];
+        /**
+         * The Name of the Job that is currently running
+         */
         this.JobName = "";
         /* <inheritdoc> */
         this.JobIsComplete = false;
@@ -46,6 +50,7 @@ class Orca extends dna_discord_framework_1.Command {
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
             const data = interaction.options.getAttachment("orcafile");
             this.DiscordUser = interaction.user.username;
+            const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
             if (!data) {
                 this.InitializeUserResponse(interaction, "No Data Manager found, cannot run Command.");
                 return;
@@ -57,25 +62,66 @@ class Orca extends dna_discord_framework_1.Command {
                 yield orcaJob.DownloadFile(data.url);
                 this.AddToResponseMessage(`Server will provide updates for the output file every 10 seconds`);
                 this.UpdateFile(orcaJob);
+                dataManager.AddJob(orcaJob);
+                if (client.user)
+                    client.user.setActivity(`Orca Calculation ${orcaJob.JobName}`, { type: discord_js_1.ActivityType.Playing });
                 yield orcaJob.RunJob();
                 this.JobIsComplete = true;
-                this.AddToResponseMessage(`Server has completed the Orca Calculation :white_check_mark:`);
+                this.AddToResponseMessage(`Server has completed the Orca Calculation (${this.GetJobTime(orcaJob)}):white_check_mark:`);
                 yield this.SendFile(OrcaJobFile_1.default.OutputFile, orcaJob);
                 yield this.SendFile(OrcaJobFile_1.default.XYZFile, orcaJob);
                 yield this.SendFile(OrcaJobFile_1.default.TrajectoryXYZFile, orcaJob);
                 yield this.SendFullJobArchive(orcaJob);
+                yield dataManager.RemoveJob(orcaJob);
+                this.QueueNextActivity(client, dataManager);
                 this.PingUser(interaction, orcaJob.JobName, true);
             }
             catch (e) {
-                this.AddToResponseMessage("An Error Occured. Terminating Orca Job.\nCheck the Output File for Errors.");
-                this.JobIsComplete = true;
-                this.PingUser(interaction, orcaJob.JobName, false);
+                if (orcaJob) {
+                    this.AddToResponseMessage("An Error Occured. Terminating Orca Job.\nCheck the Output File for Errors.");
+                    this.JobIsComplete = true;
+                    dataManager.RemoveJob(orcaJob);
+                    this.PingUser(interaction, orcaJob.JobName, false);
+                }
+                if (e instanceof Error)
+                    BotDataManager.AddErrorLog(e);
+                this.QueueNextActivity(client, dataManager);
             }
         });
         /**
           * The Username of the User who called the Command
           */
         this.DiscordUser = "";
+    }
+    /**
+     * Gets the Elapsed Time since the Job Started in String format
+     * @param orcaJob The Orca Job Instance
+     * @returns The Elapsed Time since the Job Started in String format
+     */
+    GetJobTime(orcaJob) {
+        const now = Date.now();
+        const elapsed = new Date(now - orcaJob.StartTime);
+        const hours = elapsed.getUTCHours();
+        const minutes = elapsed.getUTCMinutes();
+        if (hours > 0)
+            return `${hours} h:${minutes} m`;
+        else
+            return `${minutes} m`;
+    }
+    /**
+     * Updates the Status of the Bot to the Next Job in the Queue
+     * @param client Discord Bot Client Instance
+     * @param dataManager The OrcaBotDataManager Instance
+     */
+    QueueNextActivity(client, dataManager) {
+        if (client.user) {
+            if (Object.keys(dataManager.RUNNING_JOBS).length == 0)
+                client.user.setActivity(" ", { type: discord_js_1.ActivityType.Custom, state: "Listening for New Orca Calculation" });
+            else {
+                let job = Object.values(dataManager.RUNNING_JOBS)[0];
+                client.user.setActivity(`Orca Calculation ${job.JobName}`, { type: discord_js_1.ActivityType.Playing, });
+            }
+        }
     }
     /**
      * Sends a Message and Pings the User who Called the Calculation, provides a Link to the Calculation
