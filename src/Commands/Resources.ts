@@ -38,7 +38,7 @@ class Resources extends Command {
     private RespondJobList(jobs: Record<string, OrcaJobDescription>): void {
         this.AddToResponseMessage(`\nCurrent Jobs Running are: `);
         for (let job in jobs) 
-            this.AddToResponseMessage(`${jobs[job].JobName}`)
+            this.AddToResponseMessage(`${jobs[job].JobName} (${jobs[job].GetElapsedTime()})`)
     }
 
     /**

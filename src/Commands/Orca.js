@@ -64,7 +64,7 @@ class Orca extends dna_discord_framework_1.Command {
                     client.user.setActivity(`Orca Calculation ${orcaJob.JobName}`, { type: discord_js_1.ActivityType.Playing });
                 yield orcaJob.RunJob();
                 this.JobIsComplete = true;
-                this.AddToResponseMessage(`Server has completed the Orca Calculation :white_check_mark:`);
+                this.AddToResponseMessage(`Server has completed the Orca Calculation (${this.GetJobTime(orcaJob)}):white_check_mark:`);
                 yield this.SendFile(OrcaJobFile_1.default.OutputFile, orcaJob);
                 yield this.SendFile(OrcaJobFile_1.default.XYZFile, orcaJob);
                 yield this.SendFile(OrcaJobFile_1.default.TrajectoryXYZFile, orcaJob);
@@ -90,18 +90,29 @@ class Orca extends dna_discord_framework_1.Command {
           */
         this.DiscordUser = "";
     }
+    GetJobTime(orcaJob) {
+        const now = Date.now();
+        const elapsed = new Date(now - orcaJob.StartTime);
+        const hours = elapsed.getUTCHours();
+        const minutes = elapsed.getUTCMinutes();
+        if (hours > 0)
+            return `${hours} h:${minutes} m`;
+        else
+            return `${minutes} m`;
+    }
     /**
      * Updates the Status of the Bot to the Next Job in the Queue
      * @param client Discord Bot Client Instance
      * @param dataManager The OrcaBotDataManager Instance
      */
     QueueNextActivity(client, dataManager) {
-        var _a, _b;
-        if (Object.keys(dataManager.RUNNING_JOBS).length == 0)
-            (_a = client.user) === null || _a === void 0 ? void 0 : _a.setActivity("New Orca Calculation", { type: discord_js_1.ActivityType.Listening });
-        else {
-            let job = Object.values(dataManager.RUNNING_JOBS)[0];
-            (_b = client.user) === null || _b === void 0 ? void 0 : _b.setActivity(`Orca Calculation ${job.JobName}`, { type: discord_js_1.ActivityType.Playing });
+        if (client.user) {
+            if (Object.keys(dataManager.RUNNING_JOBS).length == 0)
+                client.user.setActivity("", { type: discord_js_1.ActivityType.Custom, state: "Listening for New Orca Calculation" });
+            else {
+                let job = Object.values(dataManager.RUNNING_JOBS)[0];
+                client.user.setActivity(`Orca Calculation ${job.JobName}`, { type: discord_js_1.ActivityType.Playing, });
+            }
         }
     }
     /**

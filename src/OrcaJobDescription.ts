@@ -2,7 +2,6 @@ import OrcaJob from "./OrcaJob";
 import fs from "fs";
 import OrcaJobFile from "./OrcaJobFile";
 
-
 /**
  * A Class to Describe the Job and it's resources
  */
@@ -19,12 +18,18 @@ class OrcaJobDescription {
     public OccupiedCores: number;
 
     /**
+     * The Time the Job Started
+     */
+    public StartTime: number;
+
+    /**
      * Default Constructor
      * @param job The OrcaJob to Describe
      */
     constructor(job: OrcaJob) {
         this.JobName = job.JobName;
         this.OccupiedCores = this.GetNumberOfCores(job);
+        this.StartTime = job.StartTime;
     }
 
     /**
@@ -43,7 +48,21 @@ class OrcaJobDescription {
             return 1;
     }
 
-   
+    /**
+     * Gets the Elapsed Time since the Job Started in String format
+     * @returns The Elapsed Time in Hours and Minutes
+     */
+    public GetElapsedTime(): string {
+        const now = Date.now();
+        const elapsed = new Date(now - this.StartTime);
+        const hours = elapsed.getUTCHours();
+        const minutes = elapsed.getUTCMinutes();
+
+        if (hours > 0)
+            return `${hours} h:${minutes} m`;
+        else
+            return `${minutes} m`;
+    }
 }
 
 export default OrcaJobDescription;

@@ -69,7 +69,7 @@ class Orca extends Command {
 
             this.JobIsComplete = true;
 
-            this.AddToResponseMessage(`Server has completed the Orca Calculation :white_check_mark:`);
+            this.AddToResponseMessage(`Server has completed the Orca Calculation (${this.GetJobTime(orcaJob)}):white_check_mark:`);
 
             await this.SendFile(OrcaJobFile.OutputFile, orcaJob);
             await this.SendFile(OrcaJobFile.XYZFile, orcaJob);
@@ -95,6 +95,18 @@ class Orca extends Command {
         }
     };
 
+    private GetJobTime(orcaJob: OrcaJob) {
+        const now = Date.now();
+        const elapsed = new Date(now - orcaJob.StartTime);
+        const hours = elapsed.getUTCHours();
+        const minutes = elapsed.getUTCMinutes();
+
+        if (hours > 0)
+            return `${hours} h:${minutes} m`;
+        else
+            return `${minutes} m`;
+    }
+
     /**
      * Updates the Status of the Bot to the Next Job in the Queue
      * @param client Discord Bot Client Instance
@@ -103,10 +115,10 @@ class Orca extends Command {
     private QueueNextActivity(client: Client<boolean>, dataManager: OrcaBotDataManager): void {
         if (client.user) {
             if (Object.keys(dataManager.RUNNING_JOBS).length == 0)
-                client.user.setActivity("New Orca Calculation", { type: ActivityType.Listening });
+                client.user.setActivity("", { type: ActivityType.Custom, state: "Listening for New Orca Calculation" });
             else {
                 let job = Object.values(dataManager.RUNNING_JOBS)[0];
-                client.user.setActivity(`Orca Calculation ${job.JobName}`, { type: ActivityType.Playing });
+                client.user.setActivity(`Orca Calculation ${job.JobName}`, { type: ActivityType.Playing, });
             }
         }
     }
@@ -115,7 +127,7 @@ class Orca extends Command {
      * Sends a Message and Pings the User who Called the Calculation, provides a Link to the Calculation
      * @param interaction The Message Interaction Created by the User
      */
-    PingUser(interaction: ChatInputCommandInteraction<CacheType>, jobName: string, success: boolean) {
+    private PingUser(interaction: ChatInputCommandInteraction<CacheType>, jobName: string, success: boolean) {
         const link = `https://discord.com/channels/${interaction.guildId}/${interaction.channelId}/${this.UserResponse?.id}`;
 
         if (success)

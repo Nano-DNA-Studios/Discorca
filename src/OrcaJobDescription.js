@@ -16,6 +16,7 @@ class OrcaJobDescription {
     constructor(job) {
         this.JobName = job.JobName;
         this.OccupiedCores = this.GetNumberOfCores(job);
+        this.StartTime = job.StartTime;
     }
     /**
      * Extracts the Number of Cores that will be used from the Input File
@@ -30,6 +31,20 @@ class OrcaJobDescription {
             return parseInt(match[1]);
         else
             return 1;
+    }
+    /**
+     * Gets the Elapsed Time since the Job Started in String format
+     * @returns The Elapsed Time in Hours and Minutes
+     */
+    GetElapsedTime() {
+        const now = Date.now();
+        const elapsed = new Date(now - this.StartTime);
+        const hours = elapsed.getUTCHours();
+        const minutes = elapsed.getUTCMinutes();
+        if (hours > 0)
+            return `${hours} h:${minutes} m`;
+        else
+            return `${minutes} m`;
     }
 }
 exports.default = OrcaJobDescription;

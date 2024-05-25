@@ -44,7 +44,7 @@ class Resources extends dna_discord_framework_1.Command {
     RespondJobList(jobs) {
         this.AddToResponseMessage(`\nCurrent Jobs Running are: `);
         for (let job in jobs)
-            this.AddToResponseMessage(`${jobs[job].JobName}`);
+            this.AddToResponseMessage(`${jobs[job].JobName} (${jobs[job].GetElapsedTime()})`);
     }
     /**
      * Responds to the Resource Command Message with the CPU Usage (Number of Cores being used by Jobs)
