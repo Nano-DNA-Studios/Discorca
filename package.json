@@ -1,6 +1,6 @@
 {
   "name": "orca-discord-bot",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A Discord Bot that Hosts the Necessary Orca and OpenMPI Packages, can Run Orca Simulations through simple commands",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
