@@ -5,6 +5,7 @@ import os from "os";
 import OrcaJobDescription from "../OrcaJobDescription";
 
 class Resources extends Command {
+
     /* <inheritdoc> */
     public CommandName = "resources";
 
@@ -16,9 +17,10 @@ class Resources extends Command {
         const dataManager = BotData.Instance(OrcaBotDataManager);
         const jobs = dataManager.RUNNING_JOBS;
 
-        this.InitializeUserResponse(interaction, `The Current Resources being used are: `);
+        this.InitializeUserResponse(interaction, `Resources being used are: `);
         this.RespondCPUUsage(jobs);
         this.RespondMemoryUsage();
+        this.RespondJobList(jobs);
     };
 
     /* <inheritdoc> */
@@ -30,16 +32,25 @@ class Resources extends Command {
     private KiloByte: number = 1024;
 
     /**
+     * Displays the List of Active Jobs
+     * @param jobs The Jobs that are currently running
+     */
+    private RespondJobList(jobs: Record<string, OrcaJobDescription>): void {
+        this.AddToResponseMessage(`\nCurrent Jobs Running are: `);
+        for (let job in jobs) 
+            this.AddToResponseMessage(`${jobs[job].JobName}`)
+    }
+
+    /**
      * Responds to the Resource Command Message with the CPU Usage (Number of Cores being used by Jobs)
      * @param jobs The Jobs that are currently running
      */
     private RespondCPUUsage(jobs: Record<string, OrcaJobDescription>): void {
-
         let cores: number = 0;
 
-        for (let job in jobs) 
+        for (let job in jobs)
             cores += jobs[job].OccupiedCores;
-        
+
         this.AddToResponseMessage(`CPUs : ${cores} Cores`);
     }
 
@@ -55,13 +66,13 @@ class Resources extends Command {
 
         this.AddToResponseMessage(`Memory Usage: ${MemoryUsagePercentage}%  (${MemoryUsageStr}/${TotalMemoryStr})`);
     }
-     
+
     /**
      * Converts Bytes to the most Appropriate Unit
      * @param memory The Amount of Memory in Bytes
      * @returns The Memory Amount with the Correct Unit in String Format
      */
-    private MemoryAmountString (memory: number): string {
+    private MemoryAmountString(memory: number): string {
         if (memory < this.KiloByte)
             return `${memory} Bytes`;
         else if (memory < this.KiloByte * this.KiloByte)
@@ -85,8 +96,7 @@ class Resources extends Command {
      * @returns The Memory Usage of the Device in Bytes
      */
     private GetMemoryUsage(): number {
-        try 
-        {
+        try {
             return this.GetTotalMemory() - os.freemem();
         } catch (error) {
             if (error instanceof Error)

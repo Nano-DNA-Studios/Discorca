@@ -25,9 +25,10 @@ class Resources extends dna_discord_framework_1.Command {
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
             const jobs = dataManager.RUNNING_JOBS;
-            this.InitializeUserResponse(interaction, `The Current Resources being used are: `);
+            this.InitializeUserResponse(interaction, `Resources being used are: `);
             this.RespondCPUUsage(jobs);
             this.RespondMemoryUsage();
+            this.RespondJobList(jobs);
         });
         /* <inheritdoc> */
         this.IsEphemeralResponse = true;
@@ -35,6 +36,15 @@ class Resources extends dna_discord_framework_1.Command {
          * The Number of Bytes in a KiloByte
          */
         this.KiloByte = 1024;
+    }
+    /**
+     * Displays the List of Active Jobs
+     * @param jobs The Jobs that are currently running
+     */
+    RespondJobList(jobs) {
+        this.AddToResponseMessage(`\nCurrent Jobs Running are: `);
+        for (let job in jobs)
+            this.AddToResponseMessage(`${jobs[job].JobName}`);
     }
     /**
      * Responds to the Resource Command Message with the CPU Usage (Number of Cores being used by Jobs)

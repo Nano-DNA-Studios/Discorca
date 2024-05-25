@@ -1,5 +1,5 @@
 import { OptionTypesEnum, BotDataManager, Command, DefaultCommandHandler, BotData } from "dna-discord-framework"
-import { CacheType, ChatInputCommandInteraction, Client } from "discord.js";
+import { ActivityType, CacheType, ChatInputCommandInteraction, Client } from "discord.js";
 import fsp from "fs/promises"
 import OrcaBotDataManager from "../OrcaBotDataManager";
 import OrcaJob from "../OrcaJob";
@@ -38,7 +38,7 @@ class Orca extends Command {
 
     /* <inheritdoc> */
     RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
-       
+
         const data = interaction.options.getAttachment("orcafile");
         this.DiscordUser = interaction.user.username;
 
@@ -62,6 +62,9 @@ class Orca extends Command {
 
             dataManager.AddJob(orcaJob);
 
+            if (client.user)
+                client.user.setActivity(`Orca Calculation ${orcaJob.JobName}`, { type: ActivityType.Playing });
+
             await orcaJob.RunJob();
 
             this.JobIsComplete = true;
@@ -75,6 +78,8 @@ class Orca extends Command {
 
             dataManager.RemoveJob(orcaJob);
 
+            this.QueueNextActivity(client, dataManager);
+
             this.PingUser(interaction, orcaJob.JobName, true);
         } catch (e) {
             if (orcaJob) {
@@ -85,8 +90,26 @@ class Orca extends Command {
             }
             if (e instanceof Error)
                 BotDataManager.AddErrorLog(e);
+
+            this.QueueNextActivity(client, dataManager);
         }
     };
+
+    /**
+     * Updates the Status of the Bot to the Next Job in the Queue
+     * @param client Discord Bot Client Instance
+     * @param dataManager The OrcaBotDataManager Instance
+     */
+    private QueueNextActivity(client: Client<boolean>, dataManager: OrcaBotDataManager): void {
+        if (client.user) {
+            if (Object.keys(dataManager.RUNNING_JOBS).length == 0)
+                client.user.setActivity("New Orca Calculation", { type: ActivityType.Listening });
+            else {
+                let job = Object.values(dataManager.RUNNING_JOBS)[0];
+                client.user.setActivity(`Orca Calculation ${job.JobName}`, { type: ActivityType.Playing });
+            }
+        }
+    }
 
     /**
      * Sends a Message and Pings the User who Called the Calculation, provides a Link to the Calculation
