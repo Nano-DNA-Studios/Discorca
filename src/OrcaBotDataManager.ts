@@ -1,4 +1,4 @@
-import { BotDataManager, ICommandOptionChoice } from "dna-discord-framework";
+import { BotDataManager } from "dna-discord-framework";
 import OrcaJob from "./OrcaJob";
 import OrcaJobDescription from "./OrcaJobDescription";
 

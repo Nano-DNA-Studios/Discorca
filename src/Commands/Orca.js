@@ -40,6 +40,9 @@ class Orca extends dna_discord_framework_1.Command {
                 required: true,
             },
         ];
+        /**
+         * The Name of the Job that is currently running
+         */
         this.JobName = "";
         /* <inheritdoc> */
         this.JobIsComplete = false;
@@ -69,7 +72,7 @@ class Orca extends dna_discord_framework_1.Command {
                 yield this.SendFile(OrcaJobFile_1.default.XYZFile, orcaJob);
                 yield this.SendFile(OrcaJobFile_1.default.TrajectoryXYZFile, orcaJob);
                 yield this.SendFullJobArchive(orcaJob);
-                dataManager.RemoveJob(orcaJob);
+                yield dataManager.RemoveJob(orcaJob);
                 this.QueueNextActivity(client, dataManager);
                 this.PingUser(interaction, orcaJob.JobName, true);
             }
@@ -90,6 +93,11 @@ class Orca extends dna_discord_framework_1.Command {
           */
         this.DiscordUser = "";
     }
+    /**
+     * Gets the Elapsed Time since the Job Started in String format
+     * @param orcaJob The Orca Job Instance
+     * @returns The Elapsed Time since the Job Started in String format
+     */
     GetJobTime(orcaJob) {
         const now = Date.now();
         const elapsed = new Date(now - orcaJob.StartTime);
@@ -108,7 +116,7 @@ class Orca extends dna_discord_framework_1.Command {
     QueueNextActivity(client, dataManager) {
         if (client.user) {
             if (Object.keys(dataManager.RUNNING_JOBS).length == 0)
-                client.user.setActivity("", { type: discord_js_1.ActivityType.Custom, state: "Listening for New Orca Calculation" });
+                client.user.setActivity(" ", { type: discord_js_1.ActivityType.Custom, state: "Listening for New Orca Calculation" });
             else {
                 let job = Object.values(dataManager.RUNNING_JOBS)[0];
                 client.user.setActivity(`Orca Calculation ${job.JobName}`, { type: discord_js_1.ActivityType.Playing, });

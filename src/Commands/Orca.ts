@@ -9,6 +9,7 @@ import OrcaJobFile from "../OrcaJobFile";
  * Command that Runs an Orca Calculation on the Device the Bot is hosted by
  */
 class Orca extends Command {
+
     /* <inheritdoc> */
     CommandName = "orca";
 
@@ -31,6 +32,9 @@ class Orca extends Command {
         },
     ];
 
+    /**
+     * The Name of the Job that is currently running
+     */
     JobName: string = "";
 
     /* <inheritdoc> */
@@ -76,7 +80,7 @@ class Orca extends Command {
             await this.SendFile(OrcaJobFile.TrajectoryXYZFile, orcaJob);
             await this.SendFullJobArchive(orcaJob);
 
-            dataManager.RemoveJob(orcaJob);
+            await dataManager.RemoveJob(orcaJob);
 
             this.QueueNextActivity(client, dataManager);
 
@@ -95,6 +99,11 @@ class Orca extends Command {
         }
     };
 
+    /**
+     * Gets the Elapsed Time since the Job Started in String format
+     * @param orcaJob The Orca Job Instance
+     * @returns The Elapsed Time since the Job Started in String format
+     */
     private GetJobTime(orcaJob: OrcaJob) {
         const now = Date.now();
         const elapsed = new Date(now - orcaJob.StartTime);
@@ -115,7 +124,7 @@ class Orca extends Command {
     private QueueNextActivity(client: Client<boolean>, dataManager: OrcaBotDataManager): void {
         if (client.user) {
             if (Object.keys(dataManager.RUNNING_JOBS).length == 0)
-                client.user.setActivity("", { type: ActivityType.Custom, state: "Listening for New Orca Calculation" });
+                client.user.setActivity(" ", { type: ActivityType.Custom, state: "Listening for New Orca Calculation" });
             else {
                 let job = Object.values(dataManager.RUNNING_JOBS)[0];
                 client.user.setActivity(`Orca Calculation ${job.JobName}`, { type: ActivityType.Playing, });
