@@ -27,12 +27,12 @@ To set the Discord Bot up, you can follow the tutorial provided in this Reposito
 Once Completed you will need to build a Docker Image. To Built it use the Following Command in the Terminal/Command Prompt, where name is the name of the Image.
 
 ```
-docker build -t name .
+docker build -t orcabot .
 ```
 
 Once built you can Start the Bot using the Following Command. Where 100G can be replaced with any Number (This acts like a max memory size for calculations), path/on/server/or/device can be replaced with a Path on your Server or Device that you want to "Mirror" / always have a copy of the outputted files without needing to interact with Docker, and name is the name previously used for the image
 ```
-docker run -it --name orcabot --restart=always --shm-size=100G -v path/on/server/or/device:/OrcaJobsArchive name
+docker run -it --name orcabot --restart=always --shm-size=100G -v path/to/settings:/OrcaBot/Resources -v path/to/job/archive:/OrcaJobsArchive mrdnalex/orcabot
 ```
 
 Once The Container has started Running it will prompt you for the Discord Token. This can be Acquired by your Discord Application and is covered in [DNA-Discord-Framework](https://github.com/Nano-DNA-Studios/DNA-Discord-Framework).
