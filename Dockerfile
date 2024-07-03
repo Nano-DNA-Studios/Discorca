@@ -27,10 +27,10 @@ RUN mkdir /OrcaJobsArchive
 #Changes the owner of the Orca Jobs folder to the orca user
 RUN chown -R orca /OrcaJobs
 RUN chown -R orca /OrcaJobsArchive
+RUN chown -R orca /OrcaBot
 
 # Copy Bot Files into it's folder
 COPY . /OrcaBot
-
 
 # Set Work directory inside the bot folder
 WORKDIR /OrcaBot
@@ -38,8 +38,7 @@ WORKDIR /OrcaBot
 # Install the necessary packages
 RUN npm install
 
-# Changes the owner of the bot files to the orca user
-RUN chown -R orca /OrcaBot
+RUN npm update
 
 # Change to the orca user
 USER orca
