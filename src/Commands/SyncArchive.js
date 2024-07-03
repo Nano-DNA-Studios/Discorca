@@ -50,7 +50,7 @@ class SyncArchive extends dna_discord_framework_1.Command {
             const downloadLocation = dataManager.DISCORD_USER_TO_DOWNLOAD_LOCATION[this.DiscordUser];
             const hostName = dataManager.HOSTNAME;
             if (dataManager.PORT == 0)
-                command = `scp -r ${user}@${hostName}:${orcaJob.HostArchiveDirectory} ${downloadLocation}`;
+                command = `scp -r ${user}@${hostName}:${orcaJob.HostArchiveDirectory} "${downloadLocation}"`;
             else
                 command = `scp -r -P ${dataManager.PORT} ${user}@${hostName}:${orcaJob.HostArchiveDirectory} "${downloadLocation}"`;
         }
