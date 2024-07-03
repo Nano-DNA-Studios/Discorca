@@ -45,7 +45,7 @@ class SyncArchive extends Command {
             if (dataManager.PORT == 0)
                 command = `scp -r ${user}@${hostName}:${orcaJob.HostArchiveDirectory} ${downloadLocation}`;
             else
-                command = `scp -r -P ${dataManager.PORT} ${user}@${hostName}:${orcaJob.HostArchiveDirectory} ${downloadLocation}`;
+                command = `scp -r -P ${dataManager.PORT} ${user}@${hostName}:${orcaJob.HostArchiveDirectory} "${downloadLocation}"`;
 
         } catch (e) {
             command = `scp -r serverUser@hostName:${orcaJob.HostArchiveDirectory} /Path/on/local/device`;
