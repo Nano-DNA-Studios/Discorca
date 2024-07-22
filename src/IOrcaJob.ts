@@ -87,7 +87,7 @@ interface IOrcaJob {
     * @param outputPath The Path to download the file to
     * @returns A promise telling when the download is complete
     */
-    DownloadFile(fileUrl: string): void;
+    DownloadFile(fileUrl: string, jobFileType: OrcaJobFile): void;
 
     /**
      * Runs the Orca Calculation Job
