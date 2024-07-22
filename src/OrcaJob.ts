@@ -3,8 +3,9 @@ import OrcaBotDataManager from "./OrcaBotDataManager";
 import fs from "fs";
 import axios from "axios";
 import OrcaJobFile from "./OrcaJobFile";
+import IOrcaJob from "./IOrcaJob";
 
-class OrcaJob {
+class OrcaJob implements IOrcaJob {
 
     /**
     * The Name of the File sent (Without the file extension)
