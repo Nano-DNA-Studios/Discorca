@@ -94,12 +94,12 @@ class Orca extends Command {
                     this.PingUser(interaction, orcaJob.JobName, false);
                 }
                 if (e instanceof Error)
-                    BotDataManager.AddErrorLog(e);
+                    dataManager.AddErrorLog(e);
 
                 this.QueueNextActivity(client, dataManager);
             } catch (j) {
                 if (j instanceof Error)
-                    BotDataManager.AddErrorLog(j);
+                    dataManager.AddErrorLog(j);
             }
         }
     };
