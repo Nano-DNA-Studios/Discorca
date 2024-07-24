@@ -86,16 +86,21 @@ class Orca extends Command {
 
             this.PingUser(interaction, orcaJob.JobName, true);
         } catch (e) {
-            if (orcaJob) {
-                this.AddToResponseMessage("An Error Occured. Terminating Orca Job.\nCheck the Output File for Errors.");
-                this.JobIsComplete = true;
-                dataManager.RemoveJob(orcaJob);
-                this.PingUser(interaction, orcaJob.JobName, false);
-            }
-            if (e instanceof Error)
-                BotDataManager.AddErrorLog(e);
+            try {
+                if (orcaJob) {
+                    this.AddToResponseMessage("An Error Occured. Terminating Orca Job.\nCheck the Output File for Errors.");
+                    this.JobIsComplete = true;
+                    dataManager.RemoveJob(orcaJob);
+                    this.PingUser(interaction, orcaJob.JobName, false);
+                }
+                if (e instanceof Error)
+                    BotDataManager.AddErrorLog(e);
 
-            this.QueueNextActivity(client, dataManager);
+                this.QueueNextActivity(client, dataManager);
+            } catch (j) {
+                if (j instanceof Error)
+                    BotDataManager.AddErrorLog(j);
+            }
         }
     };
 

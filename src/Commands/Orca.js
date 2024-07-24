@@ -77,15 +77,21 @@ class Orca extends dna_discord_framework_1.Command {
                 this.PingUser(interaction, orcaJob.JobName, true);
             }
             catch (e) {
-                if (orcaJob) {
-                    this.AddToResponseMessage("An Error Occured. Terminating Orca Job.\nCheck the Output File for Errors.");
-                    this.JobIsComplete = true;
-                    dataManager.RemoveJob(orcaJob);
-                    this.PingUser(interaction, orcaJob.JobName, false);
+                try {
+                    if (orcaJob) {
+                        this.AddToResponseMessage("An Error Occured. Terminating Orca Job.\nCheck the Output File for Errors.");
+                        this.JobIsComplete = true;
+                        dataManager.RemoveJob(orcaJob);
+                        this.PingUser(interaction, orcaJob.JobName, false);
+                    }
+                    if (e instanceof Error)
+                        BotDataManager.AddErrorLog(e);
+                    this.QueueNextActivity(client, dataManager);
                 }
-                if (e instanceof Error)
-                    BotDataManager.AddErrorLog(e);
-                this.QueueNextActivity(client, dataManager);
+                catch (j) {
+                    if (j instanceof Error)
+                        BotDataManager.AddErrorLog(j);
+                }
             }
         });
         /**
