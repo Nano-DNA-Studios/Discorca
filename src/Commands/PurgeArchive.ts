@@ -1,5 +1,6 @@
 import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
-import { BashScriptRunner, BotDataManager, Command } from "dna-discord-framework";
+import { BashScriptRunner, BotData, BotDataManager, Command } from "dna-discord-framework";
+import OrcaBotDataManager from "../OrcaBotDataManager";
 
 /**
  * Command that Purges all Archive Folders in the Archive Directory
@@ -13,11 +14,12 @@ class PurgeArchive extends Command {
 
     /* <inheritdoc> */
     public RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
+        let dataManager = BotData.Instance(OrcaBotDataManager);
         let runner = new BashScriptRunner();
 
         this.InitializeUserResponse(interaction, "Purging Archive from the Server");
 
-        await runner.RunLocally("rm -rf /OrcaJobsArchive/*");
+        await runner.RunLocally("rm -rf /OrcaJobsArchive/*").catch(e => dataManager.AddErrorLog(e));
 
         this.AddToResponseMessage(":white_check_mark: Server has Purged all Archives :white_check_mark:");
     };
