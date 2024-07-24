@@ -177,7 +177,8 @@ class OrcaJob {
      * Runs the Orca Calculation Job
      */
     public async RunJob(): Promise<void> {
-        await new BashScriptRunner().RunLocally(`/Orca/orca  ${this.GetFullFilePath(OrcaJobFile.InputFile)} > ${this.GetFullFilePath(OrcaJobFile.OutputFile)}`);
+        const dataManager = BotData.Instance(OrcaBotDataManager);
+        await new BashScriptRunner().RunLocally(`/Orca/orca  ${this.GetFullFilePath(OrcaJobFile.InputFile)} > ${this.GetFullFilePath(OrcaJobFile.OutputFile)}`).catch(e => dataManager.AddErrorLog(e));
     }
 
     /**
@@ -185,7 +186,8 @@ class OrcaJob {
      */
     public async ArchiveJob() {
         let runner = new BashScriptRunner();
-        await runner.RunLocally(`tar -zcvf  ${this.GetFullFilePath(OrcaJobFile.ArchiveFile)} -C ${this.JobDirectory} ${this.JobName}`);
+        const dataManager = BotData.Instance(OrcaBotDataManager);
+        await runner.RunLocally(`tar -zcvf  ${this.GetFullFilePath(OrcaJobFile.ArchiveFile)} -C ${this.JobDirectory} ${this.JobName}`).catch(e => dataManager.AddErrorLog(e));
     }
 
     /**
