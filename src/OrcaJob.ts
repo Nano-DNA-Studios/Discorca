@@ -184,7 +184,7 @@ class OrcaJob implements IOrcaJob {
      */
     public async RunJob(): Promise<void> {
         const dataManager = BotData.Instance(OrcaBotDataManager);
-        await new BashScriptRunner().RunLocally(`/Orca/orca  ${this.GetFullFilePath(OrcaJobFile.InputFile)} > ${this.GetFullFilePath(OrcaJobFile.OutputFile)}`).catch(e => dataManager.AddErrorLog(e));
+        await new BashScriptRunner().RunLocally(`/Orca/orca  ${this.GetFullFilePath(OrcaJobFile.InputFile)} > ${this.GetFullFilePath(OrcaJobFile.OutputFile)}`, this.OrcaJobDirectory).catch(e => dataManager.AddErrorLog(e));
     }
 
     /**
