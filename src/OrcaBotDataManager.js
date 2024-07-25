@@ -131,5 +131,12 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
         delete this.RUNNING_JOBS[job.JobName];
         this.SaveData();
     }
+    /**
+     * Clears all Stored Running Jobs
+     */
+    ClearJobs() {
+        this.RUNNING_JOBS = {};
+        this.SaveData();
+    }
 }
 exports.default = OrcaBotDataManager;

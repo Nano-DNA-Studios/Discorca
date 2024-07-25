@@ -4,6 +4,7 @@ import fsp from "fs/promises"
 import OrcaBotDataManager from "../OrcaBotDataManager";
 import OrcaJob from "../OrcaJob";
 import OrcaJobFile from "../OrcaJobFile";
+import fs from "fs";
 
 /**
  * Command that Runs an Orca Calculation on the Device the Bot is hosted by
@@ -26,10 +27,41 @@ class Orca extends Command {
     Options = [
         {
             type: OptionTypesEnum.Attachment,
-            name: "orcafile",
+            name: "inputfile",
             description: "Orca File to Run through Orca",
             required: true,
         },
+        {
+            type: OptionTypesEnum.Attachment,
+            name: "xyzfile1",
+            description: "Additional XYZ File to Run through Orca",
+            required: false,
+        },
+        {
+            type: OptionTypesEnum.Attachment,
+            name: "xyzfile2",
+            description: "Additional XYZ File to Run through Orca",
+            required: false,
+        },
+        {
+            type: OptionTypesEnum.Attachment,
+            name: "xyzfile3",
+            description: "Additional XYZ File to Run through Orca",
+            required: false,
+        },
+        {
+            type: OptionTypesEnum.Attachment,
+            name: "xyzfile4",
+            description: "Additional XYZ File to Run through Orca",
+            required: false,
+        },
+        {
+            type: OptionTypesEnum.Attachment,
+            name: "xyzfile5",
+            description: "Additional XYZ File to Run through Orca",
+            required: false,
+        },
+
     ];
 
     /**
@@ -42,24 +74,55 @@ class Orca extends Command {
 
     /* <inheritdoc> */
     RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
+        const inputfile = interaction.options.getAttachment("inputfile");
+        const xyzfile1 = interaction.options.getAttachment("xyzfile1");
+        const xyzfile2 = interaction.options.getAttachment("xyzfile2");
+        const xyzfile3 = interaction.options.getAttachment("xyzfile3");
+        const xyzfile4 = interaction.options.getAttachment("xyzfile4");
+        const xyzfile5 = interaction.options.getAttachment("xyzfile5");
 
-        const data = interaction.options.getAttachment("orcafile");
         this.DiscordUser = interaction.user.username;
 
         const dataManager = BotData.Instance(OrcaBotDataManager);
 
-        if (!data) {
+        if (!inputfile) {
             this.InitializeUserResponse(interaction, "No Data Manager found, cannot run Command.")
             return;
         }
 
-        this.InitializeUserResponse(interaction, `Running Orca Calculation on ${data.name}`);
+        this.InitializeUserResponse(interaction, `Running Orca Calculation on ${inputfile.name}`);
 
-        let orcaJob = new OrcaJob(data.name);
+        let orcaJob = new OrcaJob(inputfile.name);
 
         try {
             await orcaJob.CreateDirectories();
-            await orcaJob.DownloadFile(data.url);
+            await orcaJob.DownloadFile(inputfile.url);
+
+            // It's being Downloaded Properly but the 
+            //
+            // Ok it seems like the issue is that we are running from root directory, so we need to change the working directory for the Bash Script to the Orca Job Directory
+            // Add the following to bash plugin tomorrow const process = spawn(Script, { shell: true, cwd: WorkingDirectory });
+            // And add a optional variable to the RunLocally function to specify the working directory
+            //
+            if (xyzfile1) 
+            {
+                console.log("Downloading XYZ File 1");
+                await orcaJob.DownloadFile(xyzfile1.url, OrcaJobFile.XYZFile, xyzfile1.name);
+
+                if (fs.existsSync(orcaJob.OrcaJobDirectory + "/" + xyzfile1.name))
+                {
+                    console.log("XYZ File 1 Exists");
+                }
+            }
+                
+            if (xyzfile2) 
+                await orcaJob.DownloadFile(xyzfile2.url, OrcaJobFile.XYZFile);
+            if (xyzfile3) 
+                await orcaJob.DownloadFile(xyzfile3.url, OrcaJobFile.XYZFile);
+            if (xyzfile4) 
+                await orcaJob.DownloadFile(xyzfile4.url, OrcaJobFile.XYZFile);
+            if (xyzfile5) 
+                await orcaJob.DownloadFile(xyzfile5.url, OrcaJobFile.XYZFile);
 
             this.AddToResponseMessage(`Server will provide updates for the output file every 10 seconds`);
             this.UpdateFile(orcaJob);
@@ -103,6 +166,7 @@ class Orca extends Command {
             }
         }
     };
+
 
     /**
      * Gets the Elapsed Time since the Job Started in String format

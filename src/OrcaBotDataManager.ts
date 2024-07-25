@@ -145,6 +145,15 @@ class OrcaBotDataManager extends BotDataManager {
         delete this.RUNNING_JOBS[job.JobName];
         this.SaveData();
     }
+
+    /**
+     * Clears all Stored Running Jobs
+     */
+    public ClearJobs ()
+    {
+        this.RUNNING_JOBS = {};
+        this.SaveData();
+    }
 }
 
 export default OrcaBotDataManager;

@@ -110,15 +110,19 @@ class OrcaJob {
     * @returns A promise telling when the download is complete
     */
     DownloadFile(fileUrl_1) {
-        return __awaiter(this, arguments, void 0, function* (fileUrl, jobFileType = OrcaJobFile_1.default.InputFile) {
+        return __awaiter(this, arguments, void 0, function* (fileUrl, jobFileType = OrcaJobFile_1.default.InputFile, fileName = "") {
             try {
                 const response = yield (0, axios_1.default)({
                     method: 'GET',
                     url: fileUrl,
                     responseType: 'stream',
                 });
-                const writer = fs_1.default.createWriteStream(this.GetFullFilePath(jobFileType));
-                response.data.pipe(writer);
+                let writer = null;
+                if (jobFileType == OrcaJobFile_1.default.InputFile)
+                    writer = fs_1.default.createWriteStream(this.GetFullFilePath(jobFileType));
+                else
+                    writer = fs_1.default.createWriteStream(`${this.OrcaJobDirectory}/${fileName}`);
+                yield response.data.pipe(writer);
                 return new Promise((resolve, reject) => {
                     writer.on('finish', resolve);
                     writer.on('error', reject);

@@ -153,7 +153,7 @@ class OrcaJob implements IOrcaJob {
     * @param outputPath The Path to download the file to
     * @returns A promise telling when the download is complete
     */
-    public async DownloadFile(fileUrl: string, jobFileType: OrcaJobFile = OrcaJobFile.InputFile) {
+    public async DownloadFile(fileUrl: string, jobFileType: OrcaJobFile = OrcaJobFile.InputFile, fileName: string = "") {
         try {
             const response = await axios({
                 method: 'GET',
@@ -161,9 +161,14 @@ class OrcaJob implements IOrcaJob {
                 responseType: 'stream',
             });
 
-            const writer = fs.createWriteStream(this.GetFullFilePath(jobFileType));
+            let writer = null;
 
-            response.data.pipe(writer);
+            if (jobFileType == OrcaJobFile.InputFile) 
+                writer = fs.createWriteStream(this.GetFullFilePath(jobFileType));
+            else
+                writer = fs.createWriteStream(`${this.OrcaJobDirectory}/${fileName}`);
+
+            await response.data.pipe(writer);
 
             return new Promise((resolve, reject) => {
                 writer.on('finish', resolve);
