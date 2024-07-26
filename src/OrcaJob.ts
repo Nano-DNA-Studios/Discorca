@@ -3,8 +3,10 @@ import OrcaBotDataManager from "./OrcaBotDataManager";
 import fs from "fs";
 import axios from "axios";
 import OrcaJobFile from "./OrcaJobFile";
+import IOrcaJob from "./IOrcaJob";
+import { Attachment } from "discord.js";
 
-class OrcaJob {
+class OrcaJob implements IOrcaJob {
 
     /**
     * The Name of the File sent (Without the file extension)
@@ -145,24 +147,26 @@ class OrcaJob {
 
         return [realsize, sizeFormat];
     }
-
+   
     /**
     * Simple function to download a file from a URL
-    * @param fileUrl The URL of the file to download
-    * @param outputPath The Path to download the file to
-    * @returns A promise telling when the download is complete
+    * @param attachement The Attachment to Download
     */
-    public async DownloadFile(fileUrl: string) {
+    public async DownloadFile(attachement: Attachment | null) {
+
+        if (!attachement)
+            return
+
         try {
             const response = await axios({
                 method: 'GET',
-                url: fileUrl,
+                url: attachement.url,
                 responseType: 'stream',
             });
 
-            const writer = fs.createWriteStream(this.GetFullFilePath(OrcaJobFile.InputFile));
+            let writer = fs.createWriteStream(`${this.OrcaJobDirectory}/${attachement.name}`);
 
-            response.data.pipe(writer);
+            await response.data.pipe(writer);
 
             return new Promise((resolve, reject) => {
                 writer.on('finish', resolve);
@@ -178,7 +182,7 @@ class OrcaJob {
      */
     public async RunJob(): Promise<void> {
         const dataManager = BotData.Instance(OrcaBotDataManager);
-        await new BashScriptRunner().RunLocally(`/Orca/orca  ${this.GetFullFilePath(OrcaJobFile.InputFile)} > ${this.GetFullFilePath(OrcaJobFile.OutputFile)}`).catch(e => dataManager.AddErrorLog(e));
+        await new BashScriptRunner().RunLocally(`/Orca/orca  ${this.GetFullFilePath(OrcaJobFile.InputFile)} > ${this.GetFullFilePath(OrcaJobFile.OutputFile)}`, this.OrcaJobDirectory).catch(e => dataManager.AddErrorLog(e));
     }
 
     /**
@@ -261,7 +265,9 @@ class OrcaJob {
      * @param file The Name of the Job File
      */
     public CopyToArchive(file: OrcaJobFile) {
-        fs.copyFileSync(this.GetFullFilePath(file), `${this.OrcaJobArchiveDirectory}/${this.GetFileName(file)}`, fs.constants.COPYFILE_EXCL);
+        fs.readdirSync(this.OrcaJobDirectory).forEach(file => {
+            fs.copyFileSync(file, `${this.OrcaJobArchiveDirectory}/${file}`, fs.constants.COPYFILE_EXCL);
+        });
     }
 
 }

@@ -26,11 +26,12 @@
   "dependencies": {
     "axios": "^1.6.7",
     "discord.js": "^14.14.1",
-    "dna-discord-framework": "^1.0.78",
+    "dna-discord-framework": "^1.0.87",
     "ssh2": "^1.15.0",
-    "typescript": "^5.4.2"
+    "typescript": "^5.5.4"
   },
   "devDependencies": {
+    "@types/follow-redirects": "^1.14.4",
     "@types/ssh2": "^1.15.0"
   }
 }

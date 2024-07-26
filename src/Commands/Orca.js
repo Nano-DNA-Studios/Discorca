@@ -35,9 +35,39 @@ class Orca extends dna_discord_framework_1.Command {
         this.Options = [
             {
                 type: dna_discord_framework_1.OptionTypesEnum.Attachment,
-                name: "orcafile",
+                name: "inputfile",
                 description: "Orca File to Run through Orca",
                 required: true,
+            },
+            {
+                type: dna_discord_framework_1.OptionTypesEnum.Attachment,
+                name: "xyzfile1",
+                description: "Additional XYZ File to Run through Orca",
+                required: false,
+            },
+            {
+                type: dna_discord_framework_1.OptionTypesEnum.Attachment,
+                name: "xyzfile2",
+                description: "Additional XYZ File to Run through Orca",
+                required: false,
+            },
+            {
+                type: dna_discord_framework_1.OptionTypesEnum.Attachment,
+                name: "xyzfile3",
+                description: "Additional XYZ File to Run through Orca",
+                required: false,
+            },
+            {
+                type: dna_discord_framework_1.OptionTypesEnum.Attachment,
+                name: "xyzfile4",
+                description: "Additional XYZ File to Run through Orca",
+                required: false,
+            },
+            {
+                type: dna_discord_framework_1.OptionTypesEnum.Attachment,
+                name: "xyzfile5",
+                description: "Additional XYZ File to Run through Orca",
+                required: false,
             },
         ];
         /**
@@ -48,18 +78,28 @@ class Orca extends dna_discord_framework_1.Command {
         this.JobIsComplete = false;
         /* <inheritdoc> */
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
-            const data = interaction.options.getAttachment("orcafile");
+            const inputfile = interaction.options.getAttachment("inputfile");
+            const xyzfile1 = interaction.options.getAttachment("xyzfile1");
+            const xyzfile2 = interaction.options.getAttachment("xyzfile2");
+            const xyzfile3 = interaction.options.getAttachment("xyzfile3");
+            const xyzfile4 = interaction.options.getAttachment("xyzfile4");
+            const xyzfile5 = interaction.options.getAttachment("xyzfile5");
             this.DiscordUser = interaction.user.username;
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
-            if (!data) {
+            if (!inputfile) {
                 this.InitializeUserResponse(interaction, "No Data Manager found, cannot run Command.");
                 return;
             }
-            this.InitializeUserResponse(interaction, `Running Orca Calculation on ${data.name}`);
-            let orcaJob = new OrcaJob_1.default(data.name);
+            this.InitializeUserResponse(interaction, `Running Orca Calculation on ${inputfile.name}`);
+            let orcaJob = new OrcaJob_1.default(inputfile.name);
             try {
                 yield orcaJob.CreateDirectories();
-                yield orcaJob.DownloadFile(data.url);
+                yield orcaJob.DownloadFile(inputfile);
+                yield orcaJob.DownloadFile(xyzfile1);
+                yield orcaJob.DownloadFile(xyzfile2);
+                yield orcaJob.DownloadFile(xyzfile3);
+                yield orcaJob.DownloadFile(xyzfile4);
+                yield orcaJob.DownloadFile(xyzfile5);
                 this.AddToResponseMessage(`Server will provide updates for the output file every 10 seconds`);
                 this.UpdateFile(orcaJob);
                 dataManager.AddJob(orcaJob);
@@ -77,15 +117,21 @@ class Orca extends dna_discord_framework_1.Command {
                 this.PingUser(interaction, orcaJob.JobName, true);
             }
             catch (e) {
-                if (orcaJob) {
-                    this.AddToResponseMessage("An Error Occured. Terminating Orca Job.\nCheck the Output File for Errors.");
-                    this.JobIsComplete = true;
-                    dataManager.RemoveJob(orcaJob);
-                    this.PingUser(interaction, orcaJob.JobName, false);
+                try {
+                    if (orcaJob) {
+                        this.AddToResponseMessage("An Error Occured. Terminating Orca Job.\nCheck the Output File for Errors.");
+                        this.JobIsComplete = true;
+                        dataManager.RemoveJob(orcaJob);
+                        this.PingUser(interaction, orcaJob.JobName, false);
+                    }
+                    if (e instanceof Error)
+                        dataManager.AddErrorLog(e);
+                    this.QueueNextActivity(client, dataManager);
                 }
-                if (e instanceof Error)
-                    BotDataManager.AddErrorLog(e);
-                this.QueueNextActivity(client, dataManager);
+                catch (j) {
+                    if (j instanceof Error)
+                        dataManager.AddErrorLog(j);
+                }
             }
         });
         /**

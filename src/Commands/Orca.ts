@@ -26,9 +26,39 @@ class Orca extends Command {
     Options = [
         {
             type: OptionTypesEnum.Attachment,
-            name: "orcafile",
+            name: "inputfile",
             description: "Orca File to Run through Orca",
             required: true,
+        },
+        {
+            type: OptionTypesEnum.Attachment,
+            name: "xyzfile1",
+            description: "Additional XYZ File to Run through Orca",
+            required: false,
+        },
+        {
+            type: OptionTypesEnum.Attachment,
+            name: "xyzfile2",
+            description: "Additional XYZ File to Run through Orca",
+            required: false,
+        },
+        {
+            type: OptionTypesEnum.Attachment,
+            name: "xyzfile3",
+            description: "Additional XYZ File to Run through Orca",
+            required: false,
+        },
+        {
+            type: OptionTypesEnum.Attachment,
+            name: "xyzfile4",
+            description: "Additional XYZ File to Run through Orca",
+            required: false,
+        },
+        {
+            type: OptionTypesEnum.Attachment,
+            name: "xyzfile5",
+            description: "Additional XYZ File to Run through Orca",
+            required: false,
         },
     ];
 
@@ -42,24 +72,34 @@ class Orca extends Command {
 
     /* <inheritdoc> */
     RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
+        const inputfile = interaction.options.getAttachment("inputfile");
+        const xyzfile1 = interaction.options.getAttachment("xyzfile1");
+        const xyzfile2 = interaction.options.getAttachment("xyzfile2");
+        const xyzfile3 = interaction.options.getAttachment("xyzfile3");
+        const xyzfile4 = interaction.options.getAttachment("xyzfile4");
+        const xyzfile5 = interaction.options.getAttachment("xyzfile5");
 
-        const data = interaction.options.getAttachment("orcafile");
         this.DiscordUser = interaction.user.username;
 
         const dataManager = BotData.Instance(OrcaBotDataManager);
 
-        if (!data) {
+        if (!inputfile) {
             this.InitializeUserResponse(interaction, "No Data Manager found, cannot run Command.")
             return;
         }
 
-        this.InitializeUserResponse(interaction, `Running Orca Calculation on ${data.name}`);
+        this.InitializeUserResponse(interaction, `Running Orca Calculation on ${inputfile.name}`);
 
-        let orcaJob = new OrcaJob(data.name);
+        let orcaJob = new OrcaJob(inputfile.name);
 
         try {
             await orcaJob.CreateDirectories();
-            await orcaJob.DownloadFile(data.url);
+            await orcaJob.DownloadFile(inputfile);
+            await orcaJob.DownloadFile(xyzfile1);
+            await orcaJob.DownloadFile(xyzfile2);
+            await orcaJob.DownloadFile(xyzfile3);
+            await orcaJob.DownloadFile(xyzfile4);
+            await orcaJob.DownloadFile(xyzfile5);
 
             this.AddToResponseMessage(`Server will provide updates for the output file every 10 seconds`);
             this.UpdateFile(orcaJob);
@@ -86,16 +126,21 @@ class Orca extends Command {
 
             this.PingUser(interaction, orcaJob.JobName, true);
         } catch (e) {
-            if (orcaJob) {
-                this.AddToResponseMessage("An Error Occured. Terminating Orca Job.\nCheck the Output File for Errors.");
-                this.JobIsComplete = true;
-                dataManager.RemoveJob(orcaJob);
-                this.PingUser(interaction, orcaJob.JobName, false);
-            }
-            if (e instanceof Error)
-                BotDataManager.AddErrorLog(e);
+            try {
+                if (orcaJob) {
+                    this.AddToResponseMessage("An Error Occured. Terminating Orca Job.\nCheck the Output File for Errors.");
+                    this.JobIsComplete = true;
+                    dataManager.RemoveJob(orcaJob);
+                    this.PingUser(interaction, orcaJob.JobName, false);
+                }
+                if (e instanceof Error)
+                    dataManager.AddErrorLog(e);
 
-            this.QueueNextActivity(client, dataManager);
+                this.QueueNextActivity(client, dataManager);
+            } catch (j) {
+                if (j instanceof Error)
+                    dataManager.AddErrorLog(j);
+            }
         }
     };
 
