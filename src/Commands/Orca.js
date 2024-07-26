@@ -97,6 +97,11 @@ class Orca extends dna_discord_framework_1.Command {
                 yield orcaJob.CreateDirectories();
                 yield orcaJob.DownloadFile(inputfile.url);
                 // It's being Downloaded Properly but the 
+                //
+                // Ok it seems like the issue is that we are running from root directory, so we need to change the working directory for the Bash Script to the Orca Job Directory
+                // Add the following to bash plugin tomorrow const process = spawn(Script, { shell: true, cwd: WorkingDirectory });
+                // And add a optional variable to the RunLocally function to specify the working directory
+                //
                 if (xyzfile1) {
                     console.log("Downloading XYZ File 1");
                     yield orcaJob.DownloadFile(xyzfile1.url, OrcaJobFile_1.default.XYZFile, xyzfile1.name);
