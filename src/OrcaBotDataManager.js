@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const dna_discord_framework_1 = require("dna-discord-framework");
 const OrcaJobDescription_1 = __importDefault(require("./OrcaJobDescription"));
+const discord_js_1 = require("discord.js");
 /**
  * Class Handling Data Management
  */
@@ -137,6 +138,14 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
     ClearJobs() {
         this.RUNNING_JOBS = {};
         this.SaveData();
+    }
+    /**
+     * Sets the Starting Activity of the Bot to Listening for New Orca Calculations
+     * @param client The Client to Set the Activity for
+     */
+    SetActivityToListen(client) {
+        if (client.user)
+            client.user.setActivity(" ", { type: discord_js_1.ActivityType.Custom, state: "Listening for New Orca Calculation" });
     }
 }
 exports.default = OrcaBotDataManager;

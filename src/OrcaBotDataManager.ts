@@ -1,6 +1,7 @@
 import { BotDataManager } from "dna-discord-framework";
 import OrcaJob from "./OrcaJob";
 import OrcaJobDescription from "./OrcaJobDescription";
+import { ActivityType, Client } from "discord.js";
 
 /**
  * Class Handling Data Management
@@ -153,6 +154,16 @@ class OrcaBotDataManager extends BotDataManager {
     {
         this.RUNNING_JOBS = {};
         this.SaveData();
+    }
+
+    /**
+     * Sets the Starting Activity of the Bot to Listening for New Orca Calculations
+     * @param client The Client to Set the Activity for
+     */
+    public SetActivityToListen (client: Client<boolean>)
+    {
+        if (client.user) 
+            client.user.setActivity(" ", { type: ActivityType.Custom, state: "Listening for New Orca Calculation" });
     }
 }
 

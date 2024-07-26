@@ -105,23 +105,19 @@ class OrcaJob {
     }
     /**
     * Simple function to download a file from a URL
-    * @param fileUrl The URL of the file to download
-    * @param outputPath The Path to download the file to
-    * @returns A promise telling when the download is complete
+    * @param attachement The Attachment to Download
     */
-    DownloadFile(fileUrl_1) {
-        return __awaiter(this, arguments, void 0, function* (fileUrl, jobFileType = OrcaJobFile_1.default.InputFile, fileName = "") {
+    DownloadFile(attachement) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!attachement)
+                return;
             try {
                 const response = yield (0, axios_1.default)({
                     method: 'GET',
-                    url: fileUrl,
+                    url: attachement.url,
                     responseType: 'stream',
                 });
-                let writer = null;
-                if (jobFileType == OrcaJobFile_1.default.InputFile)
-                    writer = fs_1.default.createWriteStream(this.GetFullFilePath(jobFileType));
-                else
-                    writer = fs_1.default.createWriteStream(`${this.OrcaJobDirectory}/${fileName}`);
+                let writer = fs_1.default.createWriteStream(`${this.OrcaJobDirectory}/${attachement.name}`);
                 yield response.data.pipe(writer);
                 return new Promise((resolve, reject) => {
                     writer.on('finish', resolve);
@@ -223,7 +219,6 @@ class OrcaJob {
         fs_1.default.readdirSync(this.OrcaJobDirectory).forEach(file => {
             fs_1.default.copyFileSync(file, `${this.OrcaJobArchiveDirectory}/${file}`, fs_1.default.constants.COPYFILE_EXCL);
         });
-        // fs.copyFileSync(this.GetFullFilePath(file), `${this.OrcaJobArchiveDirectory}/${this.GetFileName(file)}`, fs.constants.COPYFILE_EXCL);
     }
 }
 exports.default = OrcaJob;

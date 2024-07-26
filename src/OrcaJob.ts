@@ -4,6 +4,7 @@ import fs from "fs";
 import axios from "axios";
 import OrcaJobFile from "./OrcaJobFile";
 import IOrcaJob from "./IOrcaJob";
+import { Attachment } from "discord.js";
 
 class OrcaJob implements IOrcaJob {
 
@@ -146,27 +147,24 @@ class OrcaJob implements IOrcaJob {
 
         return [realsize, sizeFormat];
     }
-
+   
     /**
     * Simple function to download a file from a URL
-    * @param fileUrl The URL of the file to download
-    * @param outputPath The Path to download the file to
-    * @returns A promise telling when the download is complete
+    * @param attachement The Attachment to Download
     */
-    public async DownloadFile(fileUrl: string, jobFileType: OrcaJobFile = OrcaJobFile.InputFile, fileName: string = "") {
+    public async DownloadFile(attachement: Attachment | null) {
+
+        if (!attachement)
+            return
+
         try {
             const response = await axios({
                 method: 'GET',
-                url: fileUrl,
+                url: attachement.url,
                 responseType: 'stream',
             });
 
-            let writer = null;
-
-            if (jobFileType == OrcaJobFile.InputFile) 
-                writer = fs.createWriteStream(this.GetFullFilePath(jobFileType));
-            else
-                writer = fs.createWriteStream(`${this.OrcaJobDirectory}/${fileName}`);
+            let writer = fs.createWriteStream(`${this.OrcaJobDirectory}/${attachement.name}`);
 
             await response.data.pipe(writer);
 
@@ -270,8 +268,6 @@ class OrcaJob implements IOrcaJob {
         fs.readdirSync(this.OrcaJobDirectory).forEach(file => {
             fs.copyFileSync(file, `${this.OrcaJobArchiveDirectory}/${file}`, fs.constants.COPYFILE_EXCL);
         });
-
-       // fs.copyFileSync(this.GetFullFilePath(file), `${this.OrcaJobArchiveDirectory}/${this.GetFileName(file)}`, fs.constants.COPYFILE_EXCL);
     }
 
 }

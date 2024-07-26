@@ -1,3 +1,4 @@
+import { Attachment } from "discord.js";
 import OrcaJobFile from "./OrcaJobFile";
 import fs from "fs";
 
@@ -83,11 +84,9 @@ interface IOrcaJob {
 
     /**
     * Simple function to download a file from a URL
-    * @param fileUrl The URL of the file to download
-    * @param outputPath The Path to download the file to
-    * @returns A promise telling when the download is complete
+    * @param attachement The Attachment to Download
     */
-    DownloadFile(fileUrl: string, jobFileType: OrcaJobFile): void;
+    DownloadFile(attachement: Attachment): void;
 
     /**
      * Runs the Orca Calculation Job

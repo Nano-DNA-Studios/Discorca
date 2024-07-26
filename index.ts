@@ -8,3 +8,5 @@ Bot.StartBot();
 console.log("Bot Started");
 
 BotData.Instance(OrcaBotDataManager).ClearJobs();
+
+setTimeout(() => {BotData.Instance(OrcaBotDataManager).SetActivityToListen(Bot.BotInstance);} , 2500);

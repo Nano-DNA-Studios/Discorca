@@ -17,7 +17,6 @@ const promises_1 = __importDefault(require("fs/promises"));
 const OrcaBotDataManager_1 = __importDefault(require("../OrcaBotDataManager"));
 const OrcaJob_1 = __importDefault(require("../OrcaJob"));
 const OrcaJobFile_1 = __importDefault(require("../OrcaJobFile"));
-const fs_1 = __importDefault(require("fs"));
 /**
  * Command that Runs an Orca Calculation on the Device the Bot is hosted by
  */
@@ -95,28 +94,12 @@ class Orca extends dna_discord_framework_1.Command {
             let orcaJob = new OrcaJob_1.default(inputfile.name);
             try {
                 yield orcaJob.CreateDirectories();
-                yield orcaJob.DownloadFile(inputfile.url);
-                // It's being Downloaded Properly but the 
-                //
-                // Ok it seems like the issue is that we are running from root directory, so we need to change the working directory for the Bash Script to the Orca Job Directory
-                // Add the following to bash plugin tomorrow const process = spawn(Script, { shell: true, cwd: WorkingDirectory });
-                // And add a optional variable to the RunLocally function to specify the working directory
-                //
-                if (xyzfile1) {
-                    console.log("Downloading XYZ File 1");
-                    yield orcaJob.DownloadFile(xyzfile1.url, OrcaJobFile_1.default.XYZFile, xyzfile1.name);
-                    if (fs_1.default.existsSync(orcaJob.OrcaJobDirectory + "/" + xyzfile1.name)) {
-                        console.log("XYZ File 1 Exists");
-                    }
-                }
-                if (xyzfile2)
-                    yield orcaJob.DownloadFile(xyzfile2.url, OrcaJobFile_1.default.XYZFile);
-                if (xyzfile3)
-                    yield orcaJob.DownloadFile(xyzfile3.url, OrcaJobFile_1.default.XYZFile);
-                if (xyzfile4)
-                    yield orcaJob.DownloadFile(xyzfile4.url, OrcaJobFile_1.default.XYZFile);
-                if (xyzfile5)
-                    yield orcaJob.DownloadFile(xyzfile5.url, OrcaJobFile_1.default.XYZFile);
+                yield orcaJob.DownloadFile(inputfile);
+                yield orcaJob.DownloadFile(xyzfile1);
+                yield orcaJob.DownloadFile(xyzfile2);
+                yield orcaJob.DownloadFile(xyzfile3);
+                yield orcaJob.DownloadFile(xyzfile4);
+                yield orcaJob.DownloadFile(xyzfile5);
                 this.AddToResponseMessage(`Server will provide updates for the output file every 10 seconds`);
                 this.UpdateFile(orcaJob);
                 dataManager.AddJob(orcaJob);
