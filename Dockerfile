@@ -3,9 +3,6 @@ FROM mrdnalex/orca:latest
 #Change to root user
 USER root
 
-# Update and install necessary packages
-RUN apt-get update && apt-get upgrade -y && apt-get install -y curl xz-utils build-essential
-
 # Set the Node.js version
 ENV NODE_VERSION=20.11.1
 

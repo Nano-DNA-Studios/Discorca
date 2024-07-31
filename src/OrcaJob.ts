@@ -182,7 +182,9 @@ class OrcaJob implements IOrcaJob {
      */
     public async RunJob(): Promise<void> {
         const dataManager = BotData.Instance(OrcaBotDataManager);
-        await new BashScriptRunner().RunLocally(`/Orca/orca  ${this.GetFullFilePath(OrcaJobFile.InputFile)} > ${this.GetFullFilePath(OrcaJobFile.OutputFile)}`, this.OrcaJobDirectory).catch(e => dataManager.AddErrorLog(e));
+        await new BashScriptRunner().RunLocally(`/Orca/orca  ${this.GetFullFilePath(OrcaJobFile.InputFile)} > ${this.GetFullFilePath(OrcaJobFile.OutputFile)}`, this.OrcaJobDirectory).catch(e => {
+            e.name += `: Run Job (${this.JobName})`;
+            dataManager.AddErrorLog(e);});
     }
 
     /**
@@ -191,7 +193,9 @@ class OrcaJob implements IOrcaJob {
     public async ArchiveJob() {
         let runner = new BashScriptRunner();
         const dataManager = BotData.Instance(OrcaBotDataManager);
-        await runner.RunLocally(`tar -zcvf  ${this.GetFullFilePath(OrcaJobFile.ArchiveFile)} -C ${this.JobDirectory} ${this.JobName}`).catch(e => dataManager.AddErrorLog(e));
+        await runner.RunLocally(`tar -zcvf  ${this.GetFullFilePath(OrcaJobFile.ArchiveFile)} -C ${this.JobDirectory} ${this.JobName}`).catch(e => {
+            e.name += `: Archive Job (${this.JobName})`;
+            dataManager.AddErrorLog(e);});
     }
 
     /**

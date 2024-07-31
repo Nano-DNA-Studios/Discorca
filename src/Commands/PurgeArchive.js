@@ -28,7 +28,10 @@ class PurgeArchive extends dna_discord_framework_1.Command {
             let dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
             let runner = new dna_discord_framework_1.BashScriptRunner();
             this.InitializeUserResponse(interaction, "Purging Archive from the Server");
-            yield runner.RunLocally("rm -rf /OrcaJobsArchive/*").catch(e => dataManager.AddErrorLog(e));
+            yield runner.RunLocally("rm -rf /OrcaJobsArchive/*").catch(e => {
+                e.name += `: Purge Archive`;
+                dataManager.AddErrorLog(e);
+            });
             this.AddToResponseMessage(":white_check_mark: Server has Purged all Archives :white_check_mark:");
         });
         /* <inheritdoc> */

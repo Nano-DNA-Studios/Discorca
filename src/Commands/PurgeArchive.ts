@@ -19,7 +19,9 @@ class PurgeArchive extends Command {
 
         this.InitializeUserResponse(interaction, "Purging Archive from the Server");
 
-        await runner.RunLocally("rm -rf /OrcaJobsArchive/*").catch(e => dataManager.AddErrorLog(e));
+        await runner.RunLocally("rm -rf /OrcaJobsArchive/*").catch(e => {
+            e.name += `: Purge Archive`;
+            dataManager.AddErrorLog(e);});
 
         this.AddToResponseMessage(":white_check_mark: Server has Purged all Archives :white_check_mark:");
     };

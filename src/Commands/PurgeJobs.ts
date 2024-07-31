@@ -19,7 +19,9 @@ class PurgeJobs extends Command {
 
         this.InitializeUserResponse(interaction, "Purging Jobs from the Server");
 
-        await runner.RunLocally("rm -rf /OrcaJobs/*").catch(e => dataManager.AddErrorLog(e));
+        await runner.RunLocally("rm -rf /OrcaJobs/*").catch(e => {
+            e.name += `: Purge Job `;
+            dataManager.AddErrorLog(e);});
 
         this.AddToResponseMessage(":white_check_mark: Server has Purged all Jobs :white_check_mark:");
     };
