@@ -24,6 +24,8 @@ class PurgeJobs extends dna_discord_framework_1.Command {
         /* <inheritdoc> */
         this.CommandDescription = "Purges all Jobs from the Server, clears the Job Folder";
         /* <inheritdoc> */
+        this.IsCommandBlocking = false;
+        /* <inheritdoc> */
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
             let dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
             let runner = new dna_discord_framework_1.BashScriptRunner();

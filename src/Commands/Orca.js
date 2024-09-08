@@ -32,6 +32,8 @@ class Orca extends dna_discord_framework_1.Command {
         /* <inheritdoc> */
         this.CommandHandler = dna_discord_framework_1.DefaultCommandHandler.Instance();
         /* <inheritdoc> */
+        this.IsCommandBlocking = false;
+        /* <inheritdoc> */
         this.Options = [
             {
                 type: dna_discord_framework_1.OptionTypesEnum.Attachment,

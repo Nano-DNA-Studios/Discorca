@@ -16,6 +16,9 @@ class ListJobArchive extends Command {
     /* <inheritdoc> */
     public CommandDescription = "Sends the Full Archive File as a Ephemeral Message, or returns the SCP Copy Command to Download.";
 
+    /* <inheritdoc> */
+    public IsCommandBlocking: boolean = false;
+
     /**
     * The Username of the User who called the Command
     */
@@ -33,7 +36,7 @@ class ListJobArchive extends Command {
         }
 
         const orcaJob: OrcaJob = new OrcaJob(archiveName);
-        
+
         if (fs.readdirSync(dataManager.JOB_ARCHIVE_FOLDER).includes(archiveName)) {
             this.InitializeUserResponse(interaction, "File is found in Archive, Preparing...");
             const filePath = orcaJob.GetFullFilePath(OrcaJobFile.ArchiveFile);

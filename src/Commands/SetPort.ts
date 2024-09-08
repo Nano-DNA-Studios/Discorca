@@ -13,6 +13,9 @@ class SetPort extends Command {
     public CommandDescription = "Adds a Port Number needed to Connect to in order to copy files. (Set to 0 for no port)";
 
     /* <inheritdoc> */
+    public IsCommandBlocking: boolean = false;
+
+    /* <inheritdoc> */
     public RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
 
         this.InitializeUserResponse(interaction, "Setting Port");

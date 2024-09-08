@@ -13,6 +13,9 @@ class Resources extends Command {
     public CommandDescription = "Displays the Resources That are Currently being used by other Jobs.";
 
     /* <inheritdoc> */
+    public IsCommandBlocking: boolean = false;
+
+    /* <inheritdoc> */
     public RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
         const dataManager = BotData.Instance(OrcaBotDataManager);
         const jobs = dataManager.RUNNING_JOBS;

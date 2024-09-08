@@ -13,6 +13,9 @@ class SetDownloadLocation extends Command {
     public CommandDescription = "Adds a Custom Download Location that is mapped to a Disord User";
 
     /* <inheritdoc> */
+    public IsCommandBlocking: boolean = false;
+
+    /* <inheritdoc> */
     public RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
 
         this.InitializeUserResponse(interaction, "Setting Download Location");

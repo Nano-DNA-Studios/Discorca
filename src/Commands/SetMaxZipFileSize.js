@@ -24,6 +24,8 @@ class SetMaxZipSize extends dna_discord_framework_1.Command {
         /* <inheritdoc> */
         this.CommandDescription = "Sets the Maximum Size a Zip File in Mega Bytes before Discorca returns an SCP Copy Command";
         /* <inheritdoc> */
+        this.IsCommandBlocking = false;
+        /* <inheritdoc> */
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
             this.InitializeUserResponse(interaction, "Setting Max Size");
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);

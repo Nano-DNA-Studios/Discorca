@@ -23,6 +23,9 @@ class Orca extends Command {
     CommandHandler = DefaultCommandHandler.Instance();
 
     /* <inheritdoc> */
+    public IsCommandBlocking: boolean = false;
+
+    /* <inheritdoc> */
     Options = [
         {
             type: OptionTypesEnum.Attachment,

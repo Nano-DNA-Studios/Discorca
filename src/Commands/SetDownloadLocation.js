@@ -24,6 +24,8 @@ class SetDownloadLocation extends dna_discord_framework_1.Command {
         /* <inheritdoc> */
         this.CommandDescription = "Adds a Custom Download Location that is mapped to a Disord User";
         /* <inheritdoc> */
+        this.IsCommandBlocking = false;
+        /* <inheritdoc> */
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
             this.InitializeUserResponse(interaction, "Setting Download Location");
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);

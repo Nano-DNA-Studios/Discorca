@@ -14,6 +14,9 @@ class ListJobArchive extends Command {
     public CommandDescription = "Lists all the Stored Job Archives stored on the Device and in the Bind Mount";
 
     /* <inheritdoc> */
+    public IsCommandBlocking: boolean = false;
+
+    /* <inheritdoc> */
     public RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
 
         const botData = BotData.Instance(OrcaBotDataManager);

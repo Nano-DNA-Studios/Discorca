@@ -24,6 +24,8 @@ class SetMountLocation extends dna_discord_framework_1.Command {
         /* <inheritdoc> */
         this.CommandDescription = "Sets the Mount Location Variable for the Bot, (where the Archive is Stored on the Host Device)";
         /* <inheritdoc> */
+        this.IsCommandBlocking = false;
+        /* <inheritdoc> */
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
             this.InitializeUserResponse(interaction, "Setting Host Device Mount Location");
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);

@@ -13,6 +13,9 @@ class SyncArchive extends Command {
     /* <inheritdoc> */
     public CommandDescription = "Syncs the Local Device with the Archive. It Downloads the entire Archive Folder.";
 
+    /* <inheritdoc> */
+    public IsCommandBlocking: boolean = false;
+
     /**
     * The Username of the User who called the Command
     */

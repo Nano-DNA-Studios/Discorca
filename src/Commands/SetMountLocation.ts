@@ -13,6 +13,9 @@ class SetMountLocation extends Command {
     public CommandDescription = "Sets the Mount Location Variable for the Bot, (where the Archive is Stored on the Host Device)";
 
     /* <inheritdoc> */
+    public IsCommandBlocking: boolean = false;
+
+    /* <inheritdoc> */
     public RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
 
         this.InitializeUserResponse(interaction, "Setting Host Device Mount Location");

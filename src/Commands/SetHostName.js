@@ -24,6 +24,8 @@ class SetHostName extends dna_discord_framework_1.Command {
         /* <inheritdoc> */
         this.CommandDescription = "Sets the Host Name Variable for the Bot, (The Host Name of the Host Device)";
         /* <inheritdoc> */
+        this.IsCommandBlocking = false;
+        /* <inheritdoc> */
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
             this.InitializeUserResponse(interaction, "Setting Host Device Name");
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);

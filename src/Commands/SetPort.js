@@ -24,6 +24,8 @@ class SetPort extends dna_discord_framework_1.Command {
         /* <inheritdoc> */
         this.CommandDescription = "Adds a Port Number needed to Connect to in order to copy files. (Set to 0 for no port)";
         /* <inheritdoc> */
+        this.IsCommandBlocking = false;
+        /* <inheritdoc> */
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
             this.InitializeUserResponse(interaction, "Setting Port");
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);

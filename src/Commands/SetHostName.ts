@@ -13,6 +13,9 @@ class SetHostName extends Command {
     public CommandDescription = "Sets the Host Name Variable for the Bot, (The Host Name of the Host Device)";
 
     /* <inheritdoc> */
+    public IsCommandBlocking: boolean = false;
+
+    /* <inheritdoc> */
     public RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
 
         this.InitializeUserResponse(interaction, "Setting Host Device Name");

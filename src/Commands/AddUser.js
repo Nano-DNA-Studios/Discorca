@@ -24,6 +24,8 @@ class AddUser extends dna_discord_framework_1.Command {
         /* <inheritdoc> */
         this.CommandDescription = "Adds a User to the Server, Maps the Discord Username, Server User and Custom Download Location.";
         /* <inheritdoc> */
+        this.IsCommandBlocking = false;
+        /* <inheritdoc> */
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
             this.InitializeUserResponse(interaction, "Adding a User");
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);

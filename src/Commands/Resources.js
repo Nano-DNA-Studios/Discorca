@@ -22,6 +22,8 @@ class Resources extends dna_discord_framework_1.Command {
         /* <inheritdoc> */
         this.CommandDescription = "Displays the Resources That are Currently being used by other Jobs.";
         /* <inheritdoc> */
+        this.IsCommandBlocking = false;
+        /* <inheritdoc> */
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
             const jobs = dataManager.RUNNING_JOBS;

@@ -9,7 +9,7 @@
     "framework": "npm uninstall dna-discord-framework@experimental && npm uninstall dna-discord-framework && npm update && npm install dna-discord-framework",
     "experimental": "npm uninstall dna-discord-framework && npm uninstall dna-discord-framework && npm update && npm install dna-discord-framework@experimental",
     "docker": "npm run build && docker build -t mrdnalex/orcabot .",
-    "dockerpublish": "npm run docker && docker login -u mrdnalex && docker push mrdnalex/orcabot",
+    "dockerpublish": "npm run docker && docker push mrdnalex/orcabot",
     "dockerstop": "docker stop orcabot && docker rm orcabot",
     "rundocker": "npm run docker &&  docker rm -f orcabot && cls && docker run -it --name orcabot --restart=always --shm-size=100G -v C:\\Users\\MrDNA\\Downloads\\OrcaBind:/OrcaJobsArchive mrdnalex/orcabot"
   },
@@ -26,7 +26,7 @@
   "dependencies": {
     "axios": "^1.6.7",
     "discord.js": "^14.14.1",
-    "dna-discord-framework": "^1.0.88",
+    "dna-discord-framework": "^1.0.98",
     "ssh2": "^1.15.0",
     "typescript": "^5.5.4"
   },

@@ -24,6 +24,8 @@ class SyncArchive extends dna_discord_framework_1.Command {
         this.CommandName = "syncarchive";
         /* <inheritdoc> */
         this.CommandDescription = "Syncs the Local Device with the Archive. It Downloads the entire Archive Folder.";
+        /* <inheritdoc> */
+        this.IsCommandBlocking = false;
         /**
         * The Username of the User who called the Command
         */

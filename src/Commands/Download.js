@@ -27,6 +27,8 @@ class ListJobArchive extends dna_discord_framework_1.Command {
         this.CommandName = "download";
         /* <inheritdoc> */
         this.CommandDescription = "Sends the Full Archive File as a Ephemeral Message, or returns the SCP Copy Command to Download.";
+        /* <inheritdoc> */
+        this.IsCommandBlocking = false;
         /**
         * The Username of the User who called the Command
         */

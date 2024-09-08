@@ -13,6 +13,9 @@ class AddUser extends Command {
     public CommandDescription = "Adds a User to the Server, Maps the Discord Username, Server User and Custom Download Location.";
 
     /* <inheritdoc> */
+    public IsCommandBlocking: boolean = false;
+
+    /* <inheritdoc> */
     public RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
 
         this.InitializeUserResponse(interaction, "Adding a User");

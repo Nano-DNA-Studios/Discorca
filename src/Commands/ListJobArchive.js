@@ -25,6 +25,8 @@ class ListJobArchive extends dna_discord_framework_1.Command {
         /* <inheritdoc> */
         this.CommandDescription = "Lists all the Stored Job Archives stored on the Device and in the Bind Mount";
         /* <inheritdoc> */
+        this.IsCommandBlocking = false;
+        /* <inheritdoc> */
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
             const botData = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
             let jobs = fs_1.default.readdirSync(botData.JOB_ARCHIVE_FOLDER);

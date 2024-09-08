@@ -13,6 +13,9 @@ class PurgeJobs extends Command {
     public CommandDescription = "Purges all Jobs from the Server, clears the Job Folder";
 
     /* <inheritdoc> */
+    public IsCommandBlocking: boolean = false;
+
+    /* <inheritdoc> */
     public RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
         let dataManager = BotData.Instance(OrcaBotDataManager);
         let runner = new BashScriptRunner();
