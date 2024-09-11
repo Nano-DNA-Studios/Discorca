@@ -5,6 +5,7 @@ import axios from "axios";
 import OrcaJobFile from "./OrcaJobFile";
 import IOrcaJob from "./IOrcaJob";
 import { Attachment } from "discord.js";
+import { connected } from "process";
 
 class OrcaJob implements IOrcaJob {
 
@@ -182,7 +183,7 @@ class OrcaJob implements IOrcaJob {
      */
     public async RunJob(): Promise<void> {
         const dataManager = BotData.Instance(OrcaBotDataManager);
-        
+
         await new BashScriptRunner().RunLocally(`/Orca/orca  ${this.GetFullFilePath(OrcaJobFile.InputFile)} > ${this.GetFullFilePath(OrcaJobFile.OutputFile)}`, this.OrcaJobDirectory).catch(e => {
             console.log(e);
             e.name += `: Run Job (${this.JobName})`;

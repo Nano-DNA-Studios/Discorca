@@ -41,6 +41,8 @@ class OrcaJob {
     * Purges Similar Named Directories and Creates them for the Job
     */
     CreateDirectories() {
+        console.log(this.OrcaJobDirectory);
+        console.log(this.OrcaJobArchiveDirectory);
         try {
             fs_1.default.rmSync(this.OrcaJobDirectory, { recursive: true, force: true });
         }
