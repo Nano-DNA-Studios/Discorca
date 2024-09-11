@@ -20,8 +20,6 @@ RUN mkdir /OrcaJobs \
     mkdir /OrcaJobs/Jobs \
     mkdir /OrcaJobs/Archive
 
-
-
 #RUN mkdir /OrcaBot \
 #    mkdir /OrcaJobs 
 
