@@ -16,14 +16,8 @@ RUN cd /tmp \
 RUN apt-get install npm -y
 
 # Make a Folder for the Bot and a Folder for the Orca Jobs to Run
-<<<<<<< Updated upstream
-RUN mkdir /OrcaJobs \
-    mkdir /OrcaJobs/Jobs \
-    mkdir /OrcaJobs/Archive
-=======
 RUN mkdir /OrcaJobs && mkdir /OrcaBot
 RUN cd /OrcaJobs && mkdir Job && mkdir Archive
->>>>>>> Stashed changes
 
 #RUN mkdir /OrcaBot \
 #    mkdir /OrcaJobs 
