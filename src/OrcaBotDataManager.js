@@ -51,11 +51,11 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
         /**
          * The Path to the Folder for Orca Jobs that are running
          */
-        this.JOB_FOLDER = "/OrcaJobs";
+        this.JOB_FOLDER = "/OrcaJobs/Jobs";
         /**
          * The Path to the Orca Jobs Archive
          */
-        this.JOB_ARCHIVE_FOLDER = "/OrcaJobsArchive";
+        this.JOB_ARCHIVE_FOLDER = "/OrcaJobs/Archive";
         /**
          * A Dictionary of Running Jobs on the Server
          */

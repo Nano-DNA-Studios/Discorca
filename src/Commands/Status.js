@@ -16,6 +16,7 @@ const OrcaBotDataManager_1 = __importDefault(require("../OrcaBotDataManager"));
 const os_1 = __importDefault(require("os"));
 class Status extends dna_discord_framework_1.Command {
     constructor() {
+        //Maybe eventually return the status of the bot as well, and a copy of error logs?
         super(...arguments);
         /* <inheritdoc> */
         this.CommandName = "status";
@@ -27,7 +28,7 @@ class Status extends dna_discord_framework_1.Command {
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
             const jobs = dataManager.RUNNING_JOBS;
-            this.InitializeUserResponse(interaction, `Resources being used are: `);
+            this.InitializeUserResponse(interaction, `Discorca's Status and used Resources: `);
             this.RespondCPUUsage(jobs);
             this.RespondMemoryUsage();
             this.RespondJobList(jobs);
