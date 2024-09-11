@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const dna_discord_framework_1 = require("dna-discord-framework");
 const OrcaJobDescription_1 = __importDefault(require("./OrcaJobDescription"));
 const discord_js_1 = require("discord.js");
+const fs_1 = __importDefault(require("fs"));
 /**
  * Class Handling Data Management
  */
@@ -60,6 +61,12 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
          * A Dictionary of Running Jobs on the Server
          */
         this.RUNNING_JOBS = {};
+    }
+    CreateJobDirectories() {
+        if (!fs_1.default.existsSync(this.JOB_FOLDER))
+            fs_1.default.mkdirSync(this.JOB_FOLDER, { recursive: true });
+        if (!fs_1.default.existsSync(this.JOB_ARCHIVE_FOLDER))
+            fs_1.default.mkdirSync(this.JOB_ARCHIVE_FOLDER, { recursive: true });
     }
     DiscorcaSetup() {
         return this.HOSTNAME != "" && this.HOST_DEVICE_MOUNT_LOCATION != "";
