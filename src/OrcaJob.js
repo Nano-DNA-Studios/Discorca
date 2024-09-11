@@ -136,6 +136,7 @@ class OrcaJob {
         return __awaiter(this, void 0, void 0, function* () {
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
             yield new dna_discord_framework_1.BashScriptRunner().RunLocally(`/Orca/orca  ${this.GetFullFilePath(OrcaJobFile_1.default.InputFile)} > ${this.GetFullFilePath(OrcaJobFile_1.default.OutputFile)}`, this.OrcaJobDirectory).catch(e => {
+                console.log(e);
                 e.name += `: Run Job (${this.JobName})`;
                 dataManager.AddErrorLog(e);
             });

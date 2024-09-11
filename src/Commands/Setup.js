@@ -14,40 +14,76 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 const dna_discord_framework_1 = require("dna-discord-framework");
 const OrcaBotDataManager_1 = __importDefault(require("../OrcaBotDataManager"));
 /**
- * Command that Sets the Max Zip Size
+ * Command that Sets the Port Number for the SCP Copy Command
  */
-class SetMaxZipSize extends dna_discord_framework_1.Command {
+class Setup extends dna_discord_framework_1.Command {
     constructor() {
         super(...arguments);
         /* <inheritdoc> */
-        this.CommandName = "setmaxzipsize";
+        this.CommandName = "setup";
         /* <inheritdoc> */
-        this.CommandDescription = "Sets the Maximum Size a Zip File in Mega Bytes before Discorca returns an SCP Copy Command";
+        this.CommandDescription = "Sets up the Discorca with necessary ";
         /* <inheritdoc> */
         this.IsCommandBlocking = false;
         /* <inheritdoc> */
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
-            this.InitializeUserResponse(interaction, "Setting Max Size");
+            this.InitializeUserResponse(interaction, "Setting up Discorca");
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
-            const maxsize = interaction.options.getNumber("maxsize");
+            const port = interaction.options.getNumber("port");
+            const maxsize = interaction.options.getNumber("maxzipfilesize");
+            const hostname = interaction.options.getString("hostname");
+            const mountlocation = interaction.options.getString("mountlocation");
             if (!dataManager) {
                 this.AddToResponseMessage("Data Manager doesn't Exist, can't set the Download Location");
                 return;
             }
-            if (maxsize) {
-                dataManager.SetMaxZipSize(maxsize);
-                this.AddToResponseMessage(`The Max Size has been set to ${maxsize}`);
+            if (!(hostname && mountlocation && maxsize && port)) {
+                this.AddToResponseMessage("The Setup Command requires all the Options to be set.");
+                return;
             }
-            else
-                this.AddToResponseMessage(`The Max Size has not been set or is invalid.`);
+            try {
+                dataManager.SetHostName(hostname);
+                dataManager.SetMountLocation(mountlocation);
+                dataManager.SetMaxZipSize(maxsize);
+                dataManager.SetPort(port);
+                dataManager.SaveData();
+            }
+            catch (error) {
+                this.AddToResponseMessage("Error Occured while setting up Discorca");
+                return;
+            }
+            this.AddToResponseMessage(`Discorca has been setup with the following settings:`);
+            this.AddToResponseMessage(`Host Name : ${hostname}`);
+            this.AddToResponseMessage(`Mount Location : ${mountlocation} MB`);
+            this.AddToResponseMessage(`Max Zip File Size : ${maxsize}`);
+            this.AddToResponseMessage(`Port : ${port}`);
+            dataManager.DISCORCA_SETUP = dataManager.DiscorcaSetup();
         });
         /* <inheritdoc> */
         this.IsEphemeralResponse = true;
         /* <inheritdoc> */
         this.Options = [
             {
-                name: "maxsize",
-                description: "The Maximum Size of a Zip File in Mega Bytes",
+                name: "port",
+                description: "The SSH Port Number of the Server or Device hosting Orca (0 if no Port)",
+                required: true,
+                type: dna_discord_framework_1.OptionTypesEnum.Number
+            },
+            {
+                name: "hostname",
+                description: "The HostName of the Server or Device hosting Discorca",
+                required: true,
+                type: dna_discord_framework_1.OptionTypesEnum.String
+            },
+            {
+                name: "mountlocation",
+                description: "The Mount location storing the Job Files on the Host Device",
+                required: true,
+                type: dna_discord_framework_1.OptionTypesEnum.String
+            },
+            {
+                name: "maxzipfilesize",
+                description: "The Maximum Size of the Zip File that can be uploaded through Discord",
                 required: true,
                 type: dna_discord_framework_1.OptionTypesEnum.Number,
                 choices: [
@@ -92,4 +128,4 @@ class SetMaxZipSize extends dna_discord_framework_1.Command {
         ];
     }
 }
-module.exports = SetMaxZipSize;
+module.exports = Setup;

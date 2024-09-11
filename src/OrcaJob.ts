@@ -147,7 +147,7 @@ class OrcaJob implements IOrcaJob {
 
         return [realsize, sizeFormat];
     }
-   
+
     /**
     * Simple function to download a file from a URL
     * @param attachement The Attachment to Download
@@ -182,9 +182,12 @@ class OrcaJob implements IOrcaJob {
      */
     public async RunJob(): Promise<void> {
         const dataManager = BotData.Instance(OrcaBotDataManager);
+        
         await new BashScriptRunner().RunLocally(`/Orca/orca  ${this.GetFullFilePath(OrcaJobFile.InputFile)} > ${this.GetFullFilePath(OrcaJobFile.OutputFile)}`, this.OrcaJobDirectory).catch(e => {
+            console.log(e);
             e.name += `: Run Job (${this.JobName})`;
-            dataManager.AddErrorLog(e);});
+            dataManager.AddErrorLog(e);
+        });
     }
 
     /**
@@ -195,7 +198,8 @@ class OrcaJob implements IOrcaJob {
         const dataManager = BotData.Instance(OrcaBotDataManager);
         await runner.RunLocally(`tar -zcvf  ${this.GetFullFilePath(OrcaJobFile.ArchiveFile)} -C ${this.JobDirectory} ${this.JobName}`).catch(e => {
             e.name += `: Archive Job (${this.JobName})`;
-            dataManager.AddErrorLog(e);});
+            dataManager.AddErrorLog(e);
+        });
     }
 
     /**

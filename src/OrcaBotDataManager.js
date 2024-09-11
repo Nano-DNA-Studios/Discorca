@@ -13,6 +13,14 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
     constructor() {
         super(...arguments);
         /**
+         * The Setup Status of the Server
+         */
+        this.DISCORCA_SETUP = false;
+        /**
+         * The Port to the Server is Port Forwarded on
+         */
+        this.PORT = 0;
+        /**
          * The File Path on the Host Device that is storing the Mounted Data
          */
         this.HOST_DEVICE_MOUNT_LOCATION = "";
@@ -21,14 +29,6 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
          */
         this.HOSTNAME = "";
         /**
-         * A Mapping between the Discord User who sent the Command and the Server User
-         */
-        this.DISCORD_USER_TO_SERVER_USER = {};
-        /**
-         * A Mapping between the Discord User who sent the Command and the Download Location on their Personal Device
-         */
-        this.DISCORD_USER_TO_DOWNLOAD_LOCATION = {};
-        /**
          * The Maximum File size for a Zip File to be sent through Discord (in MB)
          */
         this.ZIP_FILE_MAX_SIZE_MB = 5;
@@ -36,6 +36,14 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
          * The Maximum File size for a regular File to be sent through Discord (in MB)
          */
         this.FILE_MAX_SIZE_MB = 5;
+        /**
+         * A Mapping between the Discord User who sent the Command and the Server User
+         */
+        this.DISCORD_USER_TO_SERVER_USER = {};
+        /**
+         * A Mapping between the Discord User who sent the Command and the Download Location on their Personal Device
+         */
+        this.DISCORD_USER_TO_DOWNLOAD_LOCATION = {};
         /**
          * Stores the Job Name and a mapping to the Full Job Archive
          */
@@ -49,13 +57,12 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
          */
         this.JOB_ARCHIVE_FOLDER = "/OrcaJobsArchive";
         /**
-         * The Port to the Server is Port Forwarded on
-         */
-        this.PORT = 0;
-        /**
          * A Dictionary of Running Jobs on the Server
          */
         this.RUNNING_JOBS = {};
+    }
+    DiscorcaSetup() {
+        return this.HOSTNAME != "" && this.HOST_DEVICE_MOUNT_LOCATION != "";
     }
     /**
      * Sets the Mounted Directory File Path (Used for creating the SCP Copy Command)
@@ -63,7 +70,6 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
      */
     SetMountLocation(filepath) {
         this.HOST_DEVICE_MOUNT_LOCATION = filepath;
-        this.SaveData();
     }
     /**
      * Sets the Host Name / Device Name of the Server
@@ -71,7 +77,6 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
      */
     SetHostName(hostName) {
         this.HOSTNAME = hostName;
-        this.SaveData();
     }
     /**
      * Adds a Mapping of the Discord User to the Server User
@@ -97,7 +102,6 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
      */
     SetPort(port) {
         this.PORT = port;
-        this.SaveData();
     }
     /**
      * Sets the Maximum Size Zip Files can be before returning a SCP Copy Command
@@ -105,7 +109,6 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
      */
     SetMaxZipSize(maxsize) {
         this.ZIP_FILE_MAX_SIZE_MB = maxsize;
-        this.SaveData();
     }
     /**
      * Adds a Job and it's Full Archive File Name

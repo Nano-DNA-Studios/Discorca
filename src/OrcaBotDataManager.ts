@@ -9,6 +9,16 @@ import { ActivityType, Client } from "discord.js";
 class OrcaBotDataManager extends BotDataManager {
 
     /**
+     * The Setup Status of the Server
+     */
+    public DISCORCA_SETUP: boolean = false;
+
+    /**
+     * The Port to the Server is Port Forwarded on
+     */
+    public PORT: Number = 0;
+
+    /**
      * The File Path on the Host Device that is storing the Mounted Data
      */
     public HOST_DEVICE_MOUNT_LOCATION: string = "";
@@ -19,16 +29,6 @@ class OrcaBotDataManager extends BotDataManager {
     public HOSTNAME: string = "";
 
     /**
-     * A Mapping between the Discord User who sent the Command and the Server User
-     */
-    public DISCORD_USER_TO_SERVER_USER: Record<string, string> = {};
-
-    /**
-     * A Mapping between the Discord User who sent the Command and the Download Location on their Personal Device
-     */
-    public DISCORD_USER_TO_DOWNLOAD_LOCATION: Record<string, string> = {};
-
-    /**
      * The Maximum File size for a Zip File to be sent through Discord (in MB)
      */
     public ZIP_FILE_MAX_SIZE_MB: Number = 5;
@@ -37,6 +37,17 @@ class OrcaBotDataManager extends BotDataManager {
      * The Maximum File size for a regular File to be sent through Discord (in MB) 
      */
     public FILE_MAX_SIZE_MB: Number = 5;
+
+
+    /**
+     * A Mapping between the Discord User who sent the Command and the Server User
+     */
+    public DISCORD_USER_TO_SERVER_USER: Record<string, string> = {};
+
+    /**
+     * A Mapping between the Discord User who sent the Command and the Download Location on their Personal Device
+     */
+    public DISCORD_USER_TO_DOWNLOAD_LOCATION: Record<string, string> = {};
 
     /**
      * Stores the Job Name and a mapping to the Full Job Archive
@@ -54,14 +65,14 @@ class OrcaBotDataManager extends BotDataManager {
     public JOB_ARCHIVE_FOLDER: string = "/OrcaJobsArchive";
 
     /**
-     * The Port to the Server is Port Forwarded on
-     */
-    public PORT: Number = 0;
-
-    /**
      * A Dictionary of Running Jobs on the Server
      */
     public RUNNING_JOBS: Record<string, OrcaJobDescription> = {};
+
+    public DiscorcaSetup () : boolean
+    {
+        return this.HOSTNAME != "" && this.HOST_DEVICE_MOUNT_LOCATION != "";
+    }
 
     /**
      * Sets the Mounted Directory File Path (Used for creating the SCP Copy Command)
@@ -69,7 +80,6 @@ class OrcaBotDataManager extends BotDataManager {
      */
     public SetMountLocation(filepath: string) {
         this.HOST_DEVICE_MOUNT_LOCATION = filepath;
-        this.SaveData();
     }
 
     /**
@@ -78,7 +88,6 @@ class OrcaBotDataManager extends BotDataManager {
      */
     public SetHostName(hostName: string) {
         this.HOSTNAME = hostName;
-        this.SaveData();
     }
 
     /**
@@ -107,7 +116,6 @@ class OrcaBotDataManager extends BotDataManager {
      */
     public SetPort(port: Number) {
         this.PORT = port;
-        this.SaveData();
     }
 
     /**
@@ -116,7 +124,6 @@ class OrcaBotDataManager extends BotDataManager {
      */
     public SetMaxZipSize(maxsize: Number) {
         this.ZIP_FILE_MAX_SIZE_MB = maxsize;
-        this.SaveData();
     }
 
     /**
@@ -133,7 +140,7 @@ class OrcaBotDataManager extends BotDataManager {
      * Adds a Job Instance to the Running Jobs
      * @param job The Job to Add to the Running Jobs
      */
-   public AddJob (job: OrcaJob) {
+    public AddJob(job: OrcaJob) {
         this.RUNNING_JOBS[job.JobName] = new OrcaJobDescription(job);
         this.SaveData();
     }
@@ -142,7 +149,7 @@ class OrcaBotDataManager extends BotDataManager {
      * Removes a Job Instance from the Running Jobs
      * @param job The Job to Remove from the Running Jobs
      */
-    public RemoveJob (job: OrcaJob) {
+    public RemoveJob(job: OrcaJob) {
         delete this.RUNNING_JOBS[job.JobName];
         this.SaveData();
     }
@@ -150,8 +157,7 @@ class OrcaBotDataManager extends BotDataManager {
     /**
      * Clears all Stored Running Jobs
      */
-    public ClearJobs ()
-    {
+    public ClearJobs() {
         this.RUNNING_JOBS = {};
         this.SaveData();
     }
@@ -160,9 +166,8 @@ class OrcaBotDataManager extends BotDataManager {
      * Sets the Starting Activity of the Bot to Listening for New Orca Calculations
      * @param client The Client to Set the Activity for
      */
-    public SetActivityToListen (client: Client<boolean>)
-    {
-        if (client.user) 
+    public SetActivityToListen(client: Client<boolean>) {
+        if (client.user)
             client.user.setActivity(" ", { type: ActivityType.Custom, state: "Listening for New Orca Calculation" });
     }
 }
