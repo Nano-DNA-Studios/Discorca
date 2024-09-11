@@ -22,7 +22,7 @@ class Setup extends dna_discord_framework_1.Command {
         /* <inheritdoc> */
         this.CommandName = "setup";
         /* <inheritdoc> */
-        this.CommandDescription = "Sets up the Discorca with necessary ";
+        this.CommandDescription = "Configures Discorca with proper settings for calculations";
         /* <inheritdoc> */
         this.IsCommandBlocking = false;
         /* <inheritdoc> */
@@ -64,14 +64,8 @@ class Setup extends dna_discord_framework_1.Command {
         /* <inheritdoc> */
         this.Options = [
             {
-                name: "port",
-                description: "The SSH Port Number of the Server or Device hosting Orca (0 if no Port)",
-                required: true,
-                type: dna_discord_framework_1.OptionTypesEnum.Number
-            },
-            {
                 name: "hostname",
-                description: "The HostName of the Server or Device hosting Discorca",
+                description: "The HostName or IP Address of the Device hosting Discorca",
                 required: true,
                 type: dna_discord_framework_1.OptionTypesEnum.String
             },
@@ -124,6 +118,12 @@ class Setup extends dna_discord_framework_1.Command {
                         value: 80
                     },
                 ]
+            },
+            {
+                name: "port",
+                description: "The SSH Port Number of the Server or Device hosting Orca (0 if no Port)",
+                required: true,
+                type: dna_discord_framework_1.OptionTypesEnum.Number
             },
         ];
     }

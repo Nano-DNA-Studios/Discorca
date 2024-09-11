@@ -14,13 +14,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 const dna_discord_framework_1 = require("dna-discord-framework");
 const OrcaBotDataManager_1 = __importDefault(require("../OrcaBotDataManager"));
 const os_1 = __importDefault(require("os"));
-class Resources extends dna_discord_framework_1.Command {
+class Status extends dna_discord_framework_1.Command {
     constructor() {
         super(...arguments);
         /* <inheritdoc> */
-        this.CommandName = "resources";
+        this.CommandName = "status";
         /* <inheritdoc> */
-        this.CommandDescription = "Displays the Resources That are Currently being used by other Jobs.";
+        this.CommandDescription = "Displays Discorca's Status and Resource Usage";
         /* <inheritdoc> */
         this.IsCommandBlocking = false;
         /* <inheritdoc> */
@@ -106,4 +106,4 @@ class Resources extends dna_discord_framework_1.Command {
         }
     }
 }
-module.exports = Resources;
+module.exports = Status;

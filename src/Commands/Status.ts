@@ -4,13 +4,15 @@ import OrcaBotDataManager from "../OrcaBotDataManager";
 import os from "os";
 import OrcaJobDescription from "../OrcaJobDescription";
 
-class Resources extends Command {
+class Status extends Command {
+
+    //Maybe eventually return the status of the bot as well, and a copy of error logs?
 
     /* <inheritdoc> */
-    public CommandName = "resources";
+    public CommandName = "status";
 
     /* <inheritdoc> */
-    public CommandDescription = "Displays the Resources That are Currently being used by other Jobs.";
+    public CommandDescription = "Displays Discorca's Status and Resource Usage";
 
     /* <inheritdoc> */
     public IsCommandBlocking: boolean = false;
@@ -110,5 +112,5 @@ class Resources extends Command {
     }
 }
 
-export = Resources;
+export = Status;
 
