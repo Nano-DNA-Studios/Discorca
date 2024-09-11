@@ -38,7 +38,6 @@ class SyncArchive extends Command {
      */
     GetSyncCommand() {
         const dataManager = BotData.Instance(OrcaBotDataManager);
-        const orcaJob: OrcaJob = new OrcaJob("random");
         let command = "";
         try {
             const user = dataManager.DISCORD_USER_TO_SERVER_USER[this.DiscordUser];
@@ -46,12 +45,12 @@ class SyncArchive extends Command {
             const hostName = dataManager.HOSTNAME;
 
             if (dataManager.PORT == 0)
-                command = `scp -r ${user}@${hostName}:${dataManager.HOST_DEVICE_MOUNT_LOCATION}/Archive "${downloadLocation}"`;
+                command = `scp -r ${user}@${hostName}:${dataManager.GetHostDeviceArchivePath()} "${downloadLocation}"`;
             else
                 command = `scp -r -P ${dataManager.PORT} ${user}@${hostName}:${dataManager.HOST_DEVICE_MOUNT_LOCATION}/Archive "${downloadLocation}"`;
 
         } catch (e) {
-            command = `scp -r serverUser@hostName:${dataManager.HOST_DEVICE_MOUNT_LOCATION}/Archive /Path/on/local/device`;
+            command = `scp -r serverUser@hostName:${dataManager.GetHostDeviceArchivePath()} /Path/on/local/device`;
         }
 
         return command;

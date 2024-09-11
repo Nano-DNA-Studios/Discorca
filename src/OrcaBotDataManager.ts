@@ -70,6 +70,10 @@ class OrcaBotDataManager extends BotDataManager {
      */
     public RUNNING_JOBS: Record<string, OrcaJobDescription> = {};
 
+    public GetHostDeviceArchivePath () : string{
+        return this.HOST_DEVICE_MOUNT_LOCATION + "/Archive";
+    }
+
     public CreateJobDirectories () : void
     {
         if (!fs.existsSync(this.JOB_FOLDER))
