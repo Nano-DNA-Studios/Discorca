@@ -57,12 +57,12 @@ class OrcaBotDataManager extends BotDataManager {
     /**
      * The Path to the Folder for Orca Jobs that are running
      */
-    public JOB_FOLDER: string = "/OrcaJobs";
+    public JOB_FOLDER: string = "/OrcaJobs/Jobs";
 
     /**
      * The Path to the Orca Jobs Archive
      */
-    public JOB_ARCHIVE_FOLDER: string = "/OrcaJobsArchive";
+    public JOB_ARCHIVE_FOLDER: string = "/OrcaJobs/Archive";
 
     /**
      * A Dictionary of Running Jobs on the Server
