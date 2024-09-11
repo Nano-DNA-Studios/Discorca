@@ -2,6 +2,7 @@ import { BotDataManager } from "dna-discord-framework";
 import OrcaJob from "./OrcaJob";
 import OrcaJobDescription from "./OrcaJobDescription";
 import { ActivityType, Client } from "discord.js";
+import fs from "fs";
 
 /**
  * Class Handling Data Management
@@ -68,6 +69,15 @@ class OrcaBotDataManager extends BotDataManager {
      * A Dictionary of Running Jobs on the Server
      */
     public RUNNING_JOBS: Record<string, OrcaJobDescription> = {};
+
+    public CreateJobDirectories () : void
+    {
+        if (!fs.existsSync(this.JOB_FOLDER))
+            fs.mkdirSync(this.JOB_FOLDER, { recursive: true });
+
+        if (!fs.existsSync(this.JOB_ARCHIVE_FOLDER))
+            fs.mkdirSync(this.JOB_ARCHIVE_FOLDER, { recursive: true });
+    }
 
     public DiscorcaSetup () : boolean
     {

@@ -54,6 +54,7 @@ class Setup extends Command {
         this.AddToResponseMessage(`Max Zip File Size : ${maxsize}`);
         this.AddToResponseMessage(`Port : ${port}`);
 
+        dataManager.CreateJobDirectories();
         dataManager.DISCORCA_SETUP = dataManager.DiscorcaSetup();
     };
 

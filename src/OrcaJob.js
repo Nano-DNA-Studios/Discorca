@@ -41,24 +41,30 @@ class OrcaJob {
     * Purges Similar Named Directories and Creates them for the Job
     */
     CreateDirectories() {
-        console.log(this.OrcaJobDirectory);
-        console.log(this.OrcaJobArchiveDirectory);
         try {
             fs_1.default.rmSync(this.OrcaJobDirectory, { recursive: true, force: true });
         }
-        catch (e) { }
+        catch (e) {
+            console.log(e);
+        }
         try {
             fs_1.default.mkdirSync(this.OrcaJobDirectory, { recursive: true });
         }
-        catch (e) { }
+        catch (e) {
+            console.log(e);
+        }
         try {
             fs_1.default.rmSync(this.OrcaJobArchiveDirectory, { recursive: true, force: true });
         }
-        catch (e) { }
-        try {
-            fs_1.default.mkdirSync(this.OrcaJobArchiveDirectory);
+        catch (e) {
+            console.log(e);
         }
-        catch (e) { }
+        try {
+            fs_1.default.mkdirSync(this.OrcaJobArchiveDirectory, { recursive: true });
+        }
+        catch (e) {
+            console.log(e);
+        }
     }
     /**
     * Creates the SCP Copy Command for the User to Copy and use in their Terminal

@@ -94,11 +94,12 @@ class OrcaJob implements IOrcaJob {
     * Purges Similar Named Directories and Creates them for the Job
     */
     CreateDirectories() {
-        try { fs.rmSync(this.OrcaJobDirectory, { recursive: true, force: true }); } catch (e) { }
-        try { fs.mkdirSync(this.OrcaJobDirectory, { recursive: true }); } catch (e) { }
+        try { fs.rmSync(this.OrcaJobDirectory, { recursive: true, force: true }); } catch (e) { console.log(e); }
+        try { fs.mkdirSync(this.OrcaJobDirectory, { recursive: true }); } catch (e) { console.log(e);}
 
-        try { fs.rmSync(this.OrcaJobArchiveDirectory, { recursive: true, force: true }); } catch (e) { }
-        try { fs.mkdirSync(this.OrcaJobArchiveDirectory); } catch (e) { }
+        try { fs.rmSync(this.OrcaJobArchiveDirectory, { recursive: true, force: true }); } catch (e) {console.log(e); }
+        try { fs.mkdirSync(this.OrcaJobArchiveDirectory, { recursive: true }); } catch (e) {console.log(e); }
+
     }
 
     /**
