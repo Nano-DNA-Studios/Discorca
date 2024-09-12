@@ -2,6 +2,7 @@ import { BotDataManager } from "dna-discord-framework";
 import OrcaJob from "./OrcaJob";
 import OrcaJobDescription from "./OrcaJobDescription";
 import { ActivityType, Client } from "discord.js";
+import fs from "fs";
 
 /**
  * Class Handling Data Management
@@ -57,19 +58,43 @@ class OrcaBotDataManager extends BotDataManager {
     /**
      * The Path to the Folder for Orca Jobs that are running
      */
-    public JOB_FOLDER: string = "/OrcaJobs";
+    public JOB_FOLDER: string = "/OrcaJobs/Jobs";
 
     /**
      * The Path to the Orca Jobs Archive
      */
-    public JOB_ARCHIVE_FOLDER: string = "/OrcaJobsArchive";
+    public JOB_ARCHIVE_FOLDER: string = "/OrcaJobs/Archive";
 
     /**
      * A Dictionary of Running Jobs on the Server
      */
     public RUNNING_JOBS: Record<string, OrcaJobDescription> = {};
 
-    public DiscorcaSetup () : boolean
+    /**
+     * Retrieves the Archive Direcotry Path on the Host Device
+     * @returns 
+     */
+    public GetHostDeviceArchivePath () : string{
+        return this.HOST_DEVICE_MOUNT_LOCATION + "/Archive";
+    }
+
+    /**
+     * Creates the Job Directories if they don't Exist
+     */
+    public CreateJobDirectories () : void
+    {
+        if (!fs.existsSync(this.JOB_FOLDER))
+            fs.mkdirSync(this.JOB_FOLDER, { recursive: true });
+
+        if (!fs.existsSync(this.JOB_ARCHIVE_FOLDER))
+            fs.mkdirSync(this.JOB_ARCHIVE_FOLDER, { recursive: true });
+    }
+
+    /**
+     * Checks if the Server has been Setup
+     * @returns True if the Server has been Setup
+     */
+    public IsDiscorcaSetup () : boolean
     {
         return this.HOSTNAME != "" && this.HOST_DEVICE_MOUNT_LOCATION != "";
     }

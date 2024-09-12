@@ -10,4 +10,5 @@ Bot.StartBot();
 console.log("Bot Started");
 let dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
 dataManager.ClearJobs();
+dataManager.CreateJobDirectories();
 setTimeout(() => { dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default).SetActivityToListen(Bot.BotInstance); }, 2500);

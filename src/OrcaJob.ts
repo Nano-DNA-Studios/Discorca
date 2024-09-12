@@ -5,6 +5,7 @@ import axios from "axios";
 import OrcaJobFile from "./OrcaJobFile";
 import IOrcaJob from "./IOrcaJob";
 import { Attachment } from "discord.js";
+import { connected } from "process";
 
 class OrcaJob implements IOrcaJob {
 
@@ -93,11 +94,12 @@ class OrcaJob implements IOrcaJob {
     * Purges Similar Named Directories and Creates them for the Job
     */
     CreateDirectories() {
-        try { fs.rmSync(this.OrcaJobDirectory, { recursive: true, force: true }); } catch (e) { }
-        try { fs.mkdirSync(this.OrcaJobDirectory, { recursive: true }); } catch (e) { }
+        try { fs.rmSync(this.OrcaJobDirectory, { recursive: true, force: true }); } catch (e) { console.log(e); }
+        try { fs.mkdirSync(this.OrcaJobDirectory, { recursive: true }); } catch (e) { console.log(e);}
 
-        try { fs.rmSync(this.OrcaJobArchiveDirectory, { recursive: true, force: true }); } catch (e) { }
-        try { fs.mkdirSync(this.OrcaJobArchiveDirectory); } catch (e) { }
+        try { fs.rmSync(this.OrcaJobArchiveDirectory, { recursive: true, force: true }); } catch (e) {console.log(e); }
+        try { fs.mkdirSync(this.OrcaJobArchiveDirectory, { recursive: true }); } catch (e) {console.log(e); }
+
     }
 
     /**
@@ -182,7 +184,7 @@ class OrcaJob implements IOrcaJob {
      */
     public async RunJob(): Promise<void> {
         const dataManager = BotData.Instance(OrcaBotDataManager);
-        
+
         await new BashScriptRunner().RunLocally(`/Orca/orca  ${this.GetFullFilePath(OrcaJobFile.InputFile)} > ${this.GetFullFilePath(OrcaJobFile.OutputFile)}`, this.OrcaJobDirectory).catch(e => {
             console.log(e);
             e.name += `: Run Job (${this.JobName})`;

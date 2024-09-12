@@ -22,7 +22,7 @@ class Status extends Command {
         const dataManager = BotData.Instance(OrcaBotDataManager);
         const jobs = dataManager.RUNNING_JOBS;
 
-        this.InitializeUserResponse(interaction, `Resources being used are: `);
+        this.InitializeUserResponse(interaction, `Discorca's Status and used Resources: `);
         this.RespondCPUUsage(jobs);
         this.RespondMemoryUsage();
         this.RespondJobList(jobs);
