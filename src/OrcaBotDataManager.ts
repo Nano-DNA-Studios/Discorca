@@ -70,10 +70,17 @@ class OrcaBotDataManager extends BotDataManager {
      */
     public RUNNING_JOBS: Record<string, OrcaJobDescription> = {};
 
+    /**
+     * Retrieves the Archive Direcotry Path on the Host Device
+     * @returns 
+     */
     public GetHostDeviceArchivePath () : string{
         return this.HOST_DEVICE_MOUNT_LOCATION + "/Archive";
     }
 
+    /**
+     * Creates the Job Directories if they don't Exist
+     */
     public CreateJobDirectories () : void
     {
         if (!fs.existsSync(this.JOB_FOLDER))
@@ -83,7 +90,11 @@ class OrcaBotDataManager extends BotDataManager {
             fs.mkdirSync(this.JOB_ARCHIVE_FOLDER, { recursive: true });
     }
 
-    public DiscorcaSetup () : boolean
+    /**
+     * Checks if the Server has been Setup
+     * @returns True if the Server has been Setup
+     */
+    public IsDiscorcaSetup () : boolean
     {
         return this.HOSTNAME != "" && this.HOST_DEVICE_MOUNT_LOCATION != "";
     }

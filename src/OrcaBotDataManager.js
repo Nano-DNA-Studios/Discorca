@@ -62,16 +62,27 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
          */
         this.RUNNING_JOBS = {};
     }
+    /**
+     * Retrieves the Archive Direcotry Path on the Host Device
+     * @returns
+     */
     GetHostDeviceArchivePath() {
         return this.HOST_DEVICE_MOUNT_LOCATION + "/Archive";
     }
+    /**
+     * Creates the Job Directories if they don't Exist
+     */
     CreateJobDirectories() {
         if (!fs_1.default.existsSync(this.JOB_FOLDER))
             fs_1.default.mkdirSync(this.JOB_FOLDER, { recursive: true });
         if (!fs_1.default.existsSync(this.JOB_ARCHIVE_FOLDER))
             fs_1.default.mkdirSync(this.JOB_ARCHIVE_FOLDER, { recursive: true });
     }
-    DiscorcaSetup() {
+    /**
+     * Checks if the Server has been Setup
+     * @returns True if the Server has been Setup
+     */
+    IsDiscorcaSetup() {
         return this.HOSTNAME != "" && this.HOST_DEVICE_MOUNT_LOCATION != "";
     }
     /**

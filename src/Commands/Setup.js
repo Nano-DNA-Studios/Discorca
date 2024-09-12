@@ -58,7 +58,7 @@ class Setup extends dna_discord_framework_1.Command {
             this.AddToResponseMessage(`Max Zip File Size : ${maxsize}`);
             this.AddToResponseMessage(`Port : ${port}`);
             dataManager.CreateJobDirectories();
-            dataManager.DISCORCA_SETUP = dataManager.DiscorcaSetup();
+            dataManager.DISCORCA_SETUP = dataManager.IsDiscorcaSetup();
         });
         /* <inheritdoc> */
         this.IsEphemeralResponse = true;

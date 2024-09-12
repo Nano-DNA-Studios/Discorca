@@ -55,7 +55,7 @@ class Setup extends Command {
         this.AddToResponseMessage(`Port : ${port}`);
 
         dataManager.CreateJobDirectories();
-        dataManager.DISCORCA_SETUP = dataManager.DiscorcaSetup();
+        dataManager.DISCORCA_SETUP = dataManager.IsDiscorcaSetup();
     };
 
     /* <inheritdoc> */
