@@ -78,6 +78,9 @@ class OrcaBotDataManager extends BotDataManager {
         return this.HOST_DEVICE_MOUNT_LOCATION + "/Archive";
     }
 
+    /**
+     * Purges the Jobs Folder by deleting it and recreating it
+     */
     public PurgeJobs () : void
     {
         if (fs.existsSync(this.JOB_FOLDER))
@@ -86,7 +89,9 @@ class OrcaBotDataManager extends BotDataManager {
         this.CreateJobDirectories();
     }
 
-
+    /**
+     * Purges the Archive Folder by deleting it and recreating it
+     */
     public PurgeArchive () : void
     {
         if (fs.existsSync(this.JOB_ARCHIVE_FOLDER))
