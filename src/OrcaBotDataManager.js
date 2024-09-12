@@ -69,6 +69,16 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
     GetHostDeviceArchivePath() {
         return this.HOST_DEVICE_MOUNT_LOCATION + "/Archive";
     }
+    PurgeJobs() {
+        if (fs_1.default.existsSync(this.JOB_FOLDER))
+            fs_1.default.rmSync(this.JOB_FOLDER, { recursive: true });
+        this.CreateJobDirectories();
+    }
+    PurgeArchive() {
+        if (fs_1.default.existsSync(this.JOB_ARCHIVE_FOLDER))
+            fs_1.default.rmSync(this.JOB_ARCHIVE_FOLDER, { recursive: true });
+        this.CreateJobDirectories();
+    }
     /**
      * Creates the Job Directories if they don't Exist
      */

@@ -78,6 +78,23 @@ class OrcaBotDataManager extends BotDataManager {
         return this.HOST_DEVICE_MOUNT_LOCATION + "/Archive";
     }
 
+    public PurgeJobs () : void
+    {
+        if (fs.existsSync(this.JOB_FOLDER))
+            fs.rmSync(this.JOB_FOLDER, { recursive: true });
+
+        this.CreateJobDirectories();
+    }
+
+
+    public PurgeArchive () : void
+    {
+        if (fs.existsSync(this.JOB_ARCHIVE_FOLDER))
+            fs.rmSync(this.JOB_ARCHIVE_FOLDER, { recursive: true });
+
+        this.CreateJobDirectories();
+    }
+
     /**
      * Creates the Job Directories if they don't Exist
      */
