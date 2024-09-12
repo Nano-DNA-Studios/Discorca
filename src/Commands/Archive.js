@@ -17,30 +17,31 @@ const fs_1 = __importDefault(require("fs"));
 /**
  * Command that Purges all Job Folders in the Job Directory
  */
-class ListJobArchive extends dna_discord_framework_1.Command {
+class Archive extends dna_discord_framework_1.Command {
     constructor() {
         super(...arguments);
         /* <inheritdoc> */
-        this.CommandName = "listarchive";
+        this.CommandName = "archive";
         /* <inheritdoc> */
-        this.CommandDescription = "Lists all the Stored Job Archives stored on the Device and in the Bind Mount";
+        this.CommandDescription = "Lists the Job Archive stored on the Device";
         /* <inheritdoc> */
         this.IsCommandBlocking = false;
         /* <inheritdoc> */
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
             const botData = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
-            let jobs = fs_1.default.readdirSync(botData.JOB_ARCHIVE_FOLDER);
-            this.InitializeUserResponse(interaction, "Here are the Job Archives Stored on the Device: ");
-            this.AddToResponseMessage(" ");
-            yield jobs.forEach(job => {
+            if (!fs_1.default.existsSync(botData.JOB_ARCHIVE_FOLDER)) {
+                this.InitializeUserResponse(interaction, "No Job Archive Folder Found on the Device");
+                return;
+            }
+            this.InitializeUserResponse(interaction, "Here are the Job Archives Stored on the Device: \n");
+            yield fs_1.default.readdirSync(botData.JOB_ARCHIVE_FOLDER).forEach(job => {
                 botData.JOB_ARCHIVE_MAP[job] = `${botData.HOST_DEVICE_MOUNT_LOCATION}/${job}/${job}Full.tar.gz`;
                 this.AddToResponseMessage(job);
             });
-            this.AddToResponseMessage(" ");
-            this.AddToResponseMessage("To Download an Archive use the /download Command and supply it with the Archives Name");
+            this.AddToResponseMessage("\nTo Download an Archive use the /download Command and supply it with the Archives Name");
         });
         /* <inheritdoc> */
         this.IsEphemeralResponse = true;
     }
 }
-module.exports = ListJobArchive;
+module.exports = Archive;

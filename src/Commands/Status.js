@@ -27,11 +27,10 @@ class Status extends dna_discord_framework_1.Command {
         /* <inheritdoc> */
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
-            const jobs = dataManager.RUNNING_JOBS;
             this.InitializeUserResponse(interaction, `Discorca's Status and used Resources: `);
-            this.RespondCPUUsage(jobs);
             this.RespondMemoryUsage();
-            this.RespondJobList(jobs);
+            this.RespondCPUUsage(dataManager);
+            this.RespondJobList(dataManager);
         });
         /* <inheritdoc> */
         this.IsEphemeralResponse = true;
@@ -44,7 +43,12 @@ class Status extends dna_discord_framework_1.Command {
      * Displays the List of Active Jobs
      * @param jobs The Jobs that are currently running
      */
-    RespondJobList(jobs) {
+    RespondJobList(dataManager) {
+        if (!dataManager.IsJobRunning()) {
+            this.AddToResponseMessage(`\nNo Jobs are running currently.`);
+            return;
+        }
+        let jobs = dataManager.RUNNING_JOBS;
         this.AddToResponseMessage(`\nCurrent Jobs Running are: `);
         for (let job in jobs)
             this.AddToResponseMessage(`${jobs[job].JobName} (${jobs[job].GetElapsedTime()})`);
@@ -53,8 +57,13 @@ class Status extends dna_discord_framework_1.Command {
      * Responds to the Resource Command Message with the CPU Usage (Number of Cores being used by Jobs)
      * @param jobs The Jobs that are currently running
      */
-    RespondCPUUsage(jobs) {
+    RespondCPUUsage(dataManager) {
+        if (!dataManager.IsJobRunning()) {
+            this.AddToResponseMessage(`No CPU's are being used currently.`);
+            return;
+        }
         let cores = 0;
+        let jobs = dataManager.RUNNING_JOBS;
         for (let job in jobs)
             cores += jobs[job].OccupiedCores;
         this.AddToResponseMessage(`CPUs : ${cores} Cores`);

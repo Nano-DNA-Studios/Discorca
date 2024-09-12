@@ -39,7 +39,6 @@ class OrcaBotDataManager extends BotDataManager {
      */
     public FILE_MAX_SIZE_MB: Number = 5;
 
-
     /**
      * A Mapping between the Discord User who sent the Command and the Server User
      */
@@ -69,6 +68,15 @@ class OrcaBotDataManager extends BotDataManager {
      * A Dictionary of Running Jobs on the Server
      */
     public RUNNING_JOBS: Record<string, OrcaJobDescription> = {};
+
+
+    /**
+     * Returns a Boolean based on if there are Jobs Running
+     * @returns True if there are Jobs Running
+     */
+    public IsJobRunning () : boolean {
+        return Object.keys(this.RUNNING_JOBS).length > 0;
+    }
 
     /**
      * Retrieves the Archive Direcotry Path on the Host Device

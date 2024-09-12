@@ -63,17 +63,30 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
         this.RUNNING_JOBS = {};
     }
     /**
+     * Returns a Boolean based on if there are Jobs Running
+     * @returns True if there are Jobs Running
+     */
+    IsJobRunning() {
+        return Object.keys(this.RUNNING_JOBS).length > 0;
+    }
+    /**
      * Retrieves the Archive Direcotry Path on the Host Device
      * @returns
      */
     GetHostDeviceArchivePath() {
         return this.HOST_DEVICE_MOUNT_LOCATION + "/Archive";
     }
+    /**
+     * Purges the Jobs Folder by deleting it and recreating it
+     */
     PurgeJobs() {
         if (fs_1.default.existsSync(this.JOB_FOLDER))
             fs_1.default.rmSync(this.JOB_FOLDER, { recursive: true });
         this.CreateJobDirectories();
     }
+    /**
+     * Purges the Archive Folder by deleting it and recreating it
+     */
     PurgeArchive() {
         if (fs_1.default.existsSync(this.JOB_ARCHIVE_FOLDER))
             fs_1.default.rmSync(this.JOB_ARCHIVE_FOLDER, { recursive: true });

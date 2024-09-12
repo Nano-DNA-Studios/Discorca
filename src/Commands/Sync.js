@@ -16,13 +16,13 @@ const OrcaBotDataManager_1 = __importDefault(require("../OrcaBotDataManager"));
 /**
  * Command that
  */
-class SyncArchive extends dna_discord_framework_1.Command {
+class Sync extends dna_discord_framework_1.Command {
     constructor() {
         super(...arguments);
         /* <inheritdoc> */
-        this.CommandName = "syncarchive";
+        this.CommandName = "sync";
         /* <inheritdoc> */
-        this.CommandDescription = "Syncs the Local Device with the Archive. It Downloads the entire Archive Folder.";
+        this.CommandDescription = "Syncs your Personal Device with the Archive on the Server";
         /* <inheritdoc> */
         this.IsCommandBlocking = false;
         /**
@@ -60,4 +60,4 @@ class SyncArchive extends dna_discord_framework_1.Command {
         return command;
     }
 }
-module.exports = SyncArchive;
+module.exports = Sync;

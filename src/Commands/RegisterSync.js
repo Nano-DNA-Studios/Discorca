@@ -14,44 +14,49 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 const dna_discord_framework_1 = require("dna-discord-framework");
 const OrcaBotDataManager_1 = __importDefault(require("../OrcaBotDataManager"));
 /**
- * Command that Sets the Download Locations
+ * Command that Adds a User and a Custom Download Location on their Device
  */
-class SetDownloadLocation extends dna_discord_framework_1.Command {
+class RegisterSync extends dna_discord_framework_1.Command {
     constructor() {
         super(...arguments);
         /* <inheritdoc> */
-        this.CommandName = "setdownloadlocation";
+        this.CommandName = "registersync";
         /* <inheritdoc> */
-        this.CommandDescription = "Adds a Custom Download Location that is mapped to a Disord User";
+        this.CommandDescription = "Registers a new User for Syncing";
         /* <inheritdoc> */
         this.IsCommandBlocking = false;
         /* <inheritdoc> */
-        this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
-            this.InitializeUserResponse(interaction, "Setting Download Location");
-            const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
-            const downloadLocation = interaction.options.getString("downloadlocation");
-            if (!dataManager) {
-                this.AddToResponseMessage("Data Manager doesn't Exist, can't set the Download Location");
-                return;
-            }
-            if (downloadLocation) {
-                dataManager.AddDownloadLocation(interaction.user.username, downloadLocation);
-                this.AddToResponseMessage(`The Download Location has been set to ${downloadLocation}`);
-            }
-            else
-                this.AddToResponseMessage(`The Download Location has not been set or is invalid.`);
-        });
-        /* <inheritdoc> */
         this.IsEphemeralResponse = true;
         /* <inheritdoc> */
+        this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
+            const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
+            const user = interaction.options.getString("user");
+            const downloadLocation = interaction.options.getString("downloadlocation");
+            if (!(user && downloadLocation)) {
+                this.InitializeUserResponse(interaction, "The Add User Command requires all the Options to be set.");
+                return;
+            }
+            dataManager.AddServerUser(interaction.user.username, user);
+            dataManager.AddDownloadLocation(interaction.user.username, downloadLocation);
+            this.InitializeUserResponse(interaction, `New User has been registered for Syncing.`);
+            this.AddToResponseMessage(`User : ${interaction.user.username} --> Server User : ${user}`);
+            this.AddToResponseMessage(`Download Location : ${downloadLocation}`);
+        });
+        /* <inheritdoc> */
         this.Options = [
+            {
+                name: "user",
+                description: "The Users Account on the Server",
+                required: true,
+                type: dna_discord_framework_1.OptionTypesEnum.String
+            },
             {
                 name: "downloadlocation",
                 description: "The Download Location on the Users Personal Device",
                 required: true,
                 type: dna_discord_framework_1.OptionTypesEnum.String
-            },
+            }
         ];
     }
 }
-module.exports = SetDownloadLocation;
+module.exports = RegisterSync;

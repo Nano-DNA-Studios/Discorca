@@ -1,17 +1,16 @@
 import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
 import { BotData, BotDataManager, Command } from "dna-discord-framework";
 import OrcaBotDataManager from "../OrcaBotDataManager";
-import OrcaJob from "../OrcaJob";
 
 /**
  * Command that 
  */
-class SyncArchive extends Command {
+class Sync extends Command {
     /* <inheritdoc> */
-    public CommandName = "syncarchive";
+    public CommandName = "sync";
 
     /* <inheritdoc> */
-    public CommandDescription = "Syncs the Local Device with the Archive. It Downloads the entire Archive Folder.";
+    public CommandDescription = "Syncs your Personal Device with the Archive on the Server";
 
     /* <inheritdoc> */
     public IsCommandBlocking: boolean = false;
@@ -57,4 +56,4 @@ class SyncArchive extends Command {
     }
 }
 
-export = SyncArchive;
+export = Sync;

@@ -2,7 +2,6 @@ import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
 import { BotData, BotDataManager, Command } from "dna-discord-framework";
 import OrcaBotDataManager from "../OrcaBotDataManager";
 import os from "os";
-import OrcaJobDescription from "../OrcaJobDescription";
 
 class Status extends Command {
 
@@ -20,12 +19,11 @@ class Status extends Command {
     /* <inheritdoc> */
     public RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
         const dataManager = BotData.Instance(OrcaBotDataManager);
-        const jobs = dataManager.RUNNING_JOBS;
 
         this.InitializeUserResponse(interaction, `Discorca's Status and used Resources: `);
-        this.RespondCPUUsage(jobs);
         this.RespondMemoryUsage();
-        this.RespondJobList(jobs);
+        this.RespondCPUUsage(dataManager);
+        this.RespondJobList(dataManager);
     };
 
     /* <inheritdoc> */
@@ -40,8 +38,15 @@ class Status extends Command {
      * Displays the List of Active Jobs
      * @param jobs The Jobs that are currently running
      */
-    private RespondJobList(jobs: Record<string, OrcaJobDescription>): void {
+    private RespondJobList(dataManager: OrcaBotDataManager): void {
+        if (!dataManager.IsJobRunning()) {
+            this.AddToResponseMessage(`\nNo Jobs are running currently.`);
+            return;
+        }
+
+        let jobs = dataManager.RUNNING_JOBS;
         this.AddToResponseMessage(`\nCurrent Jobs Running are: `);
+
         for (let job in jobs) 
             this.AddToResponseMessage(`${jobs[job].JobName} (${jobs[job].GetElapsedTime()})`)
     }
@@ -50,8 +55,14 @@ class Status extends Command {
      * Responds to the Resource Command Message with the CPU Usage (Number of Cores being used by Jobs)
      * @param jobs The Jobs that are currently running
      */
-    private RespondCPUUsage(jobs: Record<string, OrcaJobDescription>): void {
+    private RespondCPUUsage(dataManager: OrcaBotDataManager): void {
+        if (!dataManager.IsJobRunning()) {
+            this.AddToResponseMessage(`No CPU's are being used currently.`);
+            return;
+        }
+        
         let cores: number = 0;
+        let jobs = dataManager.RUNNING_JOBS;
 
         for (let job in jobs)
             cores += jobs[job].OccupiedCores;
