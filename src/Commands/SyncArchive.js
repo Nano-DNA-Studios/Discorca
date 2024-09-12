@@ -52,7 +52,7 @@ class SyncArchive extends dna_discord_framework_1.Command {
             if (dataManager.PORT == 0)
                 command = `scp -r ${user}@${hostName}:${dataManager.GetHostDeviceArchivePath()} "${downloadLocation}"`;
             else
-                command = `scp -r -P ${dataManager.PORT} ${user}@${hostName}:${dataManager.HOST_DEVICE_MOUNT_LOCATION}/Archive "${downloadLocation}"`;
+                command = `scp -r -P ${dataManager.PORT} ${user}@${hostName}:${dataManager.GetHostDeviceArchivePath()} "${downloadLocation}"`;
         }
         catch (e) {
             command = `scp -r serverUser@hostName:${dataManager.GetHostDeviceArchivePath()} /Path/on/local/device`;
