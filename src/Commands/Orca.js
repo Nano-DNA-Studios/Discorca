@@ -105,9 +105,9 @@ class Orca extends dna_discord_framework_1.Command {
                 yield orcaJob.DownloadFiles(files);
                 this.AddToResponseMessage(`Files Received`);
                 dataManager.AddJob(orcaJob);
-                let message = `Running Orca Calculation on ${inputfile.name}`;
-                this.CalculationMessage.content = message;
+                this.CalculationMessage.content = `Running Orca Calculation on ${inputfile.name}`;
                 const textChannel = yield client.channels.fetch(dataManager.CALCULATION_CHANNEL_ID);
+                this.OrcaJobMessage = yield textChannel.send(this.CalculationMessage);
                 this.UpdateJobMessage();
                 if (client.user)
                     client.user.setActivity(`Orca Calculation ${orcaJob.JobName}`, { type: discord_js_1.ActivityType.Playing });
@@ -215,8 +215,8 @@ class Orca extends dna_discord_framework_1.Command {
                             this.CalculationMessage.content += `\nThe Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${orcaJob.GetCopyCommand(OrcaJobFile_1.default.OutputFile, this.DiscordCommandUser.username)}`;
                     }
                     else {
-                        if (!((_b = this.Response.files) === null || _b === void 0 ? void 0 : _b.some(file => file === filePath)))
-                            (_c = this.Response.files) === null || _c === void 0 ? void 0 : _c.push(filePath);
+                        if (!((_b = this.CalculationMessage.files) === null || _b === void 0 ? void 0 : _b.some(file => file === filePath)))
+                            (_c = this.CalculationMessage.files) === null || _c === void 0 ? void 0 : _c.push(filePath);
                     }
                 }
                 catch (e) {
@@ -246,8 +246,8 @@ class Orca extends dna_discord_framework_1.Command {
                         this.CalculationMessage.content += `\nThe Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${orcaJob.GetCopyCommand(OrcaJobFile_1.default.OutputFile, this.DiscordCommandUser.username)}`;
                 }
                 else {
-                    if (!((_b = this.Response.files) === null || _b === void 0 ? void 0 : _b.some(file => file === filePath)))
-                        (_c = this.Response.files) === null || _c === void 0 ? void 0 : _c.push(filePath);
+                    if (!((_b = this.CalculationMessage.files) === null || _b === void 0 ? void 0 : _b.some(file => file === filePath)))
+                        (_c = this.CalculationMessage.files) === null || _c === void 0 ? void 0 : _c.push(filePath);
                 }
             }
             catch (e) {
@@ -275,8 +275,8 @@ class Orca extends dna_discord_framework_1.Command {
                         this.CalculationMessage.content += `\nThe Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${orcaJob.GetCopyCommand(OrcaJobFile_1.default.OutputFile, this.DiscordCommandUser.username)}`;
                 }
                 else {
-                    if (!((_b = this.Response.files) === null || _b === void 0 ? void 0 : _b.some(file => file === filePath)))
-                        (_c = this.Response.files) === null || _c === void 0 ? void 0 : _c.push(filePath);
+                    if (!((_b = this.CalculationMessage.files) === null || _b === void 0 ? void 0 : _b.some(file => file === filePath)))
+                        (_c = this.CalculationMessage.files) === null || _c === void 0 ? void 0 : _c.push(filePath);
                 }
             }
             catch (e) {

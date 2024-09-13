@@ -115,10 +115,10 @@ class Orca extends Command {
 
             dataManager.AddJob(orcaJob);
 
-            let message = `Running Orca Calculation on ${inputfile.name}`;
-            this.CalculationMessage.content = message;
+            this.CalculationMessage.content = `Running Orca Calculation on ${inputfile.name}`;
 
             const textChannel: TextChannel = await client.channels.fetch(dataManager.CALCULATION_CHANNEL_ID) as TextChannel;
+            this.OrcaJobMessage = await textChannel.send(this.CalculationMessage);
             this.UpdateJobMessage();
 
             if (client.user)
@@ -244,8 +244,8 @@ class Orca extends Command {
                         this.CalculationMessage.content += `\nThe Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${orcaJob.GetCopyCommand(OrcaJobFile.OutputFile, this.DiscordCommandUser.username)}`;
                 }
                 else {
-                    if (!this.Response.files?.some(file => file === filePath))
-                        this.Response.files?.push(filePath);
+                    if (!this.CalculationMessage.files?.some(file => file === filePath))
+                        this.CalculationMessage.files?.push(filePath);
                 }
 
             } catch (e) { console.log(e); }
@@ -278,8 +278,8 @@ class Orca extends Command {
                     this.CalculationMessage.content += `\nThe Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${orcaJob.GetCopyCommand(OrcaJobFile.OutputFile, this.DiscordCommandUser.username)}`;
             }
             else {
-                if (!this.Response.files?.some(file => file === filePath))
-                    this.Response.files?.push(filePath);
+                if (!this.CalculationMessage.files?.some(file => file === filePath))
+                    this.CalculationMessage.files?.push(filePath);
             }
 
             
@@ -308,8 +308,8 @@ class Orca extends Command {
                     this.CalculationMessage.content += `\nThe Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${orcaJob.GetCopyCommand(OrcaJobFile.OutputFile, this.DiscordCommandUser.username)}`;
             }
             else {
-                if (!this.Response.files?.some(file => file === filePath))
-                    this.Response.files?.push(filePath);
+                if (!this.CalculationMessage.files?.some(file => file === filePath))
+                    this.CalculationMessage.files?.push(filePath);
             }
 
         } catch (e) { console.log(e); }
