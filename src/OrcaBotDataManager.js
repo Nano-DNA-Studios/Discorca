@@ -61,6 +61,16 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
          * A Dictionary of Running Jobs on the Server
          */
         this.RUNNING_JOBS = {};
+        /**
+         * The Channel ID for the Text Channel Calculation Results are sent to
+         */
+        this.CALCULATION_CHANNEL_ID = "";
+    }
+    /**
+     * Sets the Calculation Channel ID
+     */
+    SetCalculationChannelID(channelID) {
+        this.CALCULATION_CHANNEL_ID = channelID;
     }
     /**
      * Returns a Boolean based on if there are Jobs Running
@@ -106,7 +116,7 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
      * @returns True if the Server has been Setup
      */
     IsDiscorcaSetup() {
-        return this.HOSTNAME != "" && this.HOST_DEVICE_MOUNT_LOCATION != "";
+        return this.HOSTNAME != "" && this.HOST_DEVICE_MOUNT_LOCATION != "" && this.CALCULATION_CHANNEL_ID != "";
     }
     /**
      * Sets the Mounted Directory File Path (Used for creating the SCP Copy Command)

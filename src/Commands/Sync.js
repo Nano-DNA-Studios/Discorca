@@ -31,7 +31,12 @@ class Sync extends dna_discord_framework_1.Command {
         this.DiscordUser = "";
         /* <inheritdoc> */
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
+            const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
             this.DiscordUser = interaction.user.username;
+            if (!dataManager.IsDiscorcaSetup()) {
+                this.InitializeUserResponse(interaction, "Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
+                return;
+            }
             this.InitializeUserResponse(interaction, "Use the following Command to Sync Archive to Local Device.");
             this.AddToResponseMessage("```" + this.GetSyncCommand() + "```");
         });

@@ -30,6 +30,10 @@ class Purge extends dna_discord_framework_1.Command {
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
             let dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
             let purgeType = interaction.options.getString("purgetype");
+            if (!dataManager.IsDiscorcaSetup()) {
+                this.InitializeUserResponse(interaction, "Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
+                return;
+            }
             if (!purgeType) {
                 this.InitializeUserResponse(interaction, "Invalid Purge Type");
                 this.AddToResponseMessage("Please provide a valid Purge Type");

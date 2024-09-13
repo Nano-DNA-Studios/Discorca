@@ -1,4 +1,4 @@
-import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
+import { Client, ChatInputCommandInteraction, CacheType, ChannelType } from "discord.js";
 import { BotData, BotDataManager, Command, ICommandOption, OptionTypesEnum } from "dna-discord-framework";
 import OrcaBotDataManager from "../OrcaBotDataManager";
 
@@ -25,14 +25,20 @@ class Setup extends Command {
         const maxsize = interaction.options.getNumber("maxzipfilesize");
         const hostname = interaction.options.getString("hostname");
         const mountlocation = interaction.options.getString("mountlocation");
+        const calculationchannel = interaction.options.getChannel("calculationchannel");
 
         if (!dataManager) {
             this.AddToResponseMessage("Data Manager doesn't Exist, can't set the Download Location")
             return;
         }
 
-        if (!(hostname && mountlocation && maxsize && port)) {
+        if (!(hostname && mountlocation && maxsize && port && calculationchannel)) {
             this.AddToResponseMessage("The Setup Command requires all the Options to be set.");
+            return;
+        }
+
+        if (calculationchannel.type != ChannelType.GuildText) {
+            this.AddToResponseMessage("The Calculation Channel must be a Text Channel");
             return;
         }
 
@@ -41,7 +47,8 @@ class Setup extends Command {
             dataManager.SetMountLocation(mountlocation);
             dataManager.SetMaxZipSize(maxsize);
             dataManager.SetPort(port);
-    
+            dataManager.SetCalculationChannelID(calculationchannel.id);
+
             dataManager.SaveData();
         } catch (error) {
             this.AddToResponseMessage("Error Occured while setting up Discorca");
@@ -53,6 +60,7 @@ class Setup extends Command {
         this.AddToResponseMessage(`Mount Location : ${mountlocation} MB`);
         this.AddToResponseMessage(`Max Zip File Size : ${maxsize}`);
         this.AddToResponseMessage(`Port : ${port}`);
+        this.AddToResponseMessage(`Calculation Channel : ${calculationchannel.name}`);
 
         dataManager.CreateJobDirectories();
         dataManager.DISCORCA_SETUP = dataManager.IsDiscorcaSetup();
@@ -126,6 +134,12 @@ class Setup extends Command {
             required: true,
             type: OptionTypesEnum.Number
         },
+        {
+            name: "calculationchannel",
+            description: "The Text Channel where the Calculations will be posted",
+            required: true,
+            type: OptionTypesEnum.Channel
+        }
     ];
 }
 

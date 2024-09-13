@@ -69,6 +69,17 @@ class OrcaBotDataManager extends BotDataManager {
      */
     public RUNNING_JOBS: Record<string, OrcaJobDescription> = {};
 
+    /**
+     * The Channel ID for the Text Channel Calculation Results are sent to
+     */
+    public CALCULATION_CHANNEL_ID : string = "";
+
+    /**
+     * Sets the Calculation Channel ID
+     */
+    public SetCalculationChannelID(channelID: string) {
+        this.CALCULATION_CHANNEL_ID = channelID;
+    }
 
     /**
      * Returns a Boolean based on if there are Jobs Running
@@ -126,7 +137,7 @@ class OrcaBotDataManager extends BotDataManager {
      */
     public IsDiscorcaSetup () : boolean
     {
-        return this.HOSTNAME != "" && this.HOST_DEVICE_MOUNT_LOCATION != "";
+        return this.HOSTNAME != "" && this.HOST_DEVICE_MOUNT_LOCATION != "" && this.CALCULATION_CHANNEL_ID != "";
     }
 
     /**

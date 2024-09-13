@@ -22,7 +22,13 @@ class Sync extends Command {
 
     /* <inheritdoc> */
     public RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
+        const dataManager = BotData.Instance(OrcaBotDataManager);
         this.DiscordUser = interaction.user.username;
+
+        if (!dataManager.IsDiscorcaSetup()) {
+            this.InitializeUserResponse(interaction, "Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
+            return;
+        }
 
         this.InitializeUserResponse(interaction, "Use the following Command to Sync Archive to Local Device.");
         this.AddToResponseMessage("```" + this.GetSyncCommand() + "```")

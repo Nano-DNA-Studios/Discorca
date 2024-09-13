@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+const discord_js_1 = require("discord.js");
 const dna_discord_framework_1 = require("dna-discord-framework");
 const OrcaBotDataManager_1 = __importDefault(require("../OrcaBotDataManager"));
 /**
@@ -33,12 +34,17 @@ class Setup extends dna_discord_framework_1.Command {
             const maxsize = interaction.options.getNumber("maxzipfilesize");
             const hostname = interaction.options.getString("hostname");
             const mountlocation = interaction.options.getString("mountlocation");
+            const calculationchannel = interaction.options.getChannel("calculationchannel");
             if (!dataManager) {
                 this.AddToResponseMessage("Data Manager doesn't Exist, can't set the Download Location");
                 return;
             }
-            if (!(hostname && mountlocation && maxsize && port)) {
+            if (!(hostname && mountlocation && maxsize && port && calculationchannel)) {
                 this.AddToResponseMessage("The Setup Command requires all the Options to be set.");
+                return;
+            }
+            if (calculationchannel.type != discord_js_1.ChannelType.GuildText) {
+                this.AddToResponseMessage("The Calculation Channel must be a Text Channel");
                 return;
             }
             try {
@@ -46,6 +52,7 @@ class Setup extends dna_discord_framework_1.Command {
                 dataManager.SetMountLocation(mountlocation);
                 dataManager.SetMaxZipSize(maxsize);
                 dataManager.SetPort(port);
+                dataManager.SetCalculationChannelID(calculationchannel.id);
                 dataManager.SaveData();
             }
             catch (error) {
@@ -57,6 +64,7 @@ class Setup extends dna_discord_framework_1.Command {
             this.AddToResponseMessage(`Mount Location : ${mountlocation} MB`);
             this.AddToResponseMessage(`Max Zip File Size : ${maxsize}`);
             this.AddToResponseMessage(`Port : ${port}`);
+            this.AddToResponseMessage(`Calculation Channel : ${calculationchannel.name}`);
             dataManager.CreateJobDirectories();
             dataManager.DISCORCA_SETUP = dataManager.IsDiscorcaSetup();
         });
@@ -126,6 +134,12 @@ class Setup extends dna_discord_framework_1.Command {
                 required: true,
                 type: dna_discord_framework_1.OptionTypesEnum.Number
             },
+            {
+                name: "calculationchannel",
+                description: "The Text Channel where the Calculations will be posted",
+                required: true,
+                type: dna_discord_framework_1.OptionTypesEnum.Channel
+            }
         ];
     }
 }

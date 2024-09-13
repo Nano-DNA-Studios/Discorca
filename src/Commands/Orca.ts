@@ -1,5 +1,5 @@
-import { OptionTypesEnum, BotDataManager, Command, DefaultCommandHandler, BotData } from "dna-discord-framework"
-import { ActivityType, CacheType, ChatInputCommandInteraction, Client } from "discord.js";
+import { OptionTypesEnum, BotDataManager, Command, DefaultCommandHandler, BotData, BotResponse } from "dna-discord-framework"
+import { ActivityType, CacheType, ChatInputCommandInteraction, Client, Message, TextChannel, User } from "discord.js";
 import fsp from "fs/promises"
 import OrcaBotDataManager from "../OrcaBotDataManager";
 import OrcaJob from "../OrcaJob";
@@ -17,7 +17,7 @@ class Orca extends Command {
     CommandDescription = "Runs an Orca Calculation on the Server";
 
     /* <inheritdoc> */
-    IsEphemeralResponse = false;
+    IsEphemeralResponse = true;
 
     /* <inheritdoc> */
     CommandHandler = DefaultCommandHandler.Instance();
@@ -73,6 +73,12 @@ class Orca extends Command {
     /* <inheritdoc> */
     JobIsComplete = false;
 
+    CalculationMessage = new BotResponse();
+
+    DiscordCommandUser: User | undefined;
+
+    OrcaJobMessage: Message<true> | undefined;
+
     /* <inheritdoc> */
     RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
         const inputfile = interaction.options.getAttachment("inputfile");
@@ -82,41 +88,53 @@ class Orca extends Command {
         const xyzfile4 = interaction.options.getAttachment("xyzfile4");
         const xyzfile5 = interaction.options.getAttachment("xyzfile5");
 
-        this.DiscordUser = interaction.user.username;
+        let files = [inputfile, xyzfile1, xyzfile2, xyzfile3, xyzfile4, xyzfile5];
 
+        this.DiscordCommandUser = interaction.user;
         const dataManager = BotData.Instance(OrcaBotDataManager);
 
-        if (!inputfile) {
-            this.InitializeUserResponse(interaction, "No Data Manager found, cannot run Command.")
+        if (!dataManager.IsDiscorcaSetup()) {
+            this.InitializeUserResponse(interaction, "Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
             return;
         }
 
-        this.InitializeUserResponse(interaction, `Running Orca Calculation on ${inputfile.name}`);
+        if (!inputfile) {
+            this.InitializeUserResponse(interaction, "Input file was not provided");
+            return;
+        }
+
+        this.InitializeUserResponse(interaction, `Preparing Orca Calculation on ${inputfile.name}`);
 
         let orcaJob = new OrcaJob(inputfile.name);
 
         try {
             await orcaJob.CreateDirectories();
-            await orcaJob.DownloadFile(inputfile);
-            await orcaJob.DownloadFile(xyzfile1);
-            await orcaJob.DownloadFile(xyzfile2);
-            await orcaJob.DownloadFile(xyzfile3);
-            await orcaJob.DownloadFile(xyzfile4);
-            await orcaJob.DownloadFile(xyzfile5);
+            await orcaJob.DownloadFiles(files);
 
-            this.AddToResponseMessage(`Server will provide updates for the output file every 10 seconds`);
-            this.UpdateFile(orcaJob);
+            this.AddToResponseMessage(`Files Received`);
 
             dataManager.AddJob(orcaJob);
+
+            let message = `Running Orca Calculation on ${inputfile.name}`;
+            this.CalculationMessage.content = message;
+
+            const textChannel: TextChannel = await client.channels.fetch(dataManager.CALCULATION_CHANNEL_ID) as TextChannel;
+            this.UpdateJobMessage();
 
             if (client.user)
                 client.user.setActivity(`Orca Calculation ${orcaJob.JobName}`, { type: ActivityType.Playing });
 
+            this.AddToResponseMessage(`Server will start the Orca Calculation :hourglass_flowing_sand:`);
+            this.UpdateFile(orcaJob);
+
             await orcaJob.RunJob();
+
+            this.CalculationMessage.content += `\nServer has completed the Orca Calculation (${this.GetJobTime(orcaJob)}):white_check_mark:`;
+            this.UpdateJobMessage();
 
             this.JobIsComplete = true;
 
-            this.AddToResponseMessage(`Server has completed the Orca Calculation (${this.GetJobTime(orcaJob)}):white_check_mark:`);
+            //this.AddToResponseMessage(`Server has completed the Orca Calculation (${this.GetJobTime(orcaJob)}):white_check_mark:`);
 
             await this.SendFile(OrcaJobFile.OutputFile, orcaJob);
             await this.SendFile(OrcaJobFile.XYZFile, orcaJob);
@@ -131,7 +149,7 @@ class Orca extends Command {
         } catch (e) {
             try {
                 if (orcaJob) {
-                    this.AddToResponseMessage("An Error Occured. Terminating Orca Job.\nCheck the Output File for Errors.");
+                    this.CalculationMessage.content += "An Error Occured. Terminating Orca Job.\nCheck the Output File for Errors.";
                     this.JobIsComplete = true;
                     dataManager.RemoveJob(orcaJob);
                     this.PingUser(interaction, orcaJob.JobName, false);
@@ -146,6 +164,15 @@ class Orca extends Command {
             }
         }
     };
+
+    private UpdateJobMessage() {
+        if (this.OrcaJobMessage == undefined) {
+            this.AddToResponseMessage("An Error Occured while trying to send the Orca Calculation Message");
+            return;
+        }
+
+        this.OrcaJobMessage.edit(this.CalculationMessage);
+    }
 
     /**
      * Gets the Elapsed Time since the Job Started in String format
@@ -185,12 +212,15 @@ class Orca extends Command {
      * @param interaction The Message Interaction Created by the User
      */
     private PingUser(interaction: ChatInputCommandInteraction<CacheType>, jobName: string, success: boolean) {
-        const link = `https://discord.com/channels/${interaction.guildId}/${interaction.channelId}/${this.UserResponse?.id}`;
+        if (this.DiscordCommandUser == undefined || this.OrcaJobMessage == undefined)
+            return;
+        
+        const link = `https://discord.com/channels/${this.OrcaJobMessage.guildId}/${this.OrcaJobMessage.channelId}/${this.OrcaJobMessage.id}`;
 
         if (success)
-            interaction.user.send(`${interaction.user} Server has completed the Orca Calculation ${jobName} :white_check_mark: \n It can be found here : ${link}`);
+            this.DiscordCommandUser.send(`${interaction.user} Server has completed the Orca Calculation ${jobName} :white_check_mark: \n It can be found here : ${link}`);
         else
-            interaction.user.send(`${interaction.user} Server has encoutered a problem with the Orca Calculation ${jobName} :warning:\nThe Job has been Terminated, check the Output File for Errors. \nIt can be found here : ${link}`);
+            this.DiscordCommandUser.send(`${interaction.user} Server has encoutered a problem with the Orca Calculation ${jobName} :warning:\nThe Job has been Terminated, check the Output File for Errors. \nIt can be found here : ${link}`);
     }
 
     /**
@@ -201,24 +231,30 @@ class Orca extends Command {
         while (!this.JobIsComplete) {
             await new Promise(resolve => setTimeout(resolve, 10000));
 
+            if (this.DiscordCommandUser == undefined)
+                return;
+
             try {
                 const filePath = orcaJob.GetFullFilePath(OrcaJobFile.OutputFile);
                 const fileStats = await fsp.stat(filePath);
                 const sizeAndFormat = orcaJob.GetFileSize(fileStats);
 
-                if (sizeAndFormat[0] > BotData.Instance(OrcaBotDataManager).FILE_MAX_SIZE_MB && sizeAndFormat[1] == "MB")
-                    this.AddToResponseMessage(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${orcaJob.GetCopyCommand(OrcaJobFile.OutputFile, this.DiscordUser)}`);
-                else
-                    this.AddFileToResponseMessage(filePath);
+                if (sizeAndFormat[0] > BotData.Instance(OrcaBotDataManager).FILE_MAX_SIZE_MB && sizeAndFormat[1] == "MB") {
+                    if (!this.CalculationMessage.content?.includes(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${orcaJob.GetCopyCommand(OrcaJobFile.OutputFile, this.DiscordCommandUser.username)}`))
+                        this.CalculationMessage.content += `\nThe Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${orcaJob.GetCopyCommand(OrcaJobFile.OutputFile, this.DiscordCommandUser.username)}`;
+                }
+                else {
+                    if (!this.Response.files?.some(file => file === filePath))
+                        this.Response.files?.push(filePath);
+                }
 
             } catch (e) { console.log(e); }
+
+            this.UpdateJobMessage();
         }
     }
 
-    /**
-      * The Username of the User who called the Command
-      */
-    DiscordUser: string = "";
+
 
     /**
      * Adds the Specified file to the Bot Response for the User to Download. If the File is too Large it sends the SCP Command needed to Download
@@ -226,6 +262,10 @@ class Orca extends Command {
      * @param orcaJob The Orca Job Instance
      */
     async SendFile(file: OrcaJobFile, orcaJob: OrcaJob) {
+
+        if (this.DiscordCommandUser == undefined)
+            return;
+
         try {
             await orcaJob.CopyToArchive(file);
 
@@ -233,12 +273,19 @@ class Orca extends Command {
             const fileStats = await fsp.stat(filePath);
             const sizeAndFormat = orcaJob.GetFileSize(fileStats);
 
-            if (sizeAndFormat[0] > BotData.Instance(OrcaBotDataManager).FILE_MAX_SIZE_MB && sizeAndFormat[1] == "MB")
-                this.AddToResponseMessage(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${orcaJob.GetCopyCommand(file, this.DiscordUser)}`);
-            else
-                this.AddFileToResponseMessage(filePath);
+            if (sizeAndFormat[0] > BotData.Instance(OrcaBotDataManager).FILE_MAX_SIZE_MB && sizeAndFormat[1] == "MB") {
+                if (!this.CalculationMessage.content?.includes(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${orcaJob.GetCopyCommand(OrcaJobFile.OutputFile, this.DiscordCommandUser.username)}`))
+                    this.CalculationMessage.content += `\nThe Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${orcaJob.GetCopyCommand(OrcaJobFile.OutputFile, this.DiscordCommandUser.username)}`;
+            }
+            else {
+                if (!this.Response.files?.some(file => file === filePath))
+                    this.Response.files?.push(filePath);
+            }
 
+            
         } catch (e) { console.log(e); }
+
+        this.UpdateJobMessage();
     }
 
     /**
@@ -246,6 +293,9 @@ class Orca extends Command {
      * @param orcaJob The Orca Job Instance
      */
     async SendFullJobArchive(orcaJob: OrcaJob) {
+        if (this.DiscordCommandUser == undefined)
+            return;
+
         try {
             await orcaJob.ArchiveJob();
 
@@ -253,12 +303,18 @@ class Orca extends Command {
             const fileStats = await fsp.stat(filePath);
             const sizeAndFormat = orcaJob.GetFileSize(fileStats);
 
-            if (sizeAndFormat[0] > BotData.Instance(OrcaBotDataManager).ZIP_FILE_MAX_SIZE_MB && sizeAndFormat[1] == "MB")
-                this.AddToResponseMessage(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${orcaJob.GetCopyCommand(OrcaJobFile.ArchiveFile, this.DiscordUser)}`);
-            else
-                this.AddFileToResponseMessage(filePath);
+            if (sizeAndFormat[0] > BotData.Instance(OrcaBotDataManager).ZIP_FILE_MAX_SIZE_MB && sizeAndFormat[1] == "MB") {
+                if (!this.CalculationMessage.content?.includes(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${orcaJob.GetCopyCommand(OrcaJobFile.OutputFile, this.DiscordCommandUser.username)}`))
+                    this.CalculationMessage.content += `\nThe Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${orcaJob.GetCopyCommand(OrcaJobFile.OutputFile, this.DiscordCommandUser.username)}`;
+            }
+            else {
+                if (!this.Response.files?.some(file => file === filePath))
+                    this.Response.files?.push(filePath);
+            }
 
         } catch (e) { console.log(e); }
+
+        this.UpdateJobMessage();
     }
 }
 

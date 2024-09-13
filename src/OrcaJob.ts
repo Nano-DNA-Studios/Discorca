@@ -95,11 +95,53 @@ class OrcaJob implements IOrcaJob {
     */
     CreateDirectories() {
         try { fs.rmSync(this.OrcaJobDirectory, { recursive: true, force: true }); } catch (e) { console.log(e); }
-        try { fs.mkdirSync(this.OrcaJobDirectory, { recursive: true }); } catch (e) { console.log(e);}
+        try { fs.mkdirSync(this.OrcaJobDirectory, { recursive: true }); } catch (e) { console.log(e); }
 
-        try { fs.rmSync(this.OrcaJobArchiveDirectory, { recursive: true, force: true }); } catch (e) {console.log(e); }
-        try { fs.mkdirSync(this.OrcaJobArchiveDirectory, { recursive: true }); } catch (e) {console.log(e); }
+        try { fs.rmSync(this.OrcaJobArchiveDirectory, { recursive: true, force: true }); } catch (e) { console.log(e); }
+        try { fs.mkdirSync(this.OrcaJobArchiveDirectory, { recursive: true }); } catch (e) { console.log(e); }
+    }
 
+    /**
+     * Downloads all the Files Uploaded to Discorca for a Orca Calculation
+     * @param attachments 
+     */
+    public async DownloadFiles(attachments: (Attachment | null)[]) {
+
+        if (!attachments)
+            return
+
+        for (let i = 0; i < attachments.length; i++) {
+            await this.DownloadFile(attachments[i]);
+        }
+    }
+
+    /**
+    * Simple function to download a file from a URL
+    * @param attachement The Attachment to Download
+    */
+    public async DownloadFile(attachement: Attachment | null) {
+
+        if (!attachement)
+            return
+
+        try {
+            const response = await axios({
+                method: 'GET',
+                url: attachement.url,
+                responseType: 'stream',
+            });
+
+            let writer = fs.createWriteStream(`${this.OrcaJobDirectory}/${attachement.name}`);
+
+            await response.data.pipe(writer);
+
+            return new Promise((resolve, reject) => {
+                writer.on('finish', resolve);
+                writer.on('error', reject);
+            });
+        } catch (error) {
+            console.error(`Failed to download the file: ${error}`);
+        }
     }
 
     /**
@@ -150,34 +192,7 @@ class OrcaJob implements IOrcaJob {
         return [realsize, sizeFormat];
     }
 
-    /**
-    * Simple function to download a file from a URL
-    * @param attachement The Attachment to Download
-    */
-    public async DownloadFile(attachement: Attachment | null) {
 
-        if (!attachement)
-            return
-
-        try {
-            const response = await axios({
-                method: 'GET',
-                url: attachement.url,
-                responseType: 'stream',
-            });
-
-            let writer = fs.createWriteStream(`${this.OrcaJobDirectory}/${attachement.name}`);
-
-            await response.data.pipe(writer);
-
-            return new Promise((resolve, reject) => {
-                writer.on('finish', resolve);
-                writer.on('error', reject);
-            });
-        } catch (error) {
-            console.error(`Failed to download the file: ${error}`);
-        }
-    }
 
     /**
      * Runs the Orca Calculation Job

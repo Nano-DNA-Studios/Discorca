@@ -32,6 +32,10 @@ class RegisterSync extends dna_discord_framework_1.Command {
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
             const user = interaction.options.getString("user");
             const downloadLocation = interaction.options.getString("downloadlocation");
+            if (!dataManager.IsDiscorcaSetup()) {
+                this.InitializeUserResponse(interaction, "Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
+                return;
+            }
             if (!(user && downloadLocation)) {
                 this.InitializeUserResponse(interaction, "The Add User Command requires all the Options to be set.");
                 return;

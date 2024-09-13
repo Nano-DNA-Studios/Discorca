@@ -67,6 +67,45 @@ class OrcaJob {
         }
     }
     /**
+     * Downloads all the Files Uploaded to Discorca for a Orca Calculation
+     * @param attachments
+     */
+    DownloadFiles(attachments) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!attachments)
+                return;
+            for (let i = 0; i < attachments.length; i++) {
+                yield this.DownloadFile(attachments[i]);
+            }
+        });
+    }
+    /**
+    * Simple function to download a file from a URL
+    * @param attachement The Attachment to Download
+    */
+    DownloadFile(attachement) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!attachement)
+                return;
+            try {
+                const response = yield (0, axios_1.default)({
+                    method: 'GET',
+                    url: attachement.url,
+                    responseType: 'stream',
+                });
+                let writer = fs_1.default.createWriteStream(`${this.OrcaJobDirectory}/${attachement.name}`);
+                yield response.data.pipe(writer);
+                return new Promise((resolve, reject) => {
+                    writer.on('finish', resolve);
+                    writer.on('error', reject);
+                });
+            }
+            catch (error) {
+                console.error(`Failed to download the file: ${error}`);
+            }
+        });
+    }
+    /**
     * Creates the SCP Copy Command for the User to Copy and use in their Terminal
     * @param fileName The Name of the File to Copy
     * @returns The SCP Copy Command to Download the File
@@ -110,32 +149,6 @@ class OrcaJob {
             sizeFormat = "B";
         }
         return [realsize, sizeFormat];
-    }
-    /**
-    * Simple function to download a file from a URL
-    * @param attachement The Attachment to Download
-    */
-    DownloadFile(attachement) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!attachement)
-                return;
-            try {
-                const response = yield (0, axios_1.default)({
-                    method: 'GET',
-                    url: attachement.url,
-                    responseType: 'stream',
-                });
-                let writer = fs_1.default.createWriteStream(`${this.OrcaJobDirectory}/${attachement.name}`);
-                yield response.data.pipe(writer);
-                return new Promise((resolve, reject) => {
-                    writer.on('finish', resolve);
-                    writer.on('error', reject);
-                });
-            }
-            catch (error) {
-                console.error(`Failed to download the file: ${error}`);
-            }
-        });
     }
     /**
      * Runs the Orca Calculation Job

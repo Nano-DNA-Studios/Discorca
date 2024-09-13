@@ -27,6 +27,10 @@ class Status extends dna_discord_framework_1.Command {
         /* <inheritdoc> */
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
+            if (!dataManager.IsDiscorcaSetup()) {
+                this.InitializeUserResponse(interaction, "Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
+                return;
+            }
             this.InitializeUserResponse(interaction, `Discorca's Status and used Resources: `);
             this.RespondMemoryUsage();
             this.RespondCPUUsage(dataManager);

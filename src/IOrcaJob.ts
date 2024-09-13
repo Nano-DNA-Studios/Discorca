@@ -83,6 +83,12 @@ interface IOrcaJob {
     GetFileSize(fileStats: fs.Stats): [Number, string];
 
     /**
+        * Simple function to download a file from a URL
+        * @param attachement The Attachment to Download
+        */
+    DownloadFiles(attachement: Attachment[]): void;
+
+    /**
     * Simple function to download a file from a URL
     * @param attachement The Attachment to Download
     */

@@ -38,6 +38,10 @@ class ListJobArchive extends dna_discord_framework_1.Command {
             this.DiscordUser = interaction.user.username;
             const archiveName = interaction.options.getString("archivename");
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
+            if (!dataManager.IsDiscorcaSetup()) {
+                this.InitializeUserResponse(interaction, "Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
+                return;
+            }
             if (!archiveName) {
                 this.InitializeUserResponse(interaction, "The Archive Name has not been Supplied, cannot Download a File without an Archive Name");
                 return;

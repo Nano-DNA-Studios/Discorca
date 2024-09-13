@@ -20,6 +20,11 @@ class Status extends Command {
     public RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
         const dataManager = BotData.Instance(OrcaBotDataManager);
 
+        if (!dataManager.IsDiscorcaSetup()) {
+            this.InitializeUserResponse(interaction, "Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
+            return;
+        }
+
         this.InitializeUserResponse(interaction, `Discorca's Status and used Resources: `);
         this.RespondMemoryUsage();
         this.RespondCPUUsage(dataManager);

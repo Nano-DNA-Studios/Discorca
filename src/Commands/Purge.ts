@@ -21,6 +21,11 @@ class Purge extends Command {
         let dataManager = BotData.Instance(OrcaBotDataManager);
         let purgeType = interaction.options.getString("purgetype");
 
+        if (!dataManager.IsDiscorcaSetup()) {
+            this.InitializeUserResponse(interaction, "Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
+            return;
+        }
+
         if (!purgeType) {
             this.InitializeUserResponse(interaction, "Invalid Purge Type");
             this.AddToResponseMessage("Please provide a valid Purge Type");
