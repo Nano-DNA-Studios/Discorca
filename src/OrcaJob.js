@@ -248,5 +248,7 @@ class OrcaJob {
             fs_1.default.copyFileSync(file, `${this.OrcaJobArchiveDirectory}/${file}`, fs_1.default.constants.COPYFILE_EXCL);
         });
     }
+    SendFiles() {
+    }
 }
 exports.default = OrcaJob;

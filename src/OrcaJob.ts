@@ -295,6 +295,11 @@ class OrcaJob implements IOrcaJob {
         });
     }
 
+    public SendFiles () : void 
+    {
+        
+    }
+
 }
 
 export default OrcaJob;

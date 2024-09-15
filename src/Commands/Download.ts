@@ -31,31 +31,37 @@ class ListJobArchive extends Command {
         const dataManager = BotData.Instance(OrcaBotDataManager);
 
         if (!dataManager.IsDiscorcaSetup()) {
-            this.InitializeUserResponse(interaction, "Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
+            //this.InitializeUserResponse(interaction, "Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
+            this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
             return;
         }
 
         if (!archiveName) {
-            this.InitializeUserResponse(interaction, "The Archive Name has not been Supplied, cannot Download a File without an Archive Name")
+            //this.InitializeUserResponse(interaction, "The Archive Name has not been Supplied, cannot Download a File without an Archive Name")
+            this.AddToMessage("The Archive Name has not been Supplied, cannot Download a File without an Archive Name")
             return;
         }
 
         const orcaJob: OrcaJob = new OrcaJob(archiveName);
 
         if (fs.readdirSync(dataManager.JOB_ARCHIVE_FOLDER).includes(archiveName)) {
-            this.InitializeUserResponse(interaction, "File is found in Archive, Preparing...");
+            //this.InitializeUserResponse(interaction, "File is found in Archive, Preparing...");
+            this.AddToMessage("File is found in Archive, Preparing...");
             const filePath = orcaJob.GetFullFilePath(OrcaJobFile.ArchiveFile);
             const fileStats = await fsp.stat(filePath);
             const size = orcaJob.GetFileSize(fileStats);
 
             //this.GetCopyCommand(dataManager.JOB_ARCHIVE_MAP[archiveName])
             if (size[0] > dataManager.ZIP_FILE_MAX_SIZE_MB && size[1] == "MB") {
-                this.AddToResponseMessage(`The Archive File is too Large (${size[0]} MB), it can be Downloaded using the Following Command ${orcaJob.GetCopyCommand(OrcaJobFile.ArchiveFile, this.DiscordUser)}`);
+                //this.AddToResponseMessage(`The Archive File is too Large (${size[0]} MB), it can be Downloaded using the Following Command ${orcaJob.GetCopyCommand(OrcaJobFile.ArchiveFile, this.DiscordUser)}`);
+                this.AddToMessage(`The Archive File is too Large (${size[0]} MB), it can be Downloaded using the Following Command ${orcaJob.GetCopyCommand(OrcaJobFile.ArchiveFile, this.DiscordUser)}`);
             } else {
-                this.AddFileToResponseMessage(filePath);
+                //this.AddFileToResponseMessage(filePath);
+                this.AddFileToMessage(filePath);
             }
         } else {
-            this.InitializeUserResponse(interaction, `The Archive Name ${archiveName} is not Valid. Use /listarchive to list all Downloadable Archives.`)
+            //this.InitializeUserResponse(interaction, `The Archive Name ${archiveName} is not Valid. Use /listarchive to list all Downloadable Archives.`)
+            this.AddToMessage(`The Archive Name ${archiveName} is not Valid. Use /listarchive to list all Downloadable Archives.`)
         }
     };
 

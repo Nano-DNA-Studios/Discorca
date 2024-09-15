@@ -34,11 +34,14 @@ class Sync extends dna_discord_framework_1.Command {
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
             this.DiscordUser = interaction.user.username;
             if (!dataManager.IsDiscorcaSetup()) {
-                this.InitializeUserResponse(interaction, "Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
+                //this.InitializeUserResponse(interaction, "Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
+                this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
                 return;
             }
-            this.InitializeUserResponse(interaction, "Use the following Command to Sync Archive to Local Device.");
-            this.AddToResponseMessage("```" + this.GetSyncCommand() + "```");
+            //this.InitializeUserResponse(interaction, "Use the following Command to Sync Archive to Local Device.");
+            //this.AddToResponseMessage("```" + this.GetSyncCommand() + "```")
+            this.AddToMessage("Use the following Command to Sync Archive to Local Device.");
+            this.AddToMessage("```" + this.GetSyncCommand() + "```");
         });
         /* <inheritdoc> */
         this.IsEphemeralResponse = true;
