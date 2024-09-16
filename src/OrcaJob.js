@@ -14,16 +14,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const dna_discord_framework_1 = require("dna-discord-framework");
 const OrcaBotDataManager_1 = __importDefault(require("./OrcaBotDataManager"));
-const fs_1 = __importDefault(require("fs"));
 const axios_1 = __importDefault(require("axios"));
 const OrcaJobFile_1 = __importDefault(require("./OrcaJobFile"));
+const fs_1 = __importDefault(require("fs"));
 class OrcaJob {
     /**
      * Sets the Job Name
      * @param jobName The Name of the Job / Orca Input File Supplied (Without File Extension)
      */
-    constructor(jobName) {
+    constructor(jobName, commandUser) {
         const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
+        this.JobSuccess = true;
+        this.JobFinished = false;
+        this.CommandUser = commandUser;
         this.JobName = jobName.split(".")[0];
         this.InputFileName = `${this.JobName}.inp`;
         this.OutputFileName = `${this.JobName}.out`;
@@ -36,6 +39,20 @@ class OrcaJob {
         this.OrcaJobArchiveDirectory = `${this.JobArchiveDirectory}/${this.JobName}`;
         this.HostArchiveDirectory = dataManager.HOST_DEVICE_MOUNT_LOCATION;
         this.StartTime = Date.now();
+    }
+    /**
+     * Gets the Elapsed Time since the Job Started in String format
+     * @returns The Elapsed Time since the Job Started in String format
+     */
+    GetJobTime() {
+        const now = Date.now();
+        const elapsed = new Date(now - this.StartTime);
+        const hours = elapsed.getUTCHours();
+        const minutes = elapsed.getUTCMinutes();
+        if (hours > 0)
+            return `${hours} h:${minutes} m`;
+        else
+            return `${minutes} m`;
     }
     /**
     * Purges Similar Named Directories and Creates them for the Job
@@ -110,23 +127,21 @@ class OrcaJob {
     * @param fileName The Name of the File to Copy
     * @returns The SCP Copy Command to Download the File
     */
-    GetCopyCommand(file, discordUser) {
+    GetCopyCommand(file) {
         const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
-        try {
-            const user = dataManager.DISCORD_USER_TO_SERVER_USER[discordUser];
-            const downloadLocation = dataManager.DISCORD_USER_TO_DOWNLOAD_LOCATION[discordUser];
-            const hostName = dataManager.HOSTNAME;
-            let command = "";
-            if (dataManager.PORT == 0)
-                command = `scp ${user}@${hostName}:${this.GetFullMountFilePath(file)} ${downloadLocation}`;
-            else
-                command = `scp -P ${dataManager.PORT} ${user}@${hostName}:${this.GetFullMountFilePath(file)} ${downloadLocation}`;
-            return "```" + command + "```";
-        }
-        catch (e) {
+        if (!(this.CommandUser in dataManager.DISCORD_USER_TO_SERVER_USER && this.CommandUser in dataManager.DISCORD_USER_TO_DOWNLOAD_LOCATION)) {
             const command = `scp serverUser@hostName:${this.GetFullMountFilePath(file)} /Path/on/local/device`;
             return "```" + command + "```";
         }
+        const user = dataManager.DISCORD_USER_TO_SERVER_USER[this.CommandUser];
+        const downloadLocation = dataManager.DISCORD_USER_TO_DOWNLOAD_LOCATION[this.CommandUser];
+        const hostName = dataManager.HOSTNAME;
+        let command = "";
+        if (dataManager.PORT == 0)
+            command = `scp ${user}@${hostName}:${this.GetFullMountFilePath(file)} ${downloadLocation}`;
+        else
+            command = `scp -P ${dataManager.PORT} ${user}@${hostName}:${this.GetFullMountFilePath(file)} ${downloadLocation}`;
+        return "```" + command + "```";
     }
     /**
      * Gets the File Size and Unit
@@ -160,7 +175,9 @@ class OrcaJob {
                 console.log(e);
                 e.name += `: Run Job (${this.JobName})`;
                 dataManager.AddErrorLog(e);
+                this.JobSuccess = false;
             });
+            this.JobFinished = true;
         });
     }
     /**
@@ -168,6 +185,8 @@ class OrcaJob {
      */
     ArchiveJob() {
         return __awaiter(this, void 0, void 0, function* () {
+            //setTimeout(() => { this.CopyFilesToArchive(); }, 1000);
+            this.CopyFilesToArchive();
             let runner = new dna_discord_framework_1.BashScriptRunner();
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
             yield runner.RunLocally(`tar -zcvf  ${this.GetFullFilePath(OrcaJobFile_1.default.ArchiveFile)} -C ${this.JobDirectory} ${this.JobName}`).catch(e => {
@@ -243,12 +262,79 @@ class OrcaJob {
      * Copies the Job File to the Archive Folder
      * @param file The Name of the Job File
      */
-    CopyToArchive(file) {
+    CopyFilesToArchive() {
         fs_1.default.readdirSync(this.OrcaJobDirectory).forEach(file => {
-            fs_1.default.copyFileSync(file, `${this.OrcaJobArchiveDirectory}/${file}`, fs_1.default.constants.COPYFILE_EXCL);
+            if (fs_1.default.existsSync(`${this.OrcaJobArchiveDirectory}/${file}`))
+                fs_1.default.copyFileSync(file, `${this.OrcaJobArchiveDirectory}/${file}`, fs_1.default.constants.COPYFILE_EXCL);
         });
     }
-    SendFiles() {
+    /**
+     * Pings the User that the Job has been Completed
+     * @param message The Message related to the Job
+     * @param jobsUser The User to send the Ping to
+     * @param success Whether the Job was Successful or not
+     */
+    PingUser(message, jobsUser, success) {
+        if (success)
+            jobsUser.send(`${jobsUser} Server has completed the Orca Calculation ${this.JobName} :white_check_mark: \n It can be found here : ${message.GetLink()}`);
+        else
+            jobsUser.send(`${jobsUser} Server has encoutered a problem with the Orca Calculation ${this.JobName} :warning:\nThe Job has been Terminated, check the Output File for Errors. \nIt can be found here : ${message.GetLink()}`);
+    }
+    /**
+     * Sends all quickly accessible Files to the User
+     * @param message
+     */
+    SendAllFiles(message) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.ArchiveJob();
+            this.SendFile(message, OrcaJobFile_1.default.OutputFile);
+            this.SendFile(message, OrcaJobFile_1.default.XYZFile);
+            this.SendFile(message, OrcaJobFile_1.default.TrajectoryXYZFile);
+            this.SendFile(message, OrcaJobFile_1.default.ArchiveFile);
+        });
+    }
+    /**
+     * Sends an individual File to the Message for the Job
+     * @param message
+     * @param file
+     */
+    SendFile(message, file) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const filePath = this.GetFullFilePath(file);
+            if (!fs_1.default.existsSync(filePath))
+                return;
+            const fileStats = fs_1.default.statSync(filePath);
+            const sizeAndFormat = this.GetFileSize(fileStats);
+            if (sizeAndFormat[0] > dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default).FILE_MAX_SIZE_MB && sizeAndFormat[1] == "MB") {
+                if (!((_a = message.content) === null || _a === void 0 ? void 0 : _a.includes(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.GetCopyCommand(OrcaJobFile_1.default.OutputFile)}`)))
+                    message.AddMessage(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.GetCopyCommand(OrcaJobFile_1.default.OutputFile)}`);
+            }
+            else
+                message.AddFile(filePath);
+        });
+    }
+    /**
+     * Starts a loop that Sends the latest version of the Output file and uploads it to Discord.
+     * @param message The Bot Communication Message the file will be uploaded to
+     */
+    UpdateOutputFile(message) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let count = 0;
+            while (!this.JobFinished) {
+                yield new Promise(resolve => {
+                    setTimeout(() => {
+                        count += 1;
+                        resolve;
+                    }, 100);
+                });
+                if (count > 100) {
+                    count = 0;
+                    this.SendFile(message, OrcaJobFile_1.default.OutputFile);
+                }
+            }
+            this.SendFile(message, OrcaJobFile_1.default.OutputFile);
+        });
     }
 }
 exports.default = OrcaJob;

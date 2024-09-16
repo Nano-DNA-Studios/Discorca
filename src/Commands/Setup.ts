@@ -18,7 +18,6 @@ class Setup extends Command {
     /* <inheritdoc> */
     public RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
 
-       // this.InitializeUserResponse(interaction, "Setting up Discorca");
        this.AddToMessage("Setting up Discorca");
 
        console.log("Setting up Discorca");
@@ -33,19 +32,16 @@ class Setup extends Command {
         console.log("Accessed Options");
 
         if (!dataManager) {
-            //this.AddToResponseMessage("Data Manager doesn't Exist, can't set the Download Location")
             this.AddToMessage("Data Manager doesn't Exist, can't set the Download Location");
             return;
         }
 
         if (!(hostname && mountlocation && maxsize && port && calculationchannel)) {
-            //this.AddToResponseMessage("The Setup Command requires all the Options to be set.");
             this.AddToMessage("The Setup Command requires all the Options to be set.");
             return;
         }
 
         if (calculationchannel.type != ChannelType.GuildText) {
-            //this.AddToResponseMessage("The Calculation Channel must be a Text Channel");
             this.AddToMessage("The Calculation Channel must be a Text Channel");
             return;
         }

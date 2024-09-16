@@ -129,7 +129,7 @@ interface IOrcaJob {
      * Copies the Job File to the Archive Folder
      * @param file The Name of the Job File
      */
-    CopyToArchive(file: OrcaJobFile): void;
+    CopyFilesToArchive(file: OrcaJobFile): void;
 }
 
 export default IOrcaJob;

@@ -25,25 +25,23 @@ class Status extends dna_discord_framework_1.Command {
         /* <inheritdoc> */
         this.IsCommandBlocking = false;
         /* <inheritdoc> */
-        this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
-            const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
-            if (!dataManager.IsDiscorcaSetup()) {
-                //this.InitializeUserResponse(interaction, "Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
-                this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
-                return;
-            }
-            //this.InitializeUserResponse(interaction, `Discorca's Status and used Resources: `);
-            this.AddToMessage(`Discorca's Status and used Resources: `);
-            this.RespondMemoryUsage();
-            this.RespondCPUUsage(dataManager);
-            this.RespondJobList(dataManager);
-        });
-        /* <inheritdoc> */
         this.IsEphemeralResponse = true;
         /**
          * The Number of Bytes in a KiloByte
          */
         this.KiloByte = 1024;
+        /* <inheritdoc> */
+        this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
+            const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
+            if (!dataManager.IsDiscorcaSetup()) {
+                this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
+                return;
+            }
+            this.AddToMessage(`Discorca's Status and used Resources: `);
+            this.RespondMemoryUsage();
+            this.RespondCPUUsage(dataManager);
+            this.RespondJobList(dataManager);
+        });
     }
     /**
      * Displays the List of Active Jobs
@@ -51,15 +49,12 @@ class Status extends dna_discord_framework_1.Command {
      */
     RespondJobList(dataManager) {
         if (!dataManager.IsJobRunning()) {
-            //this.AddToResponseMessage(`\nNo Jobs are running currently.`);
             this.AddToMessage(`\nNo Jobs are running currently.`);
             return;
         }
         let jobs = dataManager.RUNNING_JOBS;
-        //this.AddToResponseMessage(`\nCurrent Jobs Running are: `);
         this.AddToMessage(`\nCurrent Jobs Running are: `);
         for (let job in jobs)
-            //this.AddToResponseMessage(`${jobs[job].JobName} (${jobs[job].GetElapsedTime()})`)
             this.AddToMessage(`${jobs[job].JobName} (${jobs[job].GetElapsedTime()})`);
     }
     /**
@@ -68,7 +63,6 @@ class Status extends dna_discord_framework_1.Command {
      */
     RespondCPUUsage(dataManager) {
         if (!dataManager.IsJobRunning()) {
-            //this.AddToResponseMessage(`No CPU's are being used currently.`);
             this.AddToMessage(`No CPU's are being used currently.`);
             return;
         }
@@ -76,7 +70,6 @@ class Status extends dna_discord_framework_1.Command {
         let jobs = dataManager.RUNNING_JOBS;
         for (let job in jobs)
             cores += jobs[job].OccupiedCores;
-        // this.AddToResponseMessage(`CPUs : ${cores} Cores`);
         this.AddToMessage(`CPUs : ${cores} Cores`);
     }
     /**
@@ -88,7 +81,6 @@ class Status extends dna_discord_framework_1.Command {
         const TotalMemoryStr = this.MemoryAmountString(TotalMemory);
         const MemoryUsageStr = this.MemoryAmountString(MemoryUsage);
         const MemoryUsagePercentage = ((MemoryUsage / TotalMemory) * 100).toFixed(2);
-        // this.AddToResponseMessage(`Memory Usage: ${MemoryUsagePercentage}%  (${MemoryUsageStr}/${TotalMemoryStr})`);
         this.AddToMessage(`Memory Usage: ${MemoryUsagePercentage}%  (${MemoryUsageStr}/${TotalMemoryStr})`);
     }
     /**

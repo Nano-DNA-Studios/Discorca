@@ -28,7 +28,6 @@ class Setup extends dna_discord_framework_1.Command {
         this.IsCommandBlocking = false;
         /* <inheritdoc> */
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
-            // this.InitializeUserResponse(interaction, "Setting up Discorca");
             this.AddToMessage("Setting up Discorca");
             console.log("Setting up Discorca");
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
@@ -39,17 +38,14 @@ class Setup extends dna_discord_framework_1.Command {
             const calculationchannel = interaction.options.getChannel("calculationchannel");
             console.log("Accessed Options");
             if (!dataManager) {
-                //this.AddToResponseMessage("Data Manager doesn't Exist, can't set the Download Location")
                 this.AddToMessage("Data Manager doesn't Exist, can't set the Download Location");
                 return;
             }
             if (!(hostname && mountlocation && maxsize && port && calculationchannel)) {
-                //this.AddToResponseMessage("The Setup Command requires all the Options to be set.");
                 this.AddToMessage("The Setup Command requires all the Options to be set.");
                 return;
             }
             if (calculationchannel.type != discord_js_1.ChannelType.GuildText) {
-                //this.AddToResponseMessage("The Calculation Channel must be a Text Channel");
                 this.AddToMessage("The Calculation Channel must be a Text Channel");
                 return;
             }

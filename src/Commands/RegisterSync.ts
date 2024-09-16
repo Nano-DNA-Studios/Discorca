@@ -25,13 +25,11 @@ class RegisterSync extends Command {
         const downloadLocation = interaction.options.getString("downloadlocation");
 
         if (!dataManager.IsDiscorcaSetup()) {
-            //this.InitializeUserResponse(interaction, "Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
             this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
             return;
         }
 
         if (!(user && downloadLocation)) {
-           //this.InitializeUserResponse(interaction, "The Add User Command requires all the Options to be set.");
             this.AddToMessage("The Add User Command requires all the Options to be set.");
             return;
         }
@@ -39,11 +37,6 @@ class RegisterSync extends Command {
         dataManager.AddServerUser(interaction.user.username, user);
         dataManager.AddDownloadLocation(interaction.user.username, downloadLocation);
 
-
-
-        //this.InitializeUserResponse(interaction, `New User has been registered for Syncing.`);
-        //this.AddToResponseMessage(`User : ${interaction.user.username} --> Server User : ${user}`);
-        //this.AddToResponseMessage(`Download Location : ${downloadLocation}`);
         this.AddToMessage(`New User has been registered for Syncing.`);
         this.AddToMessage(`User : ${interaction.user.username} --> Server User : ${user}`);
         this.AddToMessage(`Download Location : ${downloadLocation}`);
