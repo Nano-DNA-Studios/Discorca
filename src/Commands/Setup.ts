@@ -23,7 +23,7 @@ class Setup extends Command {
        console.log("Setting up Discorca");
 
         const dataManager = BotData.Instance(OrcaBotDataManager);
-        const port = interaction.options.getNumber("port");
+        let port = interaction.options.getNumber("port");
         const maxsize = interaction.options.getNumber("maxzipfilesize");
         const hostname = interaction.options.getString("hostname");
         const mountlocation = interaction.options.getString("mountlocation");
@@ -36,7 +36,7 @@ class Setup extends Command {
             return;
         }
 
-        if (!(hostname && mountlocation && maxsize && port && calculationchannel)) {
+        if (!(hostname && mountlocation && maxsize && calculationchannel)) {
             this.AddToMessage("The Setup Command requires all the Options to be set.");
             return;
         }
@@ -45,6 +45,9 @@ class Setup extends Command {
             this.AddToMessage("The Calculation Channel must be a Text Channel");
             return;
         }
+
+        if (!port)
+            port = 0;
 
         console.log("Options are Valid");
 
