@@ -1,4 +1,4 @@
-import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
+import { Client, ChatInputCommandInteraction, CacheType, ChannelType } from "discord.js";
 import { BotData, BotDataManager, Command, ICommandOption, OptionTypesEnum } from "dna-discord-framework";
 import OrcaBotDataManager from "../OrcaBotDataManager";
 
@@ -18,41 +18,62 @@ class Setup extends Command {
     /* <inheritdoc> */
     public RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
 
-        this.InitializeUserResponse(interaction, "Setting up Discorca");
+       this.AddToMessage("Setting up Discorca");
+
+       console.log("Setting up Discorca");
 
         const dataManager = BotData.Instance(OrcaBotDataManager);
-        const port = interaction.options.getNumber("port");
+        let port = interaction.options.getNumber("port");
         const maxsize = interaction.options.getNumber("maxzipfilesize");
         const hostname = interaction.options.getString("hostname");
         const mountlocation = interaction.options.getString("mountlocation");
+        const calculationchannel = interaction.options.getChannel("calculationchannel");
+
+        console.log("Accessed Options");
 
         if (!dataManager) {
-            this.AddToResponseMessage("Data Manager doesn't Exist, can't set the Download Location")
+            this.AddToMessage("Data Manager doesn't Exist, can't set the Download Location");
             return;
         }
 
-        if (!(hostname && mountlocation && maxsize && port)) {
-            this.AddToResponseMessage("The Setup Command requires all the Options to be set.");
+        if (!(hostname && mountlocation && maxsize && calculationchannel)) {
+            this.AddToMessage("The Setup Command requires all the Options to be set.");
             return;
         }
+
+        if (calculationchannel.type != ChannelType.GuildText) {
+            this.AddToMessage("The Calculation Channel must be a Text Channel");
+            return;
+        }
+
+        if (!port)
+            port = 0;
+
+        console.log("Options are Valid");
 
         try {
             dataManager.SetHostName(hostname);
             dataManager.SetMountLocation(mountlocation);
             dataManager.SetMaxZipSize(maxsize);
             dataManager.SetPort(port);
-    
+            dataManager.SetCalculationChannelID(calculationchannel.id);
+
+            console.log("Options Set");
+
             dataManager.SaveData();
+
+            console.log("Data Saved");
         } catch (error) {
-            this.AddToResponseMessage("Error Occured while setting up Discorca");
+            this.AddToMessage("Error Occured while setting up Discorca");
             return;
         }
         
-        this.AddToResponseMessage(`Discorca has been setup with the following settings:`);
-        this.AddToResponseMessage(`Host Name : ${hostname}`);
-        this.AddToResponseMessage(`Mount Location : ${mountlocation} MB`);
-        this.AddToResponseMessage(`Max Zip File Size : ${maxsize}`);
-        this.AddToResponseMessage(`Port : ${port}`);
+        this.AddToMessage(`Discorca has been setup with the following settings:`);
+        this.AddToMessage(`Host Name : ${hostname}`);
+        this.AddToMessage(`Mount Location : ${mountlocation} MB`);
+        this.AddToMessage(`Max Zip File Size : ${maxsize}`);
+        this.AddToMessage(`Port : ${port}`);
+        this.AddToMessage(`Calculation Channel : ${calculationchannel.name}`);
 
         dataManager.CreateJobDirectories();
         dataManager.DISCORCA_SETUP = dataManager.IsDiscorcaSetup();
@@ -126,6 +147,12 @@ class Setup extends Command {
             required: true,
             type: OptionTypesEnum.Number
         },
+        {
+            name: "calculationchannel",
+            description: "The Text Channel where the Calculations will be posted",
+            required: true,
+            type: OptionTypesEnum.Channel
+        }
     ];
 }
 

@@ -83,6 +83,12 @@ interface IOrcaJob {
     GetFileSize(fileStats: fs.Stats): [Number, string];
 
     /**
+        * Simple function to download a file from a URL
+        * @param attachement The Attachment to Download
+        */
+    DownloadFiles(attachement: Attachment[]): void;
+
+    /**
     * Simple function to download a file from a URL
     * @param attachement The Attachment to Download
     */
@@ -123,7 +129,7 @@ interface IOrcaJob {
      * Copies the Job File to the Archive Folder
      * @param file The Name of the Job File
      */
-    CopyToArchive(file: OrcaJobFile): void;
+    CopyFilesToArchive(file: OrcaJobFile): void;
 }
 
 export default IOrcaJob;

@@ -28,17 +28,22 @@ class Archive extends dna_discord_framework_1.Command {
         this.IsCommandBlocking = false;
         /* <inheritdoc> */
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
-            const botData = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
-            if (!fs_1.default.existsSync(botData.JOB_ARCHIVE_FOLDER)) {
-                this.InitializeUserResponse(interaction, "No Job Archive Folder Found on the Device");
+            const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
+            if (!dataManager.IsDiscorcaSetup()) {
+                this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
                 return;
             }
-            this.InitializeUserResponse(interaction, "Here are the Job Archives Stored on the Device: \n");
-            yield fs_1.default.readdirSync(botData.JOB_ARCHIVE_FOLDER).forEach(job => {
-                botData.JOB_ARCHIVE_MAP[job] = `${botData.HOST_DEVICE_MOUNT_LOCATION}/${job}/${job}Full.tar.gz`;
-                this.AddToResponseMessage(job);
+            if (!fs_1.default.existsSync(dataManager.JOB_ARCHIVE_FOLDER)) {
+                this.AddToMessage("No Job Archive Folder Found on the Device");
+                return;
+            }
+            this.AddToMessage("Here are the Job Archives Stored on the Device: \n");
+            yield fs_1.default.readdirSync(dataManager.JOB_ARCHIVE_FOLDER).forEach(job => {
+                dataManager.JOB_ARCHIVE_MAP[job] = `${dataManager.HOST_DEVICE_MOUNT_LOCATION}/${job}/${job}Full.tar.gz`;
+                this.AddToMessage(job);
             });
-            this.AddToResponseMessage("\nTo Download an Archive use the /download Command and supply it with the Archives Name");
+            //this.AddToResponseMessage("\nTo Download an Archive use the /download Command and supply it with the Archives Name")
+            this.AddToMessage("\nTo Download an Archive use the /download Command and supply it with the Archives Name");
         });
         /* <inheritdoc> */
         this.IsEphemeralResponse = true;

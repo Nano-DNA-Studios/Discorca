@@ -33,8 +33,8 @@ COPY . /OrcaBot
 WORKDIR /OrcaBot
 
 # Install the necessary packages
-RUN npm install
-RUN npm update
+#RUN npm install
+#RUN npm update
 
 # Change to the orca user
 USER orca

@@ -18,21 +18,27 @@ class Archive extends Command {
 
     /* <inheritdoc> */
     public RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
-        const botData = BotData.Instance(OrcaBotDataManager);
+        const dataManager = BotData.Instance(OrcaBotDataManager);
 
-        if (!fs.existsSync(botData.JOB_ARCHIVE_FOLDER)) {
-            this.InitializeUserResponse(interaction, "No Job Archive Folder Found on the Device");
+        if (!dataManager.IsDiscorcaSetup()) {
+            this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
             return;
         }
 
-        this.InitializeUserResponse(interaction, "Here are the Job Archives Stored on the Device: \n");
+        if (!fs.existsSync(dataManager.JOB_ARCHIVE_FOLDER)) {
+            this.AddToMessage("No Job Archive Folder Found on the Device");
+            return;
+        }
 
-        await fs.readdirSync(botData.JOB_ARCHIVE_FOLDER).forEach(job => {
-            botData.JOB_ARCHIVE_MAP[job] = `${botData.HOST_DEVICE_MOUNT_LOCATION}/${job}/${job}Full.tar.gz`
-            this.AddToResponseMessage(job)
+        this.AddToMessage("Here are the Job Archives Stored on the Device: \n");
+
+        await fs.readdirSync(dataManager.JOB_ARCHIVE_FOLDER).forEach(job => {
+            dataManager.JOB_ARCHIVE_MAP[job] = `${dataManager.HOST_DEVICE_MOUNT_LOCATION}/${job}/${job}Full.tar.gz`
+            this.AddToMessage(job);
         });
 
-        this.AddToResponseMessage("\nTo Download an Archive use the /download Command and supply it with the Archives Name")
+        //this.AddToResponseMessage("\nTo Download an Archive use the /download Command and supply it with the Archives Name")
+        this.AddToMessage("\nTo Download an Archive use the /download Command and supply it with the Archives Name")
     };
 
     /* <inheritdoc> */

@@ -16,23 +16,28 @@ class Status extends Command {
     /* <inheritdoc> */
     public IsCommandBlocking: boolean = false;
 
+     /* <inheritdoc> */
+     public IsEphemeralResponse = true;
+
+     /**
+      * The Number of Bytes in a KiloByte
+      */
+     private KiloByte: number = 1024;
+
     /* <inheritdoc> */
     public RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
         const dataManager = BotData.Instance(OrcaBotDataManager);
 
-        this.InitializeUserResponse(interaction, `Discorca's Status and used Resources: `);
+        if (!dataManager.IsDiscorcaSetup()) {
+            this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
+            return;
+        }
+
+        this.AddToMessage(`Discorca's Status and used Resources: `);
         this.RespondMemoryUsage();
         this.RespondCPUUsage(dataManager);
         this.RespondJobList(dataManager);
     };
-
-    /* <inheritdoc> */
-    public IsEphemeralResponse = true;
-
-    /**
-     * The Number of Bytes in a KiloByte
-     */
-    private KiloByte: number = 1024;
 
     /**
      * Displays the List of Active Jobs
@@ -40,15 +45,15 @@ class Status extends Command {
      */
     private RespondJobList(dataManager: OrcaBotDataManager): void {
         if (!dataManager.IsJobRunning()) {
-            this.AddToResponseMessage(`\nNo Jobs are running currently.`);
+            this.AddToMessage(`\nNo Jobs are running currently.`);
             return;
         }
 
         let jobs = dataManager.RUNNING_JOBS;
-        this.AddToResponseMessage(`\nCurrent Jobs Running are: `);
+        this.AddToMessage(`\nCurrent Jobs Running are: `);
 
         for (let job in jobs) 
-            this.AddToResponseMessage(`${jobs[job].JobName} (${jobs[job].GetElapsedTime()})`)
+            this.AddToMessage(`${jobs[job].JobName} (${jobs[job].GetElapsedTime()})`);
     }
 
     /**
@@ -57,7 +62,7 @@ class Status extends Command {
      */
     private RespondCPUUsage(dataManager: OrcaBotDataManager): void {
         if (!dataManager.IsJobRunning()) {
-            this.AddToResponseMessage(`No CPU's are being used currently.`);
+            this.AddToMessage(`No CPU's are being used currently.`);
             return;
         }
         
@@ -67,7 +72,7 @@ class Status extends Command {
         for (let job in jobs)
             cores += jobs[job].OccupiedCores;
 
-        this.AddToResponseMessage(`CPUs : ${cores} Cores`);
+        this.AddToMessage(`CPUs : ${cores} Cores`);
     }
 
     /**
@@ -80,7 +85,7 @@ class Status extends Command {
         const MemoryUsageStr = this.MemoryAmountString(MemoryUsage);
         const MemoryUsagePercentage = ((MemoryUsage / TotalMemory) * 100).toFixed(2);
 
-        this.AddToResponseMessage(`Memory Usage: ${MemoryUsagePercentage}%  (${MemoryUsageStr}/${TotalMemoryStr})`);
+        this.AddToMessage(`Memory Usage: ${MemoryUsagePercentage}%  (${MemoryUsageStr}/${TotalMemoryStr})`);
     }
 
     /**

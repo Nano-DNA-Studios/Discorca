@@ -30,20 +30,23 @@ class Purge extends dna_discord_framework_1.Command {
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
             let dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
             let purgeType = interaction.options.getString("purgetype");
+            if (!dataManager.IsDiscorcaSetup()) {
+                this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
+                return;
+            }
             if (!purgeType) {
-                this.InitializeUserResponse(interaction, "Invalid Purge Type");
-                this.AddToResponseMessage("Please provide a valid Purge Type");
+                this.AddToMessage("Invalid Purge Type \nPlease provide a valid Purge Type");
                 return;
             }
             if (purgeType === PurgeType_1.default.Jobs) {
-                this.InitializeUserResponse(interaction, "Purging Jobs from the Server");
+                this.AddToMessage("Purging Jobs from the Server");
                 dataManager.PurgeJobs();
-                this.AddToResponseMessage("Discorca Purged Jobs Folder");
+                this.AddToMessage("Discorca Purged Jobs Folder");
             }
             else if (purgeType === PurgeType_1.default.Archive) {
-                this.InitializeUserResponse(interaction, "Purging Job Archive from the Server");
+                this.AddToMessage("Purging Job Archive from the Server");
                 dataManager.PurgeArchive();
-                this.AddToResponseMessage("Discorca Purged Job Archive Folder");
+                this.AddToMessage("Discorca Purged Job Archive Folder");
             }
         });
         /* <inheritdoc> */
