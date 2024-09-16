@@ -112,9 +112,12 @@ class Orca extends dna_discord_framework_1.Command {
                 this.AddToMessage(`Server will start the Orca Calculation :hourglass_flowing_sand:`);
                 orcaJob.UpdateOutputFile(this.CalculationMessage);
                 yield orcaJob.RunJob();
-                this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation (${orcaJob.GetJobTime()}) :white_check_mark:`);
+                if (orcaJob.JobSuccess)
+                    this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation (${orcaJob.GetJobTime()}) :white_check_mark:`);
+                else
+                    this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation with Errors (${orcaJob.GetJobTime()}) :warning:`);
                 yield orcaJob.SendAllFiles(this.CalculationMessage);
-                yield orcaJob.PingUser(this.CalculationMessage, this.DiscordCommandUser, true);
+                yield orcaJob.PingUser(this.CalculationMessage, this.DiscordCommandUser);
                 yield dataManager.RemoveJob(orcaJob);
                 this.QueueNextActivity(client, dataManager);
             }
@@ -123,7 +126,7 @@ class Orca extends dna_discord_framework_1.Command {
                     if (orcaJob) {
                         this.CalculationMessage.AddMessage("An Error Occured. Terminating Orca Job.\nCheck the Output File for Errors.");
                         dataManager.RemoveJob(orcaJob);
-                        orcaJob.PingUser(this.CalculationMessage, this.DiscordCommandUser, false);
+                        orcaJob.PingUser(this.CalculationMessage, this.DiscordCommandUser);
                     }
                     if (e instanceof Error)
                         dataManager.AddErrorLog(e);

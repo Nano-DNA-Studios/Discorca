@@ -232,13 +232,13 @@ class OrcaJob implements IOrcaJob {
     public async RunJob(): Promise<void> {
         const dataManager = BotData.Instance(OrcaBotDataManager);
 
-        await new BashScriptRunner().RunLocally(`/Orca/orca  ${this.GetFullFilePath(OrcaJobFile.InputFile)} > ${this.GetFullFilePath(OrcaJobFile.OutputFile)}`, this.OrcaJobDirectory).catch(e => {
+        await new BashScriptRunner().RunLocally(`/Orca/orca  ${this.GetFullFilePath(OrcaJobFile.InputFile)} > ${this.GetFullFilePath(OrcaJobFile.OutputFile)}`, true ,this.OrcaJobDirectory).catch(e => {
             console.log(e);
             e.name += `: Run Job (${this.JobName})`;
             dataManager.AddErrorLog(e);
             this.JobSuccess = false;
         });
-
+        
         this.JobFinished = true;
     }
 
@@ -246,9 +246,6 @@ class OrcaJob implements IOrcaJob {
      * Creates the Compressed Archive File
      */
     public async ArchiveJob() {
-
-        //setTimeout(() => { this.CopyFilesToArchive(); }, 1000);
-        
         this.CopyFilesToArchive();
 
         let runner = new BashScriptRunner();
@@ -342,11 +339,11 @@ class OrcaJob implements IOrcaJob {
      * @param jobsUser The User to send the Ping to
      * @param success Whether the Job was Successful or not
      */
-    public PingUser(message: BotCommunication, jobsUser: User, success: boolean): void {
-        if (success)
-            jobsUser.send(`${jobsUser} Server has completed the Orca Calculation ${this.JobName} :white_check_mark: \n It can be found here : ${message.GetLink()}`);
+    public async PingUser(message: BotCommunication, jobsUser: User): Promise<void> {
+        if (this.JobSuccess)
+            await jobsUser.send(`${jobsUser} Server has completed the Orca Calculation ${this.JobName} :white_check_mark: \n It can be found here : ${message.GetLink()}`);
         else
-            jobsUser.send(`${jobsUser} Server has encoutered a problem with the Orca Calculation ${this.JobName} :warning:\nThe Job has been Terminated, check the Output File for Errors. \nIt can be found here : ${message.GetLink()}`);
+            await jobsUser.send(`${jobsUser} Server has encoutered a problem with the Orca Calculation ${this.JobName} :warning:\nThe Job has been Terminated, check the Output File for Errors. \nIt can be found here : ${message.GetLink()}`);
     }
 
     /**

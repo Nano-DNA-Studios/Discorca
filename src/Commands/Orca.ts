@@ -124,10 +124,13 @@ class Orca extends Command {
 
             await orcaJob.RunJob();
 
-            this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation (${orcaJob.GetJobTime()}) :white_check_mark:`);
+            if (orcaJob.JobSuccess)
+                this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation (${orcaJob.GetJobTime()}) :white_check_mark:`);
+            else
+                this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation with Errors (${orcaJob.GetJobTime()}) :warning:`);
 
             await orcaJob.SendAllFiles(this.CalculationMessage);
-            await orcaJob.PingUser(this.CalculationMessage, this.DiscordCommandUser, true);
+            await orcaJob.PingUser(this.CalculationMessage, this.DiscordCommandUser);
             await dataManager.RemoveJob(orcaJob);
 
             this.QueueNextActivity(client, dataManager);
@@ -136,7 +139,7 @@ class Orca extends Command {
                 if (orcaJob) {
                     this.CalculationMessage.AddMessage("An Error Occured. Terminating Orca Job.\nCheck the Output File for Errors.");
                     dataManager.RemoveJob(orcaJob);
-                    orcaJob.PingUser(this.CalculationMessage, this.DiscordCommandUser, false);
+                    orcaJob.PingUser(this.CalculationMessage, this.DiscordCommandUser);
                 }
                 if (e instanceof Error)
                     dataManager.AddErrorLog(e);

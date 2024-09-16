@@ -171,7 +171,7 @@ class OrcaJob {
     RunJob() {
         return __awaiter(this, void 0, void 0, function* () {
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
-            yield new dna_discord_framework_1.BashScriptRunner().RunLocally(`/Orca/orca  ${this.GetFullFilePath(OrcaJobFile_1.default.InputFile)} > ${this.GetFullFilePath(OrcaJobFile_1.default.OutputFile)}`, this.OrcaJobDirectory).catch(e => {
+            yield new dna_discord_framework_1.BashScriptRunner().RunLocally(`/Orca/orca  ${this.GetFullFilePath(OrcaJobFile_1.default.InputFile)} > ${this.GetFullFilePath(OrcaJobFile_1.default.OutputFile)}`, true, this.OrcaJobDirectory).catch(e => {
                 console.log(e);
                 e.name += `: Run Job (${this.JobName})`;
                 dataManager.AddErrorLog(e);
@@ -185,7 +185,6 @@ class OrcaJob {
      */
     ArchiveJob() {
         return __awaiter(this, void 0, void 0, function* () {
-            //setTimeout(() => { this.CopyFilesToArchive(); }, 1000);
             this.CopyFilesToArchive();
             let runner = new dna_discord_framework_1.BashScriptRunner();
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
@@ -274,11 +273,13 @@ class OrcaJob {
      * @param jobsUser The User to send the Ping to
      * @param success Whether the Job was Successful or not
      */
-    PingUser(message, jobsUser, success) {
-        if (success)
-            jobsUser.send(`${jobsUser} Server has completed the Orca Calculation ${this.JobName} :white_check_mark: \n It can be found here : ${message.GetLink()}`);
-        else
-            jobsUser.send(`${jobsUser} Server has encoutered a problem with the Orca Calculation ${this.JobName} :warning:\nThe Job has been Terminated, check the Output File for Errors. \nIt can be found here : ${message.GetLink()}`);
+    PingUser(message, jobsUser) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.JobSuccess)
+                yield jobsUser.send(`${jobsUser} Server has completed the Orca Calculation ${this.JobName} :white_check_mark: \n It can be found here : ${message.GetLink()}`);
+            else
+                yield jobsUser.send(`${jobsUser} Server has encoutered a problem with the Orca Calculation ${this.JobName} :warning:\nThe Job has been Terminated, check the Output File for Errors. \nIt can be found here : ${message.GetLink()}`);
+        });
     }
     /**
      * Sends all quickly accessible Files to the User
