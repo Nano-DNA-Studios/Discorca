@@ -303,21 +303,16 @@ class OrcaJob {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             const filePath = this.GetFullFilePath(file);
-            console.log(`File Path : ${filePath}`);
-            if (!fs_1.default.existsSync(filePath)) {
-                console.log(`File does not exist : ${filePath}`);
+            if (!fs_1.default.existsSync(filePath))
                 return;
-            }
             const fileStats = fs_1.default.statSync(filePath);
             const sizeAndFormat = this.GetFileSize(fileStats);
             if (sizeAndFormat[0] > dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default).FILE_MAX_SIZE_MB && sizeAndFormat[1] == "MB") {
                 if (!((_a = message.content) === null || _a === void 0 ? void 0 : _a.includes(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.GetCopyCommand(OrcaJobFile_1.default.OutputFile)}`)))
                     message.AddMessage(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.GetCopyCommand(OrcaJobFile_1.default.OutputFile)}`);
             }
-            else {
-                console.log(`Adding File : ${filePath}`);
+            else
                 message.AddFile(filePath);
-            }
         });
     }
     /**
@@ -333,11 +328,9 @@ class OrcaJob {
                         count += 1;
                         resolve(undefined); // Call the resolve function to resolve the promise
                     }, 100);
-                    console.log("In promise");
                 });
                 if (count > 100) {
                     count = 0;
-                    console.log("Sending File");
                     this.SendFile(message, OrcaJobFile_1.default.OutputFile);
                 }
             }

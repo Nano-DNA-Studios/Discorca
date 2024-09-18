@@ -367,13 +367,8 @@ class OrcaJob implements IOrcaJob {
     public async SendFile(message: BotCommunication, file: OrcaJobFile): Promise<void> {
         const filePath = this.GetFullFilePath(file);
 
-        console.log(`File Path : ${filePath}`);
-
         if (!fs.existsSync(filePath))
-        {
-            console.log(`File does not exist : ${filePath}`);
             return
-        }
            
         const fileStats = fs.statSync(filePath);
         const sizeAndFormat = this.GetFileSize(fileStats);
@@ -383,11 +378,7 @@ class OrcaJob implements IOrcaJob {
                 message.AddMessage(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.GetCopyCommand(OrcaJobFile.OutputFile)}`);
         }
         else
-        {
-            console.log(`Adding File : ${filePath}`);
             message.AddFile(filePath);
-        }
-            
     }
 
     /**
@@ -402,13 +393,10 @@ class OrcaJob implements IOrcaJob {
                     count += 1;
                     resolve(undefined); // Call the resolve function to resolve the promise
                 }, 100);
-    
-                console.log("In promise");
             });
 
             if (count > 100) {
                 count = 0;
-                console.log("Sending File");
                 this.SendFile(message, OrcaJobFile.OutputFile);
             }
         }
