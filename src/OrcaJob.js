@@ -331,7 +331,7 @@ class OrcaJob {
                 yield new Promise(resolve => {
                     setTimeout(() => {
                         count += 1;
-                        resolve;
+                        resolve(undefined); // Call the resolve function to resolve the promise
                     }, 100);
                     console.log("In promise");
                 });
