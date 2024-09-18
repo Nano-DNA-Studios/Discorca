@@ -368,8 +368,8 @@ class OrcaJob implements IOrcaJob {
         const filePath = this.GetFullFilePath(file);
 
         if (!fs.existsSync(filePath))
-            return;
-
+            return
+           
         const fileStats = fs.statSync(filePath);
         const sizeAndFormat = this.GetFileSize(fileStats);
 
@@ -391,8 +391,8 @@ class OrcaJob implements IOrcaJob {
             await new Promise(resolve => {
                 setTimeout(() => {
                     count += 1;
-                    resolve;
-                }, 100)
+                    resolve(undefined); // Call the resolve function to resolve the promise
+                }, 100);
             });
 
             if (count > 100) {
