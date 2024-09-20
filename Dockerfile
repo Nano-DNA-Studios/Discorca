@@ -19,14 +19,6 @@ RUN apt-get install npm -y
 RUN mkdir /OrcaBot
 RUN mkdir /DiscorcaJobs
 
-
-#RUN sudo mkdir /DiscorcaJobs/Orca
-#RUN sudo mkdir /DiscorcaJobs/Orca/Job
-#RUN sudo mkdir /DiscorcaJobs/Orca/Archive
-#RUN sudo mkdir /DiscorcaJobs/Python
-#RUN sudo mkdir /DiscorcaJobs/Python/Job
-#RUN sudo mkdir /DiscorcaJobs/Python/Archive
-
 #Changes the owner of the Orca Jobs folder to the orca user
 RUN sudo chmod -R 775 /DiscorcaJobs
 RUN sudo chmod -R 775 /OrcaBot
