@@ -18,17 +18,20 @@ RUN apt-get install npm -y
 # Make a Folder for the Bot and a Folder for the Orca Jobs to Run
 RUN mkdir /OrcaBot
 RUN mkdir /DiscorcaJobs
-RUN mkdir /DiscorcaJobs/Orca
-RUN mkdir /DiscorcaJobs/Orca/Job
-RUN mkdir /DiscorcaJobs/Orca/Archive
-#RUN mkdir /DiscorcaJobs/Python
-#RUN mkdir /DiscorcaJobs/Python/Job
-#RUN mkdir /DiscorcaJobs/Python/Archive
+
+
+#RUN sudo mkdir /DiscorcaJobs/Orca
+#RUN sudo mkdir /DiscorcaJobs/Orca/Job
+#RUN sudo mkdir /DiscorcaJobs/Orca/Archive
+#RUN sudo mkdir /DiscorcaJobs/Python
+#RUN sudo mkdir /DiscorcaJobs/Python/Job
+#RUN sudo mkdir /DiscorcaJobs/Python/Archive
 
 #Changes the owner of the Orca Jobs folder to the orca user
-RUN chown -R 775 /DiscorcaJobs
-#RUN chown -R orca /OrcaJobsArchive
-RUN chown -R orca:orca /OrcaBot
+RUN sudo chmod -R 775 /DiscorcaJobs
+RUN sudo chmod -R 775 /OrcaBot
+RUN sudo chown -R orca:orca /OrcaBot
+RUN sudo chown -R orca:orca /DiscorcaJobs
 
 # Copy Bot Files into it's folder
 COPY . /OrcaBot

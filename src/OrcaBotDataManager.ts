@@ -60,9 +60,19 @@ class OrcaBotDataManager extends BotDataManager {
     public JOB_FOLDER: string = "/DiscorcaJobs/Orca/Job";
 
     /**
+     * The Path to the Folder for Python Jobs that are running
+     */
+    public PYTHON_JOB_FOLDER: string = "/DiscorcaJobs/Python/Job";
+
+    /**
      * The Path to the Orca Jobs Archive
      */
     public JOB_ARCHIVE_FOLDER: string = "/DiscorcaJobs/Orca/Archive";
+
+    /**
+     * The Path to the Python Jobs Archive
+     */
+    public PYTHON_JOB_ARCHIVE_FOLDER: string = "/DiscorcaJobs/Python/Archive";
 
     /**
      * A Dictionary of Running Jobs on the Server
@@ -124,15 +134,17 @@ class OrcaBotDataManager extends BotDataManager {
      */
     public CreateJobDirectories () : void
     {
-        console.log("Creating Job Directories");
-        console.log(this.JOB_FOLDER);
-        console.log(this.JOB_ARCHIVE_FOLDER);
-
         if (!fs.existsSync(this.JOB_FOLDER))
             fs.mkdirSync(this.JOB_FOLDER, { recursive: true });
 
         if (!fs.existsSync(this.JOB_ARCHIVE_FOLDER))
             fs.mkdirSync(this.JOB_ARCHIVE_FOLDER, { recursive: true });
+
+        if (!fs.existsSync(this.PYTHON_JOB_FOLDER))
+            fs.mkdirSync(this.PYTHON_JOB_FOLDER, { recursive: true });
+
+        if (!fs.existsSync(this.PYTHON_JOB_ARCHIVE_FOLDER))
+            fs.mkdirSync(this.PYTHON_JOB_ARCHIVE_FOLDER, { recursive: true });
     }
 
     /**
