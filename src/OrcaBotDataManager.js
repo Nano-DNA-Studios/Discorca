@@ -52,11 +52,19 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
         /**
          * The Path to the Folder for Orca Jobs that are running
          */
-        this.JOB_FOLDER = "/OrcaJobs/Jobs";
+        this.JOB_FOLDER = "/DiscorcaJobs/Orca/Job";
+        /**
+         * The Path to the Folder for Python Jobs that are running
+         */
+        this.PYTHON_JOB_FOLDER = "/DiscorcaJobs/Python/Job";
         /**
          * The Path to the Orca Jobs Archive
          */
-        this.JOB_ARCHIVE_FOLDER = "/OrcaJobs/Archive";
+        this.JOB_ARCHIVE_FOLDER = "/DiscorcaJobs/Orca/Archive";
+        /**
+         * The Path to the Python Jobs Archive
+         */
+        this.PYTHON_JOB_ARCHIVE_FOLDER = "/DiscorcaJobs/Python/Archive";
         /**
          * A Dictionary of Running Jobs on the Server
          */
@@ -84,7 +92,7 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
      * @returns
      */
     GetHostDeviceArchivePath() {
-        return this.HOST_DEVICE_MOUNT_LOCATION + "/Archive";
+        return this.HOST_DEVICE_MOUNT_LOCATION + "/Orca/Archive";
     }
     /**
      * Purges the Jobs Folder by deleting it and recreating it
@@ -110,6 +118,10 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
             fs_1.default.mkdirSync(this.JOB_FOLDER, { recursive: true });
         if (!fs_1.default.existsSync(this.JOB_ARCHIVE_FOLDER))
             fs_1.default.mkdirSync(this.JOB_ARCHIVE_FOLDER, { recursive: true });
+        if (!fs_1.default.existsSync(this.PYTHON_JOB_FOLDER))
+            fs_1.default.mkdirSync(this.PYTHON_JOB_FOLDER, { recursive: true });
+        if (!fs_1.default.existsSync(this.PYTHON_JOB_ARCHIVE_FOLDER))
+            fs_1.default.mkdirSync(this.PYTHON_JOB_ARCHIVE_FOLDER, { recursive: true });
     }
     /**
      * Checks if the Server has been Setup
