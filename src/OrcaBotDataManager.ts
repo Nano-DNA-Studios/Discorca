@@ -57,12 +57,12 @@ class OrcaBotDataManager extends BotDataManager {
     /**
      * The Path to the Folder for Orca Jobs that are running
      */
-    public JOB_FOLDER: string = "/OrcaJobs/Jobs";
+    public JOB_FOLDER: string = "/DiscorcaJobs/Orca/Job";
 
     /**
      * The Path to the Orca Jobs Archive
      */
-    public JOB_ARCHIVE_FOLDER: string = "/OrcaJobs/Archive";
+    public JOB_ARCHIVE_FOLDER: string = "/DiscorcaJobs/Orca/Archive";
 
     /**
      * A Dictionary of Running Jobs on the Server
@@ -94,7 +94,7 @@ class OrcaBotDataManager extends BotDataManager {
      * @returns 
      */
     public GetHostDeviceArchivePath () : string{
-        return this.HOST_DEVICE_MOUNT_LOCATION + "/Archive";
+        return this.HOST_DEVICE_MOUNT_LOCATION + "/Orca/Archive";
     }
 
     /**
@@ -124,6 +124,10 @@ class OrcaBotDataManager extends BotDataManager {
      */
     public CreateJobDirectories () : void
     {
+        console.log("Creating Job Directories");
+        console.log(this.JOB_FOLDER);
+        console.log(this.JOB_ARCHIVE_FOLDER);
+
         if (!fs.existsSync(this.JOB_FOLDER))
             fs.mkdirSync(this.JOB_FOLDER, { recursive: true });
 
