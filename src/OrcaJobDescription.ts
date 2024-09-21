@@ -15,7 +15,7 @@ class OrcaJobDescription {
     /**
      * The Number of Cores Allocated to the Orca Calculation
      */
-    public OccupiedCores: number;
+    public OccupiedCores: number;   
 
     /**
      * The Time the Job Started
