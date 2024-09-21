@@ -44,7 +44,7 @@ abstract class Job implements IJob {
     SetDirectories(): void {
 
         if (this.JobDefaultDirectory === "")
-            throw new Error("Job Default Directory is not Set");
+            throw new Error("Job Default Directory is not Set, Set the values of JobDefaultDirectory in the Class");
 
         if (this.JobCategory === "")
             throw new Error("Job Category is not Set");
@@ -60,10 +60,10 @@ abstract class Job implements IJob {
     CreateDirectories() {
 
         if (this.JobDirectory === "")
-            throw new Error("Job Directory is not Set");
+            throw new Error("Job Directory is not Set, Run SetDirectories() beforehand");
 
         if (this.JobArchiveDirectory === "")
-            throw new Error("Job Archive Directory is not Set");
+            throw new Error("Job Archive Directory is not Set, Run SetDirectories() beforehand");
 
         if (fs.existsSync(this.JobDirectory))
             fs.rmSync(this.JobDirectory, { recursive: true , force: true });

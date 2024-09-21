@@ -61,7 +61,12 @@ interface IJob {
     JobResourceUsage (): Record<string, number>;
 
     /**
-     * Creates the Job and Archive Directories
+     * Sets the Job and Archive Directories, Must have the JobDefaultDirectory and JobCategory Set beforehand
+     */
+    SetDirectories(): void;
+
+    /**
+     * Creates the Job and Archive Directories, Must have Run SetDirectories() beforehand
      */
     CreateDirectories(): void;
 }
