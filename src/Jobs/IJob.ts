@@ -26,9 +26,9 @@ interface IJob {
     JobDirectory: string;
 
     /**
-     * The Default Directory for Jobs
+     * The Global Directory for Jobs, Where all Catergories of Jobs will be Stored, Must be an Exact Path
      */
-    JobDefaultDirectory: string;
+    JobGlobalDirectory: string;
 
     /**
      * The Directory the Job Archive is Stored in
@@ -36,7 +36,12 @@ interface IJob {
     JobArchiveDirectory: string;
 
     /**
-     * The Author of the Job
+     * The Exact Path to the Job Directory on the Host Device (Where the Job will be Copied From as a Mounted Directory)
+     */
+    HostArchiveDirectory: string;
+
+    /**
+     * The Author / Creator of the Job, Just the Discord User Name
      */
     JobAuthor : string;
 

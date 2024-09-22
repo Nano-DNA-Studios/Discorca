@@ -17,28 +17,39 @@ const OrcaBotDataManager_1 = __importDefault(require("./OrcaBotDataManager"));
 const axios_1 = __importDefault(require("axios"));
 const OrcaJobFile_1 = __importDefault(require("./OrcaJobFile"));
 const fs_1 = __importDefault(require("fs"));
-class OrcaJob {
+const Job_1 = __importDefault(require("./Jobs/Job"));
+//class OrcaJob implements IOrcaJob {
+class OrcaJob extends Job_1.default {
+    /**
+     * The Directory on the Host Device where the Archive Mount is Stored
+     */
+    //HostArchiveDirectory: string;
     /**
      * Sets the Job Name
      * @param jobName The Name of the Job / Orca Input File Supplied (Without File Extension)
      */
     constructor(jobName, commandUser) {
         const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
-        this.JobSuccess = true;
-        this.JobFinished = false;
-        this.CommandUser = commandUser;
-        this.JobName = jobName.split(".")[0];
+        super(jobName.split(".")[0], commandUser);
+        /* <inheritdoc> */
+        this.JobGlobalDirectory = "/DiscorcaJobs";
+        /* <inheritdoc> */
+        this.JobCategory = "Orca";
+        this.HostArchiveDirectory = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default).HOST_DEVICE_MOUNT_LOCATION;
+        this.SetDirectories();
+        this.CreateDirectories();
+        //this.CommandUser = commandUser;
+        //this.JobName = jobName.split(".")[0];
+        //this.JobDirectory = dataManager.JOB_FOLDER;
+        //this.JobArchiveDirectory = dataManager.JOB_ARCHIVE_FOLDER;
+        //this.OrcaJobDirectory = `${this.JobDirectory}/${this.JobName}`;
+        //this.OrcaJobArchiveDirectory = `${this.JobArchiveDirectory}/${this.JobName}`;
         this.InputFileName = `${this.JobName}.inp`;
         this.OutputFileName = `${this.JobName}.out`;
         this.XYZFileName = `${this.JobName}.xyz`;
         this.TrjXYZFileName = `${this.JobName}_trj.xyz`;
         this.ArchiveFile = `${this.JobName}Full.tar.gz`;
-        this.JobDirectory = dataManager.JOB_FOLDER;
-        this.JobArchiveDirectory = dataManager.JOB_ARCHIVE_FOLDER;
-        this.OrcaJobDirectory = `${this.JobDirectory}/${this.JobName}`;
-        this.OrcaJobArchiveDirectory = `${this.JobArchiveDirectory}/${this.JobName}`;
-        this.HostArchiveDirectory = dataManager.HOST_DEVICE_MOUNT_LOCATION;
-        this.StartTime = Date.now();
+        //this.HostArchiveDirectory = dataManager.HOST_DEVICE_MOUNT_LOCATION;
     }
     /**
      * Gets the Elapsed Time since the Job Started in String format
@@ -57,32 +68,15 @@ class OrcaJob {
     /**
     * Purges Similar Named Directories and Creates them for the Job
     */
-    CreateDirectories() {
-        try {
-            fs_1.default.rmSync(this.OrcaJobDirectory, { recursive: true, force: true });
-        }
-        catch (e) {
-            console.log(e);
-        }
-        try {
-            fs_1.default.mkdirSync(this.OrcaJobDirectory, { recursive: true });
-        }
-        catch (e) {
-            console.log(e);
-        }
-        try {
-            fs_1.default.rmSync(this.OrcaJobArchiveDirectory, { recursive: true, force: true });
-        }
-        catch (e) {
-            console.log(e);
-        }
-        try {
-            fs_1.default.mkdirSync(this.OrcaJobArchiveDirectory, { recursive: true });
-        }
-        catch (e) {
-            console.log(e);
-        }
-    }
+    /*
+     CreateDirectories() {
+         try { fs.rmSync(this.OrcaJobDirectory, { recursive: true, force: true }); } catch (e) { console.log(e); }
+         try { fs.mkdirSync(this.OrcaJobDirectory, { recursive: true }); } catch (e) { console.log(e); }
+ 
+         try { fs.rmSync(this.OrcaJobArchiveDirectory, { recursive: true, force: true }); } catch (e) { console.log(e); }
+         try { fs.mkdirSync(this.OrcaJobArchiveDirectory, { recursive: true }); } catch (e) { console.log(e); }
+     }
+         */
     /**
      * Downloads all the Files Uploaded to Discorca for a Orca Calculation
      * @param attachments
@@ -110,7 +104,7 @@ class OrcaJob {
                     url: attachement.url,
                     responseType: 'stream',
                 });
-                let writer = fs_1.default.createWriteStream(`${this.OrcaJobDirectory}/${attachement.name}`);
+                let writer = fs_1.default.createWriteStream(`${this.JobDirectory}/${attachement.name}`);
                 yield response.data.pipe(writer);
                 return new Promise((resolve, reject) => {
                     writer.on('finish', resolve);
@@ -129,12 +123,12 @@ class OrcaJob {
     */
     GetCopyCommand(file) {
         const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
-        if (!(this.CommandUser in dataManager.DISCORD_USER_TO_SERVER_USER && this.CommandUser in dataManager.DISCORD_USER_TO_DOWNLOAD_LOCATION)) {
+        if (!(this.JobAuthor in dataManager.DISCORD_USER_TO_SERVER_USER && this.JobAuthor in dataManager.DISCORD_USER_TO_DOWNLOAD_LOCATION)) {
             const command = `scp serverUser@hostName:${this.GetFullMountFilePath(file)} /Path/on/local/device`;
             return "```" + command + "```";
         }
-        const user = dataManager.DISCORD_USER_TO_SERVER_USER[this.CommandUser];
-        const downloadLocation = dataManager.DISCORD_USER_TO_DOWNLOAD_LOCATION[this.CommandUser];
+        const user = dataManager.DISCORD_USER_TO_SERVER_USER[this.JobAuthor];
+        const downloadLocation = dataManager.DISCORD_USER_TO_DOWNLOAD_LOCATION[this.JobAuthor];
         const hostName = dataManager.HOSTNAME;
         let command = "";
         if (dataManager.PORT == 0)
@@ -171,7 +165,7 @@ class OrcaJob {
     RunJob() {
         return __awaiter(this, void 0, void 0, function* () {
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
-            yield new dna_discord_framework_1.BashScriptRunner().RunLocally(`/Orca/orca  ${this.GetFullFilePath(OrcaJobFile_1.default.InputFile)} > ${this.GetFullFilePath(OrcaJobFile_1.default.OutputFile)}`, true, this.OrcaJobDirectory).catch(e => {
+            yield new dna_discord_framework_1.BashScriptRunner().RunLocally(`/Orca/orca  ${this.GetFullFilePath(OrcaJobFile_1.default.InputFile)} > ${this.GetFullFilePath(OrcaJobFile_1.default.OutputFile)}`, true, this.JobDirectory).catch(e => {
                 console.log(e);
                 e.name += `: Run Job (${this.JobName})`;
                 dataManager.AddErrorLog(e);
@@ -188,7 +182,7 @@ class OrcaJob {
             this.CopyFilesToArchive();
             let runner = new dna_discord_framework_1.BashScriptRunner();
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
-            yield runner.RunLocally(`tar -zcvf  ${this.GetFullFilePath(OrcaJobFile_1.default.ArchiveFile)} -C ${this.JobDirectory} ${this.JobName}`).catch(e => {
+            yield runner.RunLocally(`tar -zcvf  ${this.GetFullFilePath(OrcaJobFile_1.default.ArchiveFile)} -C ${this.JobDirectory}`).catch(e => {
                 e.name += `: Archive Job (${this.JobName})`;
                 dataManager.AddErrorLog(e);
             });
@@ -202,15 +196,15 @@ class OrcaJob {
     GetFullFilePath(fileName) {
         switch (fileName) {
             case OrcaJobFile_1.default.InputFile:
-                return `${this.OrcaJobDirectory}/${this.InputFileName}`;
+                return `${this.JobDirectory}/${this.InputFileName}`;
             case OrcaJobFile_1.default.OutputFile:
-                return `${this.OrcaJobDirectory}/${this.OutputFileName}`;
+                return `${this.JobDirectory}/${this.OutputFileName}`;
             case OrcaJobFile_1.default.XYZFile:
-                return `${this.OrcaJobDirectory}/${this.XYZFileName}`;
+                return `${this.JobDirectory}/${this.XYZFileName}`;
             case OrcaJobFile_1.default.TrajectoryXYZFile:
-                return `${this.OrcaJobDirectory}/${this.TrjXYZFileName}`;
+                return `${this.JobDirectory}/${this.TrjXYZFileName}`;
             case OrcaJobFile_1.default.ArchiveFile:
-                return `${this.OrcaJobArchiveDirectory}/${this.ArchiveFile}`;
+                return `${this.JobArchiveDirectory}/${this.ArchiveFile}`;
             default:
                 return "";
         }
@@ -223,15 +217,15 @@ class OrcaJob {
     GetFullMountFilePath(fileName) {
         switch (fileName) {
             case OrcaJobFile_1.default.InputFile:
-                return `${this.HostArchiveDirectory}/${this.JobName}/${this.InputFileName}`;
+                return `${this.HostArchiveDirectory}/${this.JobCategory}/Archive/${this.JobName}/${this.InputFileName}`;
             case OrcaJobFile_1.default.OutputFile:
-                return `${this.HostArchiveDirectory}/${this.JobName}/${this.OutputFileName}`;
+                return `${this.HostArchiveDirectory}/${this.JobCategory}/Archive/${this.JobName}/${this.OutputFileName}`;
             case OrcaJobFile_1.default.XYZFile:
-                return `${this.HostArchiveDirectory}/${this.JobName}/${this.XYZFileName}`;
+                return `${this.HostArchiveDirectory}/${this.JobCategory}/Archive/${this.JobName}/${this.XYZFileName}`;
             case OrcaJobFile_1.default.TrajectoryXYZFile:
-                return `${this.HostArchiveDirectory}/${this.JobName}/${this.TrjXYZFileName}`;
+                return `${this.HostArchiveDirectory}/${this.JobCategory}/Archive/${this.JobName}/${this.TrjXYZFileName}`;
             case OrcaJobFile_1.default.ArchiveFile:
-                return `${this.HostArchiveDirectory}/${this.JobName}/${this.ArchiveFile}`;
+                return `${this.HostArchiveDirectory}/${this.JobCategory}/Archive/${this.JobName}/${this.ArchiveFile}`;
             default:
                 return "";
         }
@@ -262,9 +256,9 @@ class OrcaJob {
      * @param file The Name of the Job File
      */
     CopyFilesToArchive() {
-        fs_1.default.readdirSync(this.OrcaJobDirectory).forEach(file => {
-            if (fs_1.default.existsSync(`${this.OrcaJobArchiveDirectory}/${file}`))
-                fs_1.default.copyFileSync(file, `${this.OrcaJobArchiveDirectory}/${file}`, fs_1.default.constants.COPYFILE_EXCL);
+        fs_1.default.readdirSync(this.JobDirectory).forEach(file => {
+            if (fs_1.default.existsSync(`${this.JobArchiveDirectory}/${file}`))
+                fs_1.default.copyFileSync(file, `${this.JobArchiveDirectory}/${file}`, fs_1.default.constants.COPYFILE_EXCL);
         });
     }
     /**
@@ -336,6 +330,9 @@ class OrcaJob {
             }
             this.SendFile(message, OrcaJobFile_1.default.OutputFile);
         });
+    }
+    JobResourceUsage() {
+        throw new Error("Method not implemented.");
     }
 }
 exports.default = OrcaJob;
