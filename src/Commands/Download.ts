@@ -26,7 +26,6 @@ class ListJobArchive extends Command {
 
     /* <inheritdoc> */
     public RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
-        this.DiscordUser = interaction.user.username;
         const archiveName = interaction.options.getString("archivename");
         const dataManager = BotData.Instance(OrcaBotDataManager);
 
@@ -40,21 +39,27 @@ class ListJobArchive extends Command {
             return;
         }
 
-        const orcaJob: OrcaJob = new OrcaJob(archiveName, this.DiscordUser);
+        if (!Object.keys(dataManager.JOB_ARCHIVE_MAP).includes(archiveName)) {
+            this.AddToMessage(`The Archive Name ${archiveName} is not Valid. Use /listarchive to list all Downloadable Archives.`);
+            return;
+        }
 
-        if (fs.readdirSync(dataManager.JOB_ARCHIVE_FOLDER).includes(archiveName)) {
-            this.AddToMessage("File is found in Archive, Preparing...");
-            const filePath = orcaJob.GetFullFilePath(OrcaJobFile.ArchiveFile);
-            const fileStats = await fsp.stat(filePath);
-            const size = orcaJob.GetFileSize(fileStats);
+        const orcaJob: OrcaJob = dataManager.JOB_MAP[archiveName] as OrcaJob
+        const filePath = orcaJob.GetFullFilePath(OrcaJobFile.ArchiveFile)
 
-            if (size[0] > dataManager.ZIP_FILE_MAX_SIZE_MB && size[1] == "MB")
-                this.AddToMessage(`The Archive File is too Large (${size[0]} MB), it can be Downloaded using the Following Command ${orcaJob.GetCopyCommand(OrcaJobFile.ArchiveFile)}`);
-            else
-                this.AddFileToMessage(filePath);
-        } else
-            this.AddToMessage(`The Archive Name ${archiveName} is not Valid. Use /listarchive to list all Downloadable Archives.`)
+        if (!fs.existsSync(filePath)) {
+            this.AddToMessage(`The Archive File for ${archiveName} doesn't Exist. Please let the Calclaution Finish and Try Again.`);
+            return;
+        }
 
+        this.AddToMessage("File is found in Archive, Uploading...");
+        const fileStats = await fsp.stat(filePath);
+        const size = orcaJob.GetFileSize(fileStats);
+
+        if (size[0] > dataManager.ZIP_FILE_MAX_SIZE_MB && size[1] == "MB")
+            this.AddToMessage(`The Archive File is too Large (${size[0]} MB), it can be Downloaded using the Following Command ${orcaJob.GetCopyCommand(OrcaJobFile.ArchiveFile)}`);
+        else
+            this.AddFileToMessage(filePath);
     };
 
     /* <inheritdoc> */
@@ -69,6 +74,24 @@ class ListJobArchive extends Command {
             type: OptionTypesEnum.String
         }
     ];
+
+    GetFileSize(fileStats: fs.Stats): [Number, string] {
+        let realsize;
+        let sizeFormat;
+
+        if (fileStats.size / (1024 * 1024) >= 1) {
+            realsize = Math.floor(100 * fileStats.size / (1024 * 1024)) / 100;
+            sizeFormat = "MB";
+        } else if (fileStats.size / (1024) >= 1) {
+            realsize = Math.floor(100 * fileStats.size / (1024)) / 100;
+            sizeFormat = "KB";
+        } else {
+            realsize = fileStats.size;
+            sizeFormat = "B";
+        }
+
+        return [realsize, sizeFormat];
+    }
 }
 
 export = ListJobArchive;

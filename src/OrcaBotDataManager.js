@@ -49,6 +49,7 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
          * Stores the Job Name and a mapping to the Full Job Archive
          */
         this.JOB_ARCHIVE_MAP = {};
+        this.JOB_MAP = {};
         /**
          * The Path to the Folder for Orca Jobs that are running
          */
@@ -183,6 +184,10 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
      */
     AddJobArchive(jobName, jobArchiveFilePath) {
         this.JOB_ARCHIVE_MAP[jobName] = jobArchiveFilePath;
+        this.SaveData();
+    }
+    AddArchive(jobName, job) {
+        this.JOB_MAP[jobName] = job;
         this.SaveData();
     }
     /**

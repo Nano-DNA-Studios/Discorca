@@ -107,6 +107,7 @@ class Orca extends Command {
         this.CalculationMessage = new BotMessage(await client.channels.fetch(dataManager.CALCULATION_CHANNEL_ID) as TextChannel);
 
         try {
+            await orcaJob.RemoveDirectories();
             await orcaJob.CreateDirectories();
             await orcaJob.DownloadFiles(files);
 
@@ -114,6 +115,7 @@ class Orca extends Command {
             this.CalculationMessage.AddMessage(`Running Orca Calculation on ${inputfile.name}`);
 
             dataManager.AddJob(orcaJob);
+            dataManager.AddArchive(orcaJob.JobName, orcaJob);
 
             if (client.user)
                 client.user.setActivity(`Orca Calculation ${orcaJob.JobName}`, { type: ActivityType.Playing });

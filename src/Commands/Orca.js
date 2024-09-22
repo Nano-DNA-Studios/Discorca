@@ -102,11 +102,13 @@ class Orca extends dna_discord_framework_1.Command {
             let orcaJob = new OrcaJob_1.default(inputfile.name, (_a = this.DiscordCommandUser) === null || _a === void 0 ? void 0 : _a.username);
             this.CalculationMessage = new dna_discord_framework_1.BotMessage(yield client.channels.fetch(dataManager.CALCULATION_CHANNEL_ID));
             try {
+                yield orcaJob.RemoveDirectories();
                 yield orcaJob.CreateDirectories();
                 yield orcaJob.DownloadFiles(files);
                 this.AddToMessage(`Files Received`);
                 this.CalculationMessage.AddMessage(`Running Orca Calculation on ${inputfile.name}`);
                 dataManager.AddJob(orcaJob);
+                dataManager.AddArchive(orcaJob.JobName, orcaJob);
                 if (client.user)
                     client.user.setActivity(`Orca Calculation ${orcaJob.JobName}`, { type: discord_js_1.ActivityType.Playing });
                 this.AddToMessage(`Server will start the Orca Calculation :hourglass_flowing_sand:`);

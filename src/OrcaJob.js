@@ -36,7 +36,6 @@ class OrcaJob extends Job_1.default {
         /* <inheritdoc> */
         this.JobCategory = "Orca";
         this.HostArchiveDirectory = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default).HOST_DEVICE_MOUNT_LOCATION;
-        this.SetDirectories();
         this.CreateDirectories();
         //this.CommandUser = commandUser;
         //this.JobName = jobName.split(".")[0];
@@ -179,10 +178,10 @@ class OrcaJob extends Job_1.default {
      */
     ArchiveJob() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.CopyFilesToArchive();
+            //this.CopyFilesToArchive();
             let runner = new dna_discord_framework_1.BashScriptRunner();
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
-            yield runner.RunLocally(`tar -zcvf  ${this.GetFullFilePath(OrcaJobFile_1.default.ArchiveFile)} -C ${this.JobDirectory}`).catch(e => {
+            yield runner.RunLocally(`tar -zcvf  ${this.GetFullFilePath(OrcaJobFile_1.default.ArchiveFile)} -C  ${this.JobLibraryDirectory} ${this.JobName}`).catch(e => {
                 e.name += `: Archive Job (${this.JobName})`;
                 dataManager.AddErrorLog(e);
             });
@@ -194,6 +193,11 @@ class OrcaJob extends Job_1.default {
      * @returns The Full Path to the Orca Job File
      */
     GetFullFilePath(fileName) {
+        console.log("Job Directory: " + this.JobDirectory);
+        console.log("Job Name: " + this.JobName);
+        console.log("File Name: " + fileName);
+        console.log(this.ArchiveDirectory);
+        console.log(`${this.ArchiveDirectory}/${this.ArchiveFile}`);
         switch (fileName) {
             case OrcaJobFile_1.default.InputFile:
                 return `${this.JobDirectory}/${this.InputFileName}`;
@@ -204,7 +208,7 @@ class OrcaJob extends Job_1.default {
             case OrcaJobFile_1.default.TrajectoryXYZFile:
                 return `${this.JobDirectory}/${this.TrjXYZFileName}`;
             case OrcaJobFile_1.default.ArchiveFile:
-                return `${this.JobArchiveDirectory}/${this.ArchiveFile}`;
+                return `${this.ArchiveDirectory}/${this.ArchiveFile}`;
             default:
                 return "";
         }
@@ -217,15 +221,15 @@ class OrcaJob extends Job_1.default {
     GetFullMountFilePath(fileName) {
         switch (fileName) {
             case OrcaJobFile_1.default.InputFile:
-                return `${this.HostArchiveDirectory}/${this.JobCategory}/Archive/${this.JobName}/${this.InputFileName}`;
+                return `${this.HostArchiveDirectory}/${this.ArchiveRelativeDirectory}/${this.InputFileName}`;
             case OrcaJobFile_1.default.OutputFile:
-                return `${this.HostArchiveDirectory}/${this.JobCategory}/Archive/${this.JobName}/${this.OutputFileName}`;
+                return `${this.HostArchiveDirectory}/${this.ArchiveRelativeDirectory}/${this.OutputFileName}`;
             case OrcaJobFile_1.default.XYZFile:
-                return `${this.HostArchiveDirectory}/${this.JobCategory}/Archive/${this.JobName}/${this.XYZFileName}`;
+                return `${this.HostArchiveDirectory}/${this.ArchiveRelativeDirectory}/${this.XYZFileName}`;
             case OrcaJobFile_1.default.TrajectoryXYZFile:
-                return `${this.HostArchiveDirectory}/${this.JobCategory}/Archive/${this.JobName}/${this.TrjXYZFileName}`;
+                return `${this.HostArchiveDirectory}/${this.ArchiveRelativeDirectory}/${this.TrjXYZFileName}`;
             case OrcaJobFile_1.default.ArchiveFile:
-                return `${this.HostArchiveDirectory}/${this.JobCategory}/Archive/${this.JobName}/${this.ArchiveFile}`;
+                return `${this.HostArchiveDirectory}/${this.ArchiveRelativeDirectory}/${this.ArchiveFile}`;
             default:
                 return "";
         }
@@ -257,8 +261,9 @@ class OrcaJob extends Job_1.default {
      */
     CopyFilesToArchive() {
         fs_1.default.readdirSync(this.JobDirectory).forEach(file => {
-            if (fs_1.default.existsSync(`${this.JobArchiveDirectory}/${file}`))
-                fs_1.default.copyFileSync(file, `${this.JobArchiveDirectory}/${file}`, fs_1.default.constants.COPYFILE_EXCL);
+            console.log(`${this.ArchiveDirectory}/${file}`);
+            if (!fs_1.default.existsSync(`${this.ArchiveDirectory}/${file}`))
+                fs_1.default.copyFileSync(file, `${this.ArchiveDirectory}/${file}`, fs_1.default.constants.COPYFILE_EXCL);
         });
     }
     /**

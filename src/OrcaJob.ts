@@ -102,8 +102,7 @@ class OrcaJob extends Job {
         const dataManager = BotData.Instance(OrcaBotDataManager);
         super(jobName.split(".")[0], commandUser);
 
-        this.SetDirectories();
-        this.CreateDirectories();
+        //this.CreateDirectories();
         
         //this.CommandUser = commandUser;
         //this.JobName = jobName.split(".")[0];
@@ -260,11 +259,11 @@ class OrcaJob extends Job {
      * Creates the Compressed Archive File
      */
     public async ArchiveJob() {
-        this.CopyFilesToArchive();
+        //this.CopyFilesToArchive();
 
         let runner = new BashScriptRunner();
         const dataManager = BotData.Instance(OrcaBotDataManager);
-        await runner.RunLocally(`tar -zcvf  ${this.GetFullFilePath(OrcaJobFile.ArchiveFile)} -C ${this.JobDirectory}`).catch(e => {
+        await runner.RunLocally(`tar -zcvf  ${this.GetFullFilePath(OrcaJobFile.ArchiveFile)} -C  ${this.JobLibraryDirectory} ${this.JobName}`).catch(e => {
             e.name += `: Archive Job (${this.JobName})`;
             dataManager.AddErrorLog(e);
         });
@@ -276,6 +275,14 @@ class OrcaJob extends Job {
      * @returns The Full Path to the Orca Job File
      */
     public GetFullFilePath(fileName: OrcaJobFile): string {
+
+        console.log("Job Directory: " + this.JobDirectory);
+        console.log("Job Name: " + this.JobName);
+        console.log("File Name: " + fileName);
+
+        console.log(this.ArchiveDirectory);
+        console.log(`${this.ArchiveDirectory}/${this.ArchiveFile}`);
+
         switch (fileName) {
             case OrcaJobFile.InputFile:
                 return `${this.JobDirectory}/${this.InputFileName}`;
@@ -286,7 +293,7 @@ class OrcaJob extends Job {
             case OrcaJobFile.TrajectoryXYZFile:
                 return `${this.JobDirectory}/${this.TrjXYZFileName}`;
             case OrcaJobFile.ArchiveFile:
-                return `${this.JobArchiveDirectory}/${this.ArchiveFile}`;
+                return `${this.ArchiveDirectory}/${this.ArchiveFile}`;
             default:
                 return "";
         }
@@ -300,15 +307,15 @@ class OrcaJob extends Job {
     public GetFullMountFilePath(fileName: OrcaJobFile): string {
         switch (fileName) {
             case OrcaJobFile.InputFile:
-                return `${this.HostArchiveDirectory}/${this.JobCategory}/Archive/${this.JobName}/${this.InputFileName}`;
+                return `${this.HostArchiveDirectory}/${this.ArchiveRelativeDirectory}/${this.InputFileName}`;
             case OrcaJobFile.OutputFile:
-                return `${this.HostArchiveDirectory}/${this.JobCategory}/Archive/${this.JobName}/${this.OutputFileName}`;
+                return `${this.HostArchiveDirectory}/${this.ArchiveRelativeDirectory}/${this.OutputFileName}`;
             case OrcaJobFile.XYZFile:
-                return `${this.HostArchiveDirectory}/${this.JobCategory}/Archive/${this.JobName}/${this.XYZFileName}`;
+                return `${this.HostArchiveDirectory}/${this.ArchiveRelativeDirectory}/${this.XYZFileName}`;
             case OrcaJobFile.TrajectoryXYZFile:
-                return `${this.HostArchiveDirectory}/${this.JobCategory}/Archive/${this.JobName}/${this.TrjXYZFileName}`;
+                return `${this.HostArchiveDirectory}/${this.ArchiveRelativeDirectory}/${this.TrjXYZFileName}`;
             case OrcaJobFile.ArchiveFile:
-                return `${this.HostArchiveDirectory}/${this.JobCategory}/Archive/${this.JobName}/${this.ArchiveFile}`;
+                return `${this.HostArchiveDirectory}/${this.ArchiveRelativeDirectory}/${this.ArchiveFile}`;
             default:
                 return "";
         }
@@ -342,8 +349,9 @@ class OrcaJob extends Job {
      */
     public CopyFilesToArchive() {
         fs.readdirSync(this.JobDirectory).forEach(file => {
-            if (fs.existsSync(`${this.JobArchiveDirectory}/${file}`))
-                fs.copyFileSync(file, `${this.JobArchiveDirectory}/${file}`, fs.constants.COPYFILE_EXCL);
+            console.log(`${this.ArchiveDirectory}/${file}`);
+            if (!fs.existsSync(`${this.ArchiveDirectory}/${file}`))
+                fs.copyFileSync(file, `${this.ArchiveDirectory}/${file}`, fs.constants.COPYFILE_EXCL);
         });
     }
 

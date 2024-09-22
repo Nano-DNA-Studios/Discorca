@@ -3,6 +3,7 @@ import OrcaJob from "./OrcaJob";
 import OrcaJobDescription from "./OrcaJobDescription";
 import { ActivityType, Client } from "discord.js";
 import fs from "fs";
+import Job from "./Jobs/Job";
 
 /**
  * Class Handling Data Management
@@ -53,6 +54,8 @@ class OrcaBotDataManager extends BotDataManager {
      * Stores the Job Name and a mapping to the Full Job Archive
      */
     public JOB_ARCHIVE_MAP: Record<string, string> = {};
+
+    public JOB_MAP : Record<string, Job> = {};
 
     /**
      * The Path to the Folder for Orca Jobs that are running
@@ -215,6 +218,11 @@ class OrcaBotDataManager extends BotDataManager {
      */
     public AddJobArchive(jobName: string, jobArchiveFilePath: string) {
         this.JOB_ARCHIVE_MAP[jobName] = jobArchiveFilePath;
+        this.SaveData();
+    }
+
+    public AddArchive (jobName: string, job: Job) {
+        this.JOB_MAP[jobName] = job;
         this.SaveData();
     }
 
