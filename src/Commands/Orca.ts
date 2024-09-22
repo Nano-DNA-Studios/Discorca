@@ -103,7 +103,7 @@ class Orca extends Command {
         this.AddToMessage(`Preparing Orca Calculation on ${inputfile.name}`);
 
         let files = [inputfile, xyzfile1, xyzfile2, xyzfile3, xyzfile4, xyzfile5];
-        let orcaJob = new OrcaJob(inputfile.name, this.DiscordCommandUser?.username);
+        let orcaJob = new OrcaJob(inputfile.name, this.DiscordCommandUser?.displayName);
         this.CalculationMessage = new BotMessage(await client.channels.fetch(dataManager.CALCULATION_CHANNEL_ID) as TextChannel);
 
         try {
@@ -114,8 +114,8 @@ class Orca extends Command {
             this.AddToMessage(`Files Received`);
             this.CalculationMessage.AddMessage(`Running Orca Calculation on ${inputfile.name}`);
 
+            dataManager.AddJobArchive(orcaJob);
             dataManager.AddJob(orcaJob);
-            dataManager.AddArchive(orcaJob.JobName, orcaJob);
 
             if (client.user)
                 client.user.setActivity(`Orca Calculation ${orcaJob.JobName}`, { type: ActivityType.Playing });
@@ -131,7 +131,7 @@ class Orca extends Command {
             else
                 this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation with Errors (${orcaJob.GetJobTime()}) :warning:`);
 
-            await orcaJob.SendAllFiles(this.CalculationMessage);
+            await orcaJob.SendAllFiles(this.CalculationMessage, dataManager);
             await orcaJob.PingUser(this.CalculationMessage, this.DiscordCommandUser);
             await dataManager.RemoveJob(orcaJob);
 

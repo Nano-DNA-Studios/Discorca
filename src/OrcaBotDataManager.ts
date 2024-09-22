@@ -1,6 +1,5 @@
 import { BotDataManager } from "dna-discord-framework";
 import OrcaJob from "./OrcaJob";
-import OrcaJobDescription from "./OrcaJobDescription";
 import { ActivityType, Client } from "discord.js";
 import fs from "fs";
 import Job from "./Jobs/Job";
@@ -51,11 +50,9 @@ class OrcaBotDataManager extends BotDataManager {
     public DISCORD_USER_TO_DOWNLOAD_LOCATION: Record<string, string> = {};
 
     /**
-     * Stores the Job Name and a mapping to the Full Job Archive
+     * Stores the Job Name and a mapping to the Job Instance
      */
-    public JOB_ARCHIVE_MAP: Record<string, string> = {};
-
-    public JOB_MAP : Record<string, Job> = {};
+    public JOB_ARCHIVE_MAP : Record<string, Job> = {};
 
     /**
      * The Path to the Folder for Orca Jobs that are running
@@ -80,7 +77,7 @@ class OrcaBotDataManager extends BotDataManager {
     /**
      * A Dictionary of Running Jobs on the Server
      */
-    public RUNNING_JOBS: Record<string, OrcaJobDescription> = {};
+    public RUNNING_JOBS: Record<string, Job> = {};
 
     /**
      * The Channel ID for the Text Channel Calculation Results are sent to
@@ -129,7 +126,10 @@ class OrcaBotDataManager extends BotDataManager {
         if (fs.existsSync(this.JOB_ARCHIVE_FOLDER))
             fs.rmSync(this.JOB_ARCHIVE_FOLDER, { recursive: true });
 
+        this.JOB_ARCHIVE_MAP = {};
+        
         this.CreateJobDirectories();
+        this.SaveData();
     }
 
     /**
@@ -214,15 +214,10 @@ class OrcaBotDataManager extends BotDataManager {
     /**
      * Adds a Job and it's Full Archive File Name
      * @param jobName The Name of the Job to Archive
-     * @param jobArchiveFile The File of the Job Archive
+     * @param job The Job to Archive
      */
-    public AddJobArchive(jobName: string, jobArchiveFilePath: string) {
-        this.JOB_ARCHIVE_MAP[jobName] = jobArchiveFilePath;
-        this.SaveData();
-    }
-
-    public AddArchive (jobName: string, job: Job) {
-        this.JOB_MAP[jobName] = job;
+    public AddJobArchive(job : Job) {
+        this.JOB_ARCHIVE_MAP[job.JobName] = job;
         this.SaveData();
     }
 
@@ -230,8 +225,8 @@ class OrcaBotDataManager extends BotDataManager {
      * Adds a Job Instance to the Running Jobs
      * @param job The Job to Add to the Running Jobs
      */
-    public AddJob(job: OrcaJob) {
-        this.RUNNING_JOBS[job.JobName] = new OrcaJobDescription(job);
+    public AddJob(job: Job) {
+        this.RUNNING_JOBS[job.JobName] = job;
         this.SaveData();
     }
 

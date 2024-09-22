@@ -99,7 +99,7 @@ class Orca extends dna_discord_framework_1.Command {
             }
             this.AddToMessage(`Preparing Orca Calculation on ${inputfile.name}`);
             let files = [inputfile, xyzfile1, xyzfile2, xyzfile3, xyzfile4, xyzfile5];
-            let orcaJob = new OrcaJob_1.default(inputfile.name, (_a = this.DiscordCommandUser) === null || _a === void 0 ? void 0 : _a.username);
+            let orcaJob = new OrcaJob_1.default(inputfile.name, (_a = this.DiscordCommandUser) === null || _a === void 0 ? void 0 : _a.displayName);
             this.CalculationMessage = new dna_discord_framework_1.BotMessage(yield client.channels.fetch(dataManager.CALCULATION_CHANNEL_ID));
             try {
                 yield orcaJob.RemoveDirectories();
@@ -107,8 +107,8 @@ class Orca extends dna_discord_framework_1.Command {
                 yield orcaJob.DownloadFiles(files);
                 this.AddToMessage(`Files Received`);
                 this.CalculationMessage.AddMessage(`Running Orca Calculation on ${inputfile.name}`);
+                dataManager.AddJobArchive(orcaJob);
                 dataManager.AddJob(orcaJob);
-                dataManager.AddArchive(orcaJob.JobName, orcaJob);
                 if (client.user)
                     client.user.setActivity(`Orca Calculation ${orcaJob.JobName}`, { type: discord_js_1.ActivityType.Playing });
                 this.AddToMessage(`Server will start the Orca Calculation :hourglass_flowing_sand:`);
@@ -118,7 +118,7 @@ class Orca extends dna_discord_framework_1.Command {
                     this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation (${orcaJob.GetJobTime()}) :white_check_mark:`);
                 else
                     this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation with Errors (${orcaJob.GetJobTime()}) :warning:`);
-                yield orcaJob.SendAllFiles(this.CalculationMessage);
+                yield orcaJob.SendAllFiles(this.CalculationMessage, dataManager);
                 yield orcaJob.PingUser(this.CalculationMessage, this.DiscordCommandUser);
                 yield dataManager.RemoveJob(orcaJob);
                 this.QueueNextActivity(client, dataManager);

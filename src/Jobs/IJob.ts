@@ -1,3 +1,4 @@
+import { Attachment } from "discord.js";
 
 
 /**
@@ -40,11 +41,6 @@ interface IJob {
      */
     JobLibraryDirectory: string;
 
-
-    JobRelativeDirectory: string;
-
-    //JobRelativeLibraryDirectory: string;
-
     /**
      * The Directory the Job Archive is Stored in
      */
@@ -54,10 +50,6 @@ interface IJob {
      * The Path conating all Job Archives
      */
     ArchiveLibraryDirectory: string;
-
-    ArchiveRelativeDirectory: string;
-
-    //ArchiveRelativeLibraryDirectory: string;
 
     /**
      * The Author / Creator of the Job, Just the Discord User Name
@@ -85,14 +77,26 @@ interface IJob {
     JobResourceUsage (): Record<string, number>;
 
     /**
-     * Sets the Job and Archive Directories, Must have the JobDefaultDirectory and JobCategory Set beforehand
-     */
-    //SetDirectories(): void;
-
-    /**
      * Creates the Job and Archive Directories, Must have the JobDefaultDirectory and JobCategory Set beforehand
      */
     CreateDirectories(): void;
+
+    /**
+     * Downloads all the Attachments to the Job Directory
+     * @param attachments The Attachments to Download
+     */
+    DownloadFiles(attachments: (Attachment | null)[]) : void;
+
+    /**
+     * Downloads a Single Attachment to the Job Directory
+     * @param attachement The Attachment to Download
+     */
+    DownloadFile(attachement: Attachment | null) : void;
+
+    /**
+     * Copies all Files in the Job Directory to the Archive Directory
+     */
+    CopyFilesToArchive() : void;
 }
 
 export default IJob;

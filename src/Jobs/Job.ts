@@ -1,5 +1,7 @@
+import axios from "axios";
 import IJob from "./IJob";
 import fs from "fs";
+import { Attachment } from "discord.js";
 
 abstract class Job implements IJob {
 
@@ -25,18 +27,6 @@ abstract class Job implements IJob {
     public StartTime: number;
 
     /* <inheritdoc> */
-    //public JobDirectory: string = "";
-
-    /* <inheritdoc> */
-    //public JobArchiveDirectory: string = "";
-
-    /* <inheritdoc> */
-    //public JobPath: string = "";
-
-    /* <inheritdoc> */
-    //public ArchivePath: string = "";
-
-    /* <inheritdoc> */
     public JobAuthor: string;
 
     /* <inheritdoc> */
@@ -55,115 +45,45 @@ abstract class Job implements IJob {
 
     /* <inheritdoc> */
     get JobDirectory(): string {
-        if (this.JobGlobalDirectory === "")
-            throw new Error("Job Default Directory is not Set, Set the values of JobGlobalDirectory in the Class");
-
-        if (this.JobCategory === "")
-            throw new Error("Job Category is not Set");
+        if (!this.ValidPathValues())
+            return "";
 
         return this.JobGlobalDirectory + "/" + this.JobCategory + "/" + Job.JobSubdirectory + "/" + this.JobName;
     }
 
     /* <inheritdoc> */
     get ArchiveDirectory(): string {
-        if (this.JobGlobalDirectory === "")
-            throw new Error("Job Default Directory is not Set, Set the values of JobGlobalDirectory in the Class");
-
-        if (this.JobCategory === "")
-            throw new Error("Job Category is not Set");
+        if (!this.ValidPathValues())
+            return "";
 
         return this.JobGlobalDirectory + "/" + this.JobCategory + "/" + Job.ArchiveSubdirectory + "/" + this.JobName;
     }
 
     /* <inheritdoc> */
     get JobLibraryDirectory(): string {
-        if (this.JobGlobalDirectory === "")
-            throw new Error("Job Default Directory is not Set, Set the values of JobGlobalDirectory in the Class");
-
-        if (this.JobCategory === "")
-            throw new Error("Job Category is not Set");
+        if (!this.ValidPathValues())
+            return "";
 
         return this.JobGlobalDirectory + "/" + this.JobCategory + "/" + Job.JobSubdirectory;
     }
 
     /* <inheritdoc> */
     get ArchiveLibraryDirectory(): string {
-        if (this.JobGlobalDirectory === "")
-            throw new Error("Job Default Directory is not Set, Set the values of JobGlobalDirectory in the Class");
-
-        if (this.JobCategory === "")
-            throw new Error("Job Category is not Set");
+        if (!this.ValidPathValues())
+            return "";
 
         return this.JobGlobalDirectory + "/" + this.JobCategory + "/" + Job.ArchiveSubdirectory;
     }
 
-    get JobRelativeDirectory(): string {
+    private ValidPathValues (): boolean {
         if (this.JobGlobalDirectory === "")
             throw new Error("Job Default Directory is not Set, Set the values of JobGlobalDirectory in the Class");
 
         if (this.JobCategory === "")
-            throw new Error("Job Category is not Set");
-
-        return this.JobCategory + "/" + Job.JobSubdirectory + "/" + this.JobName;
+            throw new Error("Job Category is not Set, Set the value of JobCategory in the Class");
+    
+        return true;
     }
-
-    get ArchiveRelativeDirectory(): string {
-        if (this.JobGlobalDirectory === "")
-            throw new Error("Job Default Directory is not Set, Set the values of JobGlobalDirectory in the Class");
-
-        if (this.JobCategory === "")
-            throw new Error("Job Category is not Set");
-
-        return this.JobCategory + "/" + Job.ArchiveSubdirectory + "/" + this.JobName;
-    }
-
-    /*
-    get JobRelativeLibraryDirectory(): string {
-        if (this.JobGlobalDirectory === "")
-            throw new Error("Job Default Directory is not Set, Set the values of JobGlobalDirectory in the Class");
-
-        if (this.JobCategory === "")
-            throw new Error("Job Category is not Set");
-
-        return this.JobCategory + "/" + Job.JobSubdirectory;
-    }
-
-    get ArchiveRelativeLibraryDirectory(): string {
-        if (this.JobGlobalDirectory === "")
-            throw new Error("Job Default Directory is not Set, Set the values of JobGlobalDirectory in the Class");
-
-        if (this.JobCategory === "")
-            throw new Error("Job Category is not Set");
-
-        return this.JobCategory + "/" + Job.ArchiveSubdirectory;
-    }
-        */
-
-    /* <inheritdoc> */
-    /*
-   SetDirectories(): void {
-
-       if (this.JobGlobalDirectory === "")
-           throw new Error("Job Default Directory is not Set, Set the values of JobGlobalDirectory in the Class");
-
-       if (this.JobCategory === "")
-           throw new Error("Job Category is not Set");
-
-       if (this.HostArchiveDirectory === "")
-           throw new Error("Host Archive Directory is not Set");
-
-       //this.JobDirectory = this.JobGlobalDirectory + "/" + this.JobCategory + "/" + Job.JobSubdirectory + "/" + this.JobName;
-       //this.JobArchiveDirectory = this.JobGlobalDirectory + "/" + this.JobCategory + "/" + Job.ArchiveSubdirectory + "/" + this.JobName;
-      // this.JobPath = this.JobGlobalDirectory + "/" + this.JobCategory + "/" + Job.JobSubdirectory;
-      // this.ArchivePath = this.JobGlobalDirectory + "/" + this.JobCategory + "/" + Job.ArchiveSubdirectory;
-
-
-       console.log("Job Directory: " + this.JobDirectory);
-       console.log("Job Archive Directory: " + this.ArchiveDirectory);
-       console.log("Job Path: " + this.JobLibraryDirectory);
-       console.log("Archive Path: " + this.ArchiveLibraryDirectory);
-   }
-       */
 
     public RemoveDirectories(): void {
         if (this.JobDirectory === "")
@@ -189,17 +109,10 @@ abstract class Job implements IJob {
         if (this.ArchiveDirectory === "")
             throw new Error("Job Archive Directory is not Set, Run SetDirectories() beforehand");
 
-        console.log("Job Directory: " + this.JobDirectory);
-        console.log("Job Archive Directory: " + this.ArchiveDirectory);
-        console.log("Job Path: " + this.JobLibraryDirectory);
-        console.log("Archive Path: " + this.ArchiveLibraryDirectory);
-
         if (!fs.existsSync(this.JobDirectory))
-            //fs.rmSync(this.JobDirectory, { recursive: true , force: true });
             fs.mkdirSync(this.JobDirectory, { recursive: true });
 
         if (!fs.existsSync(this.ArchiveDirectory))
-            //fs.rmSync(this.ArchiveDirectory, { recursive: true , force: true });
             fs.mkdirSync(this.ArchiveDirectory, { recursive: true });
     }
 
@@ -221,6 +134,62 @@ abstract class Job implements IJob {
 
     /* <inheritdoc> */
     public abstract JobResourceUsage(): Record<string, number>;
+
+    /**
+     * Downloads all the Files Uploaded to Discorca for a Orca Calculation
+     * @param attachments 
+     */
+    public async DownloadFiles(attachments: (Attachment | null)[]) {
+
+        if (!attachments)
+            return
+
+        for (let i = 0; i < attachments.length; i++) {
+            await this.DownloadFile(attachments[i]);
+        }
+    }
+
+    /**
+    * Simple function to download a file from a URL
+    * @param attachement The Attachment to Download
+    */
+    public async DownloadFile(attachement: Attachment | null) {
+
+        if (!attachement)
+            return
+
+        try {
+            const response = await axios({
+                method: 'GET',
+                url: attachement.url,
+                responseType: 'stream',
+            });
+
+            let writer = fs.createWriteStream(`${this.JobDirectory}/${attachement.name}`);
+
+            await response.data.pipe(writer);
+
+            return new Promise((resolve, reject) => {
+                writer.on('finish', resolve);
+                writer.on('error', reject);
+            });
+        } catch (error) {
+            console.error(`Failed to download the file: ${error}`);
+        }
+    }
+
+     /**
+     * Copies the Job File to the Archive Folder
+     * @param file The Name of the Job File
+     */
+     public CopyFilesToArchive() {
+        fs.readdirSync(this.JobDirectory).forEach(file => {
+            if (!fs.existsSync(`${this.ArchiveDirectory}/${file}`))
+                try {
+                    fs.copyFileSync(file, `${this.ArchiveDirectory}/${file}`, fs.constants.COPYFILE_EXCL);
+                } catch (e) { console.log(e); }
+        });
+    }
 }
 
 export default Job;

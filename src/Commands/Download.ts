@@ -2,14 +2,13 @@ import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
 import { BotData, BotDataManager, Command, ICommandOption, OptionTypesEnum } from "dna-discord-framework";
 import OrcaBotDataManager from "../OrcaBotDataManager";
 import fs from "fs";
-import fsp from "fs/promises";
 import OrcaJob from "../OrcaJob";
 import OrcaJobFile from "../OrcaJobFile";
 
 /**
  * Command that Purges all Job Folders in the Job Directory
  */
-class ListJobArchive extends Command {
+class Download extends Command {
     /* <inheritdoc> */
     public CommandName = "download";
 
@@ -44,7 +43,7 @@ class ListJobArchive extends Command {
             return;
         }
 
-        const orcaJob: OrcaJob = dataManager.JOB_MAP[archiveName] as OrcaJob
+        const orcaJob: OrcaJob = dataManager.JOB_ARCHIVE_MAP[archiveName] as OrcaJob
         const filePath = orcaJob.GetFullFilePath(OrcaJobFile.ArchiveFile)
 
         if (!fs.existsSync(filePath)) {
@@ -53,8 +52,7 @@ class ListJobArchive extends Command {
         }
 
         this.AddToMessage("File is found in Archive, Uploading...");
-        const fileStats = await fsp.stat(filePath);
-        const size = orcaJob.GetFileSize(fileStats);
+        const size = orcaJob.GetFileSize(filePath);
 
         if (size[0] > dataManager.ZIP_FILE_MAX_SIZE_MB && size[1] == "MB")
             this.AddToMessage(`The Archive File is too Large (${size[0]} MB), it can be Downloaded using the Following Command ${orcaJob.GetCopyCommand(OrcaJobFile.ArchiveFile)}`);
@@ -74,24 +72,6 @@ class ListJobArchive extends Command {
             type: OptionTypesEnum.String
         }
     ];
-
-    GetFileSize(fileStats: fs.Stats): [Number, string] {
-        let realsize;
-        let sizeFormat;
-
-        if (fileStats.size / (1024 * 1024) >= 1) {
-            realsize = Math.floor(100 * fileStats.size / (1024 * 1024)) / 100;
-            sizeFormat = "MB";
-        } else if (fileStats.size / (1024) >= 1) {
-            realsize = Math.floor(100 * fileStats.size / (1024)) / 100;
-            sizeFormat = "KB";
-        } else {
-            realsize = fileStats.size;
-            sizeFormat = "B";
-        }
-
-        return [realsize, sizeFormat];
-    }
 }
 
-export = ListJobArchive;
+export = Download;

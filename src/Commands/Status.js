@@ -55,13 +55,14 @@ class Status extends dna_discord_framework_1.Command {
         let jobs = dataManager.RUNNING_JOBS;
         this.AddToMessage(`\nCurrent Jobs Running are: `);
         for (let job in jobs)
-            this.AddToMessage(`${jobs[job].JobName} (${jobs[job].GetElapsedTime()})`);
+            this.AddToMessage(`${jobs[job].JobName} (${jobs[job].JobElapsedTime()})`);
     }
     /**
      * Responds to the Resource Command Message with the CPU Usage (Number of Cores being used by Jobs)
      * @param jobs The Jobs that are currently running
      */
     RespondCPUUsage(dataManager) {
+        var _a;
         if (!dataManager.IsJobRunning()) {
             this.AddToMessage(`No CPU's are being used currently.`);
             return;
@@ -69,7 +70,7 @@ class Status extends dna_discord_framework_1.Command {
         let cores = 0;
         let jobs = dataManager.RUNNING_JOBS;
         for (let job in jobs)
-            cores += jobs[job].OccupiedCores;
+            cores += (_a = jobs[job].JobResourceUsage()) === null || _a === void 0 ? void 0 : _a.Cores;
         this.AddToMessage(`CPUs : ${cores} Cores`);
     }
     /**

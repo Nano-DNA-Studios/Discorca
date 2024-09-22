@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 const dna_discord_framework_1 = require("dna-discord-framework");
 const OrcaBotDataManager_1 = __importDefault(require("../OrcaBotDataManager"));
+const OrcaJob_1 = __importDefault(require("../OrcaJob"));
 /**
  * Command that
  */
@@ -48,6 +49,7 @@ class Sync extends dna_discord_framework_1.Command {
      * @returns The Full Sync Command to paste in Terminal
      */
     GetSyncCommand() {
+        const orcaJob = new OrcaJob_1.default("Sync", this.DiscordUser);
         const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
         let command = "";
         try {
@@ -55,12 +57,12 @@ class Sync extends dna_discord_framework_1.Command {
             const downloadLocation = dataManager.DISCORD_USER_TO_DOWNLOAD_LOCATION[this.DiscordUser];
             const hostName = dataManager.HOSTNAME;
             if (dataManager.PORT == 0)
-                command = `scp -r ${user}@${hostName}:${dataManager.GetHostDeviceArchivePath()} "${downloadLocation}"`;
+                command = `scp -r ${user}@${hostName}:${orcaJob.HostArchiveDirectory} "${downloadLocation}"`;
             else
-                command = `scp -r -P ${dataManager.PORT} ${user}@${hostName}:${dataManager.GetHostDeviceArchivePath()} "${downloadLocation}"`;
+                command = `scp -r -P ${dataManager.PORT} ${user}@${hostName}:${orcaJob.HostArchiveDirectory} "${downloadLocation}"`;
         }
         catch (e) {
-            command = `scp -r serverUser@hostName:${dataManager.GetHostDeviceArchivePath()} /Path/on/local/device`;
+            command = `scp -r serverUser@hostName:${orcaJob.HostArchiveDirectory} /Path/on/local/device`;
         }
         return command;
     }

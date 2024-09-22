@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const dna_discord_framework_1 = require("dna-discord-framework");
-const OrcaJobDescription_1 = __importDefault(require("./OrcaJobDescription"));
 const discord_js_1 = require("discord.js");
 const fs_1 = __importDefault(require("fs"));
 /**
@@ -46,10 +45,9 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
          */
         this.DISCORD_USER_TO_DOWNLOAD_LOCATION = {};
         /**
-         * Stores the Job Name and a mapping to the Full Job Archive
+         * Stores the Job Name and a mapping to the Job Instance
          */
         this.JOB_ARCHIVE_MAP = {};
-        this.JOB_MAP = {};
         /**
          * The Path to the Folder for Orca Jobs that are running
          */
@@ -109,7 +107,9 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
     PurgeArchive() {
         if (fs_1.default.existsSync(this.JOB_ARCHIVE_FOLDER))
             fs_1.default.rmSync(this.JOB_ARCHIVE_FOLDER, { recursive: true });
+        this.JOB_ARCHIVE_MAP = {};
         this.CreateJobDirectories();
+        this.SaveData();
     }
     /**
      * Creates the Job Directories if they don't Exist
@@ -180,14 +180,10 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
     /**
      * Adds a Job and it's Full Archive File Name
      * @param jobName The Name of the Job to Archive
-     * @param jobArchiveFile The File of the Job Archive
+     * @param job The Job to Archive
      */
-    AddJobArchive(jobName, jobArchiveFilePath) {
-        this.JOB_ARCHIVE_MAP[jobName] = jobArchiveFilePath;
-        this.SaveData();
-    }
-    AddArchive(jobName, job) {
-        this.JOB_MAP[jobName] = job;
+    AddJobArchive(job) {
+        this.JOB_ARCHIVE_MAP[job.JobName] = job;
         this.SaveData();
     }
     /**
@@ -195,7 +191,7 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
      * @param job The Job to Add to the Running Jobs
      */
     AddJob(job) {
-        this.RUNNING_JOBS[job.JobName] = new OrcaJobDescription_1.default(job);
+        this.RUNNING_JOBS[job.JobName] = job;
         this.SaveData();
     }
     /**

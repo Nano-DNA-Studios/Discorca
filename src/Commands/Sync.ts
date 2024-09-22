@@ -1,6 +1,7 @@
 import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
 import { BotData, BotDataManager, Command } from "dna-discord-framework";
 import OrcaBotDataManager from "../OrcaBotDataManager";
+import OrcaJob from "../OrcaJob";
 
 /**
  * Command that 
@@ -42,6 +43,7 @@ class Sync extends Command {
      * @returns The Full Sync Command to paste in Terminal
      */
     GetSyncCommand() {
+        const orcaJob : OrcaJob = new OrcaJob("Sync", this.DiscordUser);
         const dataManager = BotData.Instance(OrcaBotDataManager);
         let command = "";
         try {
@@ -50,12 +52,12 @@ class Sync extends Command {
             const hostName = dataManager.HOSTNAME;
 
             if (dataManager.PORT == 0)
-                command = `scp -r ${user}@${hostName}:${dataManager.GetHostDeviceArchivePath()} "${downloadLocation}"`;
+                command = `scp -r ${user}@${hostName}:${orcaJob.HostArchiveDirectory} "${downloadLocation}"`;
             else
-                command = `scp -r -P ${dataManager.PORT} ${user}@${hostName}:${dataManager.GetHostDeviceArchivePath()} "${downloadLocation}"`;
+                command = `scp -r -P ${dataManager.PORT} ${user}@${hostName}:${orcaJob.HostArchiveDirectory} "${downloadLocation}"`;
 
         } catch (e) {
-            command = `scp -r serverUser@hostName:${dataManager.GetHostDeviceArchivePath()} /Path/on/local/device`;
+            command = `scp -r serverUser@hostName:${orcaJob.HostArchiveDirectory} /Path/on/local/device`;
         }
 
         return command;

@@ -53,7 +53,7 @@ class Status extends Command {
         this.AddToMessage(`\nCurrent Jobs Running are: `);
 
         for (let job in jobs) 
-            this.AddToMessage(`${jobs[job].JobName} (${jobs[job].GetElapsedTime()})`);
+            this.AddToMessage(`${jobs[job].JobName} (${jobs[job].JobElapsedTime()})`);
     }
 
     /**
@@ -70,8 +70,8 @@ class Status extends Command {
         let jobs = dataManager.RUNNING_JOBS;
 
         for (let job in jobs)
-            cores += jobs[job].OccupiedCores;
-
+            cores += jobs[job].JobResourceUsage()?.Cores;
+            
         this.AddToMessage(`CPUs : ${cores} Cores`);
     }
 
