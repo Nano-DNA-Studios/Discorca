@@ -14,7 +14,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 const dna_discord_framework_1 = require("dna-discord-framework");
 const OrcaBotDataManager_1 = __importDefault(require("../OrcaBotDataManager"));
 const fs_1 = __importDefault(require("fs"));
-const OrcaJobFile_1 = __importDefault(require("../OrcaJobFile"));
+const OrcaJobManager_1 = __importDefault(require("../OrcaJobManager"));
+const Job_1 = __importDefault(require("../Jobs/Job"));
 /**
  * Command that Purges all Job Folders in the Job Directory
  */
@@ -35,6 +36,7 @@ class Download extends dna_discord_framework_1.Command {
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
             const archiveName = interaction.options.getString("archivename");
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
+            this.DiscordUser = interaction.user.username;
             if (!dataManager.IsDiscorcaSetup()) {
                 this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
                 return;
@@ -43,22 +45,33 @@ class Download extends dna_discord_framework_1.Command {
                 this.AddToMessage("The Archive Name has not been Supplied, cannot Download a File without an Archive Name");
                 return;
             }
-            if (!Object.keys(dataManager.JOB_ARCHIVE_MAP).includes(archiveName)) {
-                this.AddToMessage(`The Archive Name ${archiveName} is not Valid. Use /listarchive to list all Downloadable Archives.`);
+            if (!Object.keys(dataManager.DISCORD_USER_SCP_INFO).includes(this.DiscordUser)) {
+                this.AddToMessage("The SCP Information for the User has not been Setup. Run the /registersync Command to Configure SCP Information.");
                 return;
             }
-            const orcaJob = dataManager.JOB_ARCHIVE_MAP[archiveName];
-            const filePath = orcaJob.GetFullFilePath(OrcaJobFile_1.default.ArchiveFile);
-            if (!fs_1.default.existsSync(filePath)) {
-                this.AddToMessage(`The Archive File for ${archiveName} doesn't Exist. Please let the Calclaution Finish and Try Again.`);
-                return;
+            try {
+                if (!Object.keys(dataManager.JOB_ARCHIVE_MAP).includes(archiveName)) {
+                    this.AddToMessage(`The Archive Name ${archiveName} is not Valid. Use /listarchive to list all Downloadable Archives.`);
+                    return;
+                }
+                const scpInfo = dataManager === null || dataManager === void 0 ? void 0 : dataManager.DISCORD_USER_SCP_INFO[this.DiscordUser];
+                const orcaJobManager = new OrcaJobManager_1.default();
+                const orcaJob = dataManager.JOB_ARCHIVE_MAP[archiveName];
+                const filePath = this.GetArchiveFilePath(orcaJob);
+                if (!fs_1.default.existsSync(filePath)) {
+                    this.AddToMessage(`The Archive File for ${archiveName} doesn't Exist. Please let the Calculation Finish and Try Again.`);
+                    return;
+                }
+                this.AddToMessage("File is found in Archive, Uploading...");
+                const size = this.GetFileSize(filePath);
+                if (size[0] > dataManager.ZIP_FILE_MAX_SIZE_MB && size[1] == "MB")
+                    this.AddToMessage(`The Archive File is too Large (${size[0]} MB), it can be Downloaded using the Following Command ${orcaJobManager.GetHostArchiveCopyCommand(scpInfo, orcaJob.JobName)}`);
+                else
+                    this.AddFileToMessage(filePath);
             }
-            this.AddToMessage("File is found in Archive, Uploading...");
-            const size = orcaJob.GetFileSize(filePath);
-            if (size[0] > dataManager.ZIP_FILE_MAX_SIZE_MB && size[1] == "MB")
-                this.AddToMessage(`The Archive File is too Large (${size[0]} MB), it can be Downloaded using the Following Command ${orcaJob.GetCopyCommand(OrcaJobFile_1.default.ArchiveFile)}`);
-            else
-                this.AddFileToMessage(filePath);
+            catch (error) {
+                console.error(`Error in Download Command: ${error}`);
+            }
         });
         /* <inheritdoc> */
         this.IsEphemeralResponse = true;
@@ -71,6 +84,29 @@ class Download extends dna_discord_framework_1.Command {
                 type: dna_discord_framework_1.OptionTypesEnum.String
             }
         ];
+    }
+    GetArchiveFilePath(orcaJob) {
+        return `${orcaJob.JobManager.JobGlobalDirectory}/${orcaJob.JobManager.JobCategory}/${Job_1.default.ArchiveSubdirectory}/${orcaJob.JobName}/${orcaJob.ArchiveFile}`;
+    }
+    GetFileSize(filePath) {
+        if (!fs_1.default.existsSync(filePath))
+            return [0, "B"];
+        const fileStats = fs_1.default.statSync(filePath);
+        let realsize;
+        let sizeFormat;
+        if (fileStats.size / (1024 * 1024) >= 1) {
+            realsize = Math.floor(100 * fileStats.size / (1024 * 1024)) / 100;
+            sizeFormat = "MB";
+        }
+        else if (fileStats.size / (1024) >= 1) {
+            realsize = Math.floor(100 * fileStats.size / (1024)) / 100;
+            sizeFormat = "KB";
+        }
+        else {
+            realsize = fileStats.size;
+            sizeFormat = "B";
+        }
+        return [realsize, sizeFormat];
     }
 }
 module.exports = Download;

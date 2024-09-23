@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 const dna_discord_framework_1 = require("dna-discord-framework");
 const OrcaBotDataManager_1 = __importDefault(require("../OrcaBotDataManager"));
-const OrcaJob_1 = __importDefault(require("../OrcaJob"));
+const OrcaJobManager_1 = __importDefault(require("../OrcaJobManager"));
 /**
  * Command that
  */
@@ -34,37 +34,20 @@ class Sync extends dna_discord_framework_1.Command {
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
             this.DiscordUser = interaction.user.username;
+            const JobManager = new OrcaJobManager_1.default();
             if (!dataManager.IsDiscorcaSetup()) {
                 this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
                 return;
             }
+            if (!Object.keys(dataManager.DISCORD_USER_SCP_INFO).includes(this.DiscordUser)) {
+                this.AddToMessage("The SCP Information for the User has not been Setup. Run the /registersync Command to Configure SCP Information.");
+                return;
+            }
             this.AddToMessage("Use the following Command to Sync Archive to Local Device.");
-            this.AddToMessage("```" + this.GetSyncCommand() + "```");
+            this.AddToMessage("```" + JobManager.GetArchiveSyncCommand(dataManager.DISCORD_USER_SCP_INFO[this.DiscordUser]) + "```");
         });
         /* <inheritdoc> */
         this.IsEphemeralResponse = true;
-    }
-    /**
-     * Gets the Full Sync Command Needed to paste in the Terminal to Sync the Archive
-     * @returns The Full Sync Command to paste in Terminal
-     */
-    GetSyncCommand() {
-        const orcaJob = new OrcaJob_1.default("Sync", this.DiscordUser);
-        const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
-        let command = "";
-        try {
-            const user = dataManager.DISCORD_USER_TO_SERVER_USER[this.DiscordUser];
-            const downloadLocation = dataManager.DISCORD_USER_TO_DOWNLOAD_LOCATION[this.DiscordUser];
-            const hostName = dataManager.HOSTNAME;
-            if (dataManager.PORT == 0)
-                command = `scp -r ${user}@${hostName}:${orcaJob.HostArchiveDirectory} "${downloadLocation}"`;
-            else
-                command = `scp -r -P ${dataManager.PORT} ${user}@${hostName}:${orcaJob.HostArchiveDirectory} "${downloadLocation}"`;
-        }
-        catch (e) {
-            command = `scp -r serverUser@hostName:${orcaJob.HostArchiveDirectory} /Path/on/local/device`;
-        }
-        return command;
     }
 }
 module.exports = Sync;

@@ -98,6 +98,10 @@ class Setup extends dna_discord_framework_1.Command {
                 type: dna_discord_framework_1.OptionTypesEnum.Number,
                 choices: [
                     {
+                        name: "1",
+                        value: 1
+                    },
+                    {
                         name: "5",
                         value: 5
                     },

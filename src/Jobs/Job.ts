@@ -2,23 +2,28 @@ import axios from "axios";
 import IJob from "./IJob";
 import fs from "fs";
 import { Attachment } from "discord.js";
+import JobManager from "./JobManager";
 
 abstract class Job implements IJob {
 
     /* <inheritdoc> */
-    abstract JobGlobalDirectory: string;
+    //abstract JobGlobalDirectory: string;
 
     /* <inheritdoc> */
-    abstract JobCategory: string;
+    //abstract JobCategory: string;
+
+    
+    public abstract JobManager: JobManager;
 
     /* <inheritdoc> */
-    abstract HostArchiveDirectory: string;
+    //abstract HostArchiveDirectory: string;
 
     /* <inheritdoc> */
     public static JobSubdirectory: string = "Job";
 
     /* <inheritdoc> */
     public static ArchiveSubdirectory: string = "Archive";
+
 
     /* <inheritdoc> */
     public JobName: string;
@@ -41,50 +46,45 @@ abstract class Job implements IJob {
         this.JobFinished = false;
         this.JobSuccess = true;
         this.StartTime = Date.now();
+        //this.SetDirectories();
     }
 
     /* <inheritdoc> */
     get JobDirectory(): string {
-        if (!this.ValidPathValues())
-            return "";
-
-        return this.JobGlobalDirectory + "/" + this.JobCategory + "/" + Job.JobSubdirectory + "/" + this.JobName;
+        return this.JobManager.JobLibraryDirectory + "/" + this.JobName;
     }
-
+        
     /* <inheritdoc> */
     get ArchiveDirectory(): string {
-        if (!this.ValidPathValues())
-            return "";
-
-        return this.JobGlobalDirectory + "/" + this.JobCategory + "/" + Job.ArchiveSubdirectory + "/" + this.JobName;
+        return this.JobManager.ArchiveLibraryDirectory + "/" + this.JobName;
     }
 
+    //SetDirectories() {
+        //this.JobDirectory = `${this.JobManager.JobLibraryDirectory}/${this.JobName}`;
+        //this.ArchiveDirectory = `${this.JobManager.ArchiveLibraryDirectory}/${this.JobName}`;
+   // }
+
     /* <inheritdoc> */
+    /*
     get JobLibraryDirectory(): string {
         if (!this.ValidPathValues())
             return "";
 
         return this.JobGlobalDirectory + "/" + this.JobCategory + "/" + Job.JobSubdirectory;
     }
+        */
 
     /* <inheritdoc> */
+    /*
     get ArchiveLibraryDirectory(): string {
         if (!this.ValidPathValues())
             return "";
 
         return this.JobGlobalDirectory + "/" + this.JobCategory + "/" + Job.ArchiveSubdirectory;
     }
+        */
 
-    private ValidPathValues (): boolean {
-        if (this.JobGlobalDirectory === "")
-            throw new Error("Job Default Directory is not Set, Set the values of JobGlobalDirectory in the Class");
-
-        if (this.JobCategory === "")
-            throw new Error("Job Category is not Set, Set the value of JobCategory in the Class");
-    
-        return true;
-    }
-
+    /* <inheritdoc> */
     public RemoveDirectories(): void {
         if (this.JobDirectory === "")
             throw new Error("Job Directory is not Set, Run SetDirectories() beforehand");
@@ -135,10 +135,7 @@ abstract class Job implements IJob {
     /* <inheritdoc> */
     public abstract JobResourceUsage(): Record<string, number>;
 
-    /**
-     * Downloads all the Files Uploaded to Discorca for a Orca Calculation
-     * @param attachments 
-     */
+    /* <inheritdoc> */
     public async DownloadFiles(attachments: (Attachment | null)[]) {
 
         if (!attachments)
@@ -149,10 +146,7 @@ abstract class Job implements IJob {
         }
     }
 
-    /**
-    * Simple function to download a file from a URL
-    * @param attachement The Attachment to Download
-    */
+    /* <inheritdoc> */
     public async DownloadFile(attachement: Attachment | null) {
 
         if (!attachement)
@@ -178,17 +172,39 @@ abstract class Job implements IJob {
         }
     }
 
-     /**
-     * Copies the Job File to the Archive Folder
-     * @param file The Name of the Job File
-     */
-     public CopyFilesToArchive() {
+    /* <inheritdoc> */
+    public CopyFilesToArchive() {
         fs.readdirSync(this.JobDirectory).forEach(file => {
             if (!fs.existsSync(`${this.ArchiveDirectory}/${file}`))
                 try {
                     fs.copyFileSync(file, `${this.ArchiveDirectory}/${file}`, fs.constants.COPYFILE_EXCL);
                 } catch (e) { console.log(e); }
         });
+    }
+
+    /* <inheritdoc> */
+    GetFileSize(filePath: string): [Number, string] {
+
+        if (!fs.existsSync(filePath))
+            return [0, "B"];
+
+        const fileStats = fs.statSync(filePath);
+
+        let realsize;
+        let sizeFormat;
+
+        if (fileStats.size / (1024 * 1024) >= 1) {
+            realsize = Math.floor(100 * fileStats.size / (1024 * 1024)) / 100;
+            sizeFormat = "MB";
+        } else if (fileStats.size / (1024) >= 1) {
+            realsize = Math.floor(100 * fileStats.size / (1024)) / 100;
+            sizeFormat = "KB";
+        } else {
+            realsize = fileStats.size;
+            sizeFormat = "B";
+        }
+
+        return [realsize, sizeFormat];
     }
 }
 

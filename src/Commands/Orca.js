@@ -99,7 +99,7 @@ class Orca extends dna_discord_framework_1.Command {
             }
             this.AddToMessage(`Preparing Orca Calculation on ${inputfile.name}`);
             let files = [inputfile, xyzfile1, xyzfile2, xyzfile3, xyzfile4, xyzfile5];
-            let orcaJob = new OrcaJob_1.default(inputfile.name, (_a = this.DiscordCommandUser) === null || _a === void 0 ? void 0 : _a.displayName);
+            let orcaJob = new OrcaJob_1.default(inputfile.name, (_a = this.DiscordCommandUser) === null || _a === void 0 ? void 0 : _a.username);
             this.CalculationMessage = new dna_discord_framework_1.BotMessage(yield client.channels.fetch(dataManager.CALCULATION_CHANNEL_ID));
             try {
                 yield orcaJob.RemoveDirectories();
@@ -115,9 +115,9 @@ class Orca extends dna_discord_framework_1.Command {
                 orcaJob.UpdateOutputFile(this.CalculationMessage);
                 yield orcaJob.RunJob();
                 if (orcaJob.JobSuccess)
-                    this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation (${orcaJob.GetJobTime()}) :white_check_mark:`);
+                    this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation (${orcaJob.JobElapsedTime()}) :white_check_mark:`);
                 else
-                    this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation with Errors (${orcaJob.GetJobTime()}) :warning:`);
+                    this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation with Errors (${orcaJob.JobElapsedTime()}) :warning:`);
                 yield orcaJob.SendAllFiles(this.CalculationMessage, dataManager);
                 yield orcaJob.PingUser(this.CalculationMessage, this.DiscordCommandUser);
                 yield dataManager.RemoveJob(orcaJob);

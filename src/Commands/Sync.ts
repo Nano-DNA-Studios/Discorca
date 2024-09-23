@@ -2,6 +2,7 @@ import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
 import { BotData, BotDataManager, Command } from "dna-discord-framework";
 import OrcaBotDataManager from "../OrcaBotDataManager";
 import OrcaJob from "../OrcaJob";
+import OrcaJobManager from "../OrcaJobManager";
 
 /**
  * Command that 
@@ -26,42 +27,24 @@ class Sync extends Command {
         const dataManager = BotData.Instance(OrcaBotDataManager);
         this.DiscordUser = interaction.user.username;
 
+        const JobManager = new OrcaJobManager(); 
+
         if (!dataManager.IsDiscorcaSetup()) {
             this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
             return;
         }
 
+        if (!Object.keys(dataManager.DISCORD_USER_SCP_INFO).includes(this.DiscordUser)) {
+            this.AddToMessage("The SCP Information for the User has not been Setup. Run the /registersync Command to Configure SCP Information.");
+            return;
+        }
+
         this.AddToMessage("Use the following Command to Sync Archive to Local Device.");
-        this.AddToMessage("```" + this.GetSyncCommand() + "```")
+        this.AddToMessage("```" + JobManager.GetArchiveSyncCommand(dataManager.DISCORD_USER_SCP_INFO[this.DiscordUser]) + "```")
     };
 
     /* <inheritdoc> */
     public IsEphemeralResponse = true;
-
-    /**
-     * Gets the Full Sync Command Needed to paste in the Terminal to Sync the Archive
-     * @returns The Full Sync Command to paste in Terminal
-     */
-    GetSyncCommand() {
-        const orcaJob : OrcaJob = new OrcaJob("Sync", this.DiscordUser);
-        const dataManager = BotData.Instance(OrcaBotDataManager);
-        let command = "";
-        try {
-            const user = dataManager.DISCORD_USER_TO_SERVER_USER[this.DiscordUser];
-            const downloadLocation = dataManager.DISCORD_USER_TO_DOWNLOAD_LOCATION[this.DiscordUser];
-            const hostName = dataManager.HOSTNAME;
-
-            if (dataManager.PORT == 0)
-                command = `scp -r ${user}@${hostName}:${orcaJob.HostArchiveDirectory} "${downloadLocation}"`;
-            else
-                command = `scp -r -P ${dataManager.PORT} ${user}@${hostName}:${orcaJob.HostArchiveDirectory} "${downloadLocation}"`;
-
-        } catch (e) {
-            command = `scp -r serverUser@hostName:${orcaJob.HostArchiveDirectory} /Path/on/local/device`;
-        }
-
-        return command;
-    }
 }
 
 export = Sync;

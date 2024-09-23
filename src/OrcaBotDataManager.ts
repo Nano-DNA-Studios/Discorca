@@ -3,6 +3,8 @@ import OrcaJob from "./OrcaJob";
 import { ActivityType, Client } from "discord.js";
 import fs from "fs";
 import Job from "./Jobs/Job";
+import SCPInfo from "./SCPInfo";
+import SSHInfo from "./SSHInfo";
 
 /**
  * Class Handling Data Management
@@ -17,7 +19,7 @@ class OrcaBotDataManager extends BotDataManager {
     /**
      * The Port to the Server is Port Forwarded on
      */
-    public PORT: Number = 0;
+    public PORT: number = 0;
 
     /**
      * The File Path on the Host Device that is storing the Mounted Data
@@ -42,7 +44,9 @@ class OrcaBotDataManager extends BotDataManager {
     /**
      * A Mapping between the Discord User who sent the Command and the Server User
      */
-    public DISCORD_USER_TO_SERVER_USER: Record<string, string> = {};
+   // public DISCORD_USER_TO_SERVER_USER: Record<string, string> = {};
+
+    public DISCORD_USER_SCP_INFO: Record<string, SCPInfo> = {};
 
     /**
      * A Mapping between the Discord User who sent the Command and the Download Location on their Personal Device
@@ -127,7 +131,7 @@ class OrcaBotDataManager extends BotDataManager {
             fs.rmSync(this.JOB_ARCHIVE_FOLDER, { recursive: true });
 
         this.JOB_ARCHIVE_MAP = {};
-        
+
         this.CreateJobDirectories();
         this.SaveData();
     }
@@ -175,15 +179,26 @@ class OrcaBotDataManager extends BotDataManager {
         this.HOSTNAME = hostName;
     }
 
+
+    public AddSCPUser (discordUser: string, serverUser: string, downloadLocation: string) {
+        let sshInfo = new SSHInfo(this.HOSTNAME, this.PORT, serverUser, "");
+        let scpInfo = new SCPInfo(sshInfo, downloadLocation);
+
+        this.DISCORD_USER_SCP_INFO[discordUser] = scpInfo;
+        this.SaveData();
+    }
+
     /**
      * Adds a Mapping of the Discord User to the Server User
      * @param discordUser The Discord User who called the Command 
      * @param serverUser The Server User of the Discord User
      */
+    /*
     public AddServerUser(discordUser: string, serverUser: string) {
         this.DISCORD_USER_TO_SERVER_USER[discordUser] = serverUser;
         this.SaveData();
     }
+        */
 
     /**
      * Adds a Mapping of the Discord User to a Personalized Download Location 
@@ -199,7 +214,7 @@ class OrcaBotDataManager extends BotDataManager {
      * Sets the Port Number of the Server
      * @param port The Port Number
      */
-    public SetPort(port: Number) {
+    public SetPort(port: number) {
         this.PORT = port;
     }
 

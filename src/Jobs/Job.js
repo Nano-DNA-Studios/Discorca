@@ -21,38 +21,39 @@ class Job {
         this.JobFinished = false;
         this.JobSuccess = true;
         this.StartTime = Date.now();
+        //this.SetDirectories();
     }
     /* <inheritdoc> */
     get JobDirectory() {
-        if (!this.ValidPathValues())
-            return "";
-        return this.JobGlobalDirectory + "/" + this.JobCategory + "/" + Job.JobSubdirectory + "/" + this.JobName;
+        return this.JobManager.JobLibraryDirectory + "/" + this.JobName;
     }
     /* <inheritdoc> */
     get ArchiveDirectory() {
-        if (!this.ValidPathValues())
-            return "";
-        return this.JobGlobalDirectory + "/" + this.JobCategory + "/" + Job.ArchiveSubdirectory + "/" + this.JobName;
+        return this.JobManager.ArchiveLibraryDirectory + "/" + this.JobName;
     }
+    //SetDirectories() {
+    //this.JobDirectory = `${this.JobManager.JobLibraryDirectory}/${this.JobName}`;
+    //this.ArchiveDirectory = `${this.JobManager.ArchiveLibraryDirectory}/${this.JobName}`;
+    // }
     /* <inheritdoc> */
-    get JobLibraryDirectory() {
+    /*
+    get JobLibraryDirectory(): string {
         if (!this.ValidPathValues())
             return "";
+
         return this.JobGlobalDirectory + "/" + this.JobCategory + "/" + Job.JobSubdirectory;
     }
+        */
     /* <inheritdoc> */
-    get ArchiveLibraryDirectory() {
+    /*
+    get ArchiveLibraryDirectory(): string {
         if (!this.ValidPathValues())
             return "";
+
         return this.JobGlobalDirectory + "/" + this.JobCategory + "/" + Job.ArchiveSubdirectory;
     }
-    ValidPathValues() {
-        if (this.JobGlobalDirectory === "")
-            throw new Error("Job Default Directory is not Set, Set the values of JobGlobalDirectory in the Class");
-        if (this.JobCategory === "")
-            throw new Error("Job Category is not Set, Set the value of JobCategory in the Class");
-        return true;
-    }
+        */
+    /* <inheritdoc> */
     RemoveDirectories() {
         if (this.JobDirectory === "")
             throw new Error("Job Directory is not Set, Run SetDirectories() beforehand");
@@ -88,10 +89,7 @@ class Job {
         else
             return `${seconds} s`;
     }
-    /**
-     * Downloads all the Files Uploaded to Discorca for a Orca Calculation
-     * @param attachments
-     */
+    /* <inheritdoc> */
     DownloadFiles(attachments) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!attachments)
@@ -101,10 +99,7 @@ class Job {
             }
         });
     }
-    /**
-    * Simple function to download a file from a URL
-    * @param attachement The Attachment to Download
-    */
+    /* <inheritdoc> */
     DownloadFile(attachement) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!attachement)
@@ -127,10 +122,7 @@ class Job {
             }
         });
     }
-    /**
-    * Copies the Job File to the Archive Folder
-    * @param file The Name of the Job File
-    */
+    /* <inheritdoc> */
     CopyFilesToArchive() {
         fs_1.default.readdirSync(this.JobDirectory).forEach(file => {
             if (!fs_1.default.existsSync(`${this.ArchiveDirectory}/${file}`))
@@ -142,7 +134,30 @@ class Job {
                 }
         });
     }
+    /* <inheritdoc> */
+    GetFileSize(filePath) {
+        if (!fs_1.default.existsSync(filePath))
+            return [0, "B"];
+        const fileStats = fs_1.default.statSync(filePath);
+        let realsize;
+        let sizeFormat;
+        if (fileStats.size / (1024 * 1024) >= 1) {
+            realsize = Math.floor(100 * fileStats.size / (1024 * 1024)) / 100;
+            sizeFormat = "MB";
+        }
+        else if (fileStats.size / (1024) >= 1) {
+            realsize = Math.floor(100 * fileStats.size / (1024)) / 100;
+            sizeFormat = "KB";
+        }
+        else {
+            realsize = fileStats.size;
+            sizeFormat = "B";
+        }
+        return [realsize, sizeFormat];
+    }
 }
+/* <inheritdoc> */
+//abstract HostArchiveDirectory: string;
 /* <inheritdoc> */
 Job.JobSubdirectory = "Job";
 /* <inheritdoc> */

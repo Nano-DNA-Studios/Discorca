@@ -1,4 +1,5 @@
 import { Attachment } from "discord.js";
+import JobManager from "./JobManager";
 
 
 /**
@@ -19,17 +20,17 @@ interface IJob {
     /**
      * The Job Catergory, determines the name of the folder
      */
-    JobCategory: string;
+    //JobCategory: string;
 
     /**
      * The Global Directory for Jobs, Where all Catergories of Jobs will be Stored, Must be an Exact Path
      */
-    JobGlobalDirectory: string;
+    //JobGlobalDirectory: string;
 
     /**
      * The Exact Path to the Job Directory on the Host Device (Where the Job will be Copied From as a Mounted Directory)
      */
-    HostArchiveDirectory: string;
+    //HostArchiveDirectory: string;
 
     /**
      * The Directory the Job is Stored in
@@ -39,7 +40,7 @@ interface IJob {
     /**
      * The Path containing all Jobs
      */
-    JobLibraryDirectory: string;
+   // JobLibraryDirectory: string;
 
     /**
      * The Directory the Job Archive is Stored in
@@ -49,7 +50,7 @@ interface IJob {
     /**
      * The Path conating all Job Archives
      */
-    ArchiveLibraryDirectory: string;
+   // ArchiveLibraryDirectory: string;
 
     /**
      * The Author / Creator of the Job, Just the Discord User Name
@@ -65,6 +66,11 @@ interface IJob {
      * Boolean Flag to Indicate if the Job was Successful
      */
     JobSuccess: boolean;
+
+    /**
+     * The Job Manager that is Handling the Job
+     */
+    JobManager : JobManager;
 
     /**
      * The Job 
@@ -97,6 +103,15 @@ interface IJob {
      * Copies all Files in the Job Directory to the Archive Directory
      */
     CopyFilesToArchive() : void;
+
+     /**
+     * Gets the File Size and Unit 
+     * @param fileStats The File Stats of the File to Check
+     * @returns Returns a Tuple with the File Size associated with the File Size Unit
+     */
+    GetFileSize(filePath: string): [Number, string]
+
+   // SetDirectories(): void;
 }
 
 export default IJob;

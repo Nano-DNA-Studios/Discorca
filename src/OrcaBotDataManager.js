@@ -6,6 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const dna_discord_framework_1 = require("dna-discord-framework");
 const discord_js_1 = require("discord.js");
 const fs_1 = __importDefault(require("fs"));
+const SCPInfo_1 = __importDefault(require("./SCPInfo"));
+const SSHInfo_1 = __importDefault(require("./SSHInfo"));
 /**
  * Class Handling Data Management
  */
@@ -39,7 +41,8 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
         /**
          * A Mapping between the Discord User who sent the Command and the Server User
          */
-        this.DISCORD_USER_TO_SERVER_USER = {};
+        // public DISCORD_USER_TO_SERVER_USER: Record<string, string> = {};
+        this.DISCORD_USER_SCP_INFO = {};
         /**
          * A Mapping between the Discord User who sent the Command and the Download Location on their Personal Device
          */
@@ -145,15 +148,23 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
     SetHostName(hostName) {
         this.HOSTNAME = hostName;
     }
+    AddSCPUser(discordUser, serverUser, downloadLocation) {
+        let sshInfo = new SSHInfo_1.default(this.HOSTNAME, this.PORT, serverUser, "");
+        let scpInfo = new SCPInfo_1.default(sshInfo, downloadLocation);
+        this.DISCORD_USER_SCP_INFO[discordUser] = scpInfo;
+        this.SaveData();
+    }
     /**
      * Adds a Mapping of the Discord User to the Server User
      * @param discordUser The Discord User who called the Command
      * @param serverUser The Server User of the Discord User
      */
-    AddServerUser(discordUser, serverUser) {
+    /*
+    public AddServerUser(discordUser: string, serverUser: string) {
         this.DISCORD_USER_TO_SERVER_USER[discordUser] = serverUser;
         this.SaveData();
     }
+        */
     /**
      * Adds a Mapping of the Discord User to a Personalized Download Location
      * @param discordUser The Discord User who called the Command

@@ -17,6 +17,7 @@ const OrcaBotDataManager_1 = __importDefault(require("./OrcaBotDataManager"));
 const OrcaJobFile_1 = __importDefault(require("./OrcaJobFile"));
 const fs_1 = __importDefault(require("fs"));
 const Job_1 = __importDefault(require("./Jobs/Job"));
+const OrcaJobManager_1 = __importDefault(require("./OrcaJobManager"));
 //class OrcaJob implements IOrcaJob {
 class OrcaJob extends Job_1.default {
     /**
@@ -30,72 +31,24 @@ class OrcaJob extends Job_1.default {
         this.JobGlobalDirectory = "/DiscorcaJobs";
         /* <inheritdoc> */
         this.JobCategory = "Orca";
+        /* <inheritdoc> */
+        this.JobManager = new OrcaJobManager_1.default();
         this.InputFileName = `${this.JobName}.inp`;
         this.OutputFileName = `${this.JobName}.out`;
         this.XYZFileName = `${this.JobName}.xyz`;
         this.TrjXYZFileName = `${this.JobName}_trj.xyz`;
         this.ArchiveFile = `${this.JobName}Full.tar.gz`;
-        this.HostArchiveDirectory = `${dataManager.HOST_DEVICE_MOUNT_LOCATION}/${this.JobCategory}/${Job_1.default.ArchiveSubdirectory}`;
-    }
-    /**
-     * Gets the Elapsed Time since the Job Started in String format
-     * @returns The Elapsed Time since the Job Started in String format
-     */
-    GetJobTime() {
-        const now = Date.now();
-        const elapsed = new Date(now - this.StartTime);
-        const hours = elapsed.getUTCHours();
-        const minutes = elapsed.getUTCMinutes();
-        if (hours > 0)
-            return `${hours} h:${minutes} m`;
-        else
-            return `${minutes} m`;
     }
     /**
     * Creates the SCP Copy Command for the User to Copy and use in their Terminal
-    * @param fileName The Name of the File to Copy
+    * @param file The Name of the File to Copy
     * @returns The SCP Copy Command to Download the File
     */
-    GetCopyCommand(file) {
+    GetFileCopyCommand(file) {
         const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
-        if (!(this.JobAuthor in dataManager.DISCORD_USER_TO_SERVER_USER && this.JobAuthor in dataManager.DISCORD_USER_TO_DOWNLOAD_LOCATION)) {
-            const command = `scp serverUser@hostName:${this.GetFullMountFilePath(file)} /Path/on/local/device`;
-            return "```" + command + "```";
-        }
-        const user = dataManager.DISCORD_USER_TO_SERVER_USER[this.JobAuthor];
-        const downloadLocation = dataManager.DISCORD_USER_TO_DOWNLOAD_LOCATION[this.JobAuthor];
-        const hostName = dataManager.HOSTNAME;
-        let command = "";
-        if (dataManager.PORT == 0)
-            command = `scp ${user}@${hostName}:${this.GetFullMountFilePath(file)} ${downloadLocation}`;
-        else
-            command = `scp -P ${dataManager.PORT} ${user}@${hostName}:${this.GetFullMountFilePath(file)} ${downloadLocation}`;
-        return "```" + command + "```";
-    }
-    /**
-     * Gets the File Size and Unit
-     * @param fileStats The File Stats of the File to Check
-     * @returns Returns a Tuple with the File Size associated with the File Size Unit
-     */
-    GetFileSize(filePath) {
-        if (!fs_1.default.existsSync(filePath))
-            return [0, "B"];
-        const fileStats = fs_1.default.statSync(filePath);
-        let realsize;
-        let sizeFormat;
-        if (fileStats.size / (1024 * 1024) >= 1) {
-            realsize = Math.floor(100 * fileStats.size / (1024 * 1024)) / 100;
-            sizeFormat = "MB";
-        }
-        else if (fileStats.size / (1024) >= 1) {
-            realsize = Math.floor(100 * fileStats.size / (1024)) / 100;
-            sizeFormat = "KB";
-        }
-        else {
-            realsize = fileStats.size;
-            sizeFormat = "B";
-        }
-        return [realsize, sizeFormat];
+        const filePath = `${this.JobManager.HostJobDirectory}/${this.JobName}/${this.GetFileName(file)}`;
+        const scpInfo = dataManager === null || dataManager === void 0 ? void 0 : dataManager.DISCORD_USER_SCP_INFO[this.JobAuthor];
+        return scpInfo.GetSCPCommand(filePath);
     }
     /**
      * Runs the Orca Calculation Job
@@ -117,9 +70,8 @@ class OrcaJob extends Job_1.default {
      */
     ArchiveJob(dataManager) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.CopyFilesToArchive();
             let runner = new dna_discord_framework_1.BashScriptRunner();
-            yield runner.RunLocally(`tar -zcvf  ${this.GetFullFilePath(OrcaJobFile_1.default.ArchiveFile)} -C  ${this.JobLibraryDirectory} ${this.JobName}`).catch(e => {
+            yield runner.RunLocally(`tar -zcvf  ${this.GetFullFilePath(OrcaJobFile_1.default.ArchiveFile)} -C  ${this.JobManager.JobLibraryDirectory} ${this.JobName}`).catch(e => {
                 e.name += `: Archive Job (${this.JobName})`;
                 dataManager.AddErrorLog(e);
             });
@@ -142,27 +94,6 @@ class OrcaJob extends Job_1.default {
                 return `${this.JobDirectory}/${this.TrjXYZFileName}`;
             case OrcaJobFile_1.default.ArchiveFile:
                 return `${this.ArchiveDirectory}/${this.ArchiveFile}`;
-            default:
-                return "";
-        }
-    }
-    /**
-     * Gets the Full Path to the File Relative to the Host Devices Mounted Location for all Archives
-     * @param fileName The Name of the Job File
-     * @returns The Full Path to the Mounted File Path
-     */
-    GetFullMountFilePath(fileName) {
-        switch (fileName) {
-            case OrcaJobFile_1.default.InputFile:
-                return `${this.HostArchiveDirectory}/${this.JobName}/${this.InputFileName}`;
-            case OrcaJobFile_1.default.OutputFile:
-                return `${this.HostArchiveDirectory}/${this.JobName}/${this.OutputFileName}`;
-            case OrcaJobFile_1.default.XYZFile:
-                return `${this.HostArchiveDirectory}/${this.JobName}/${this.XYZFileName}`;
-            case OrcaJobFile_1.default.TrajectoryXYZFile:
-                return `${this.HostArchiveDirectory}/${this.JobName}/${this.TrjXYZFileName}`;
-            case OrcaJobFile_1.default.ArchiveFile:
-                return `${this.HostArchiveDirectory}/${this.JobName}/${this.ArchiveFile}`;
             default:
                 return "";
         }
@@ -228,8 +159,8 @@ class OrcaJob extends Job_1.default {
                 return;
             const sizeAndFormat = this.GetFileSize(filePath);
             if (sizeAndFormat[0] > dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default).FILE_MAX_SIZE_MB && sizeAndFormat[1] == "MB") {
-                if (!((_a = message.content) === null || _a === void 0 ? void 0 : _a.includes(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.GetCopyCommand(OrcaJobFile_1.default.OutputFile)}`)))
-                    message.AddMessage(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.GetCopyCommand(OrcaJobFile_1.default.OutputFile)}`);
+                if (!((_a = message.content) === null || _a === void 0 ? void 0 : _a.includes(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.GetFileCopyCommand(file)}`)))
+                    message.AddMessage(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.GetFileCopyCommand(file)}`);
             }
             else
                 message.AddFile(filePath);
