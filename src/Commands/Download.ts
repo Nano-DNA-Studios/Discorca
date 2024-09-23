@@ -41,17 +41,19 @@ class Download extends Command {
             return;
         }
 
+        /*
         if (!Object.keys(dataManager.DISCORD_USER_SCP_INFO).includes(this.DiscordUser)) {
             this.AddToMessage("The SCP Information for the User has not been Setup. Run the /registersync Command to Configure SCP Information.");
             return;
         }
+            */
 
         try {
             if (!Object.keys(dataManager.JOB_ARCHIVE_MAP).includes(archiveName)) {
                 this.AddToMessage(`The Archive Name ${archiveName} is not Valid. Use /listarchive to list all Downloadable Archives.`);
                 return;
             }
-            const scpInfo: SCPInfo = dataManager?.DISCORD_USER_SCP_INFO[this.DiscordUser] as SCPInfo;
+            const scpInfo: SCPInfo = dataManager.GetSCPInfo(this.DiscordUser);
             const orcaJobManager = new OrcaJobManager();
             const orcaJob: OrcaJob = dataManager.JOB_ARCHIVE_MAP[archiveName] as OrcaJob;
             const filePath = this.GetArchiveFilePath(orcaJob);

@@ -224,6 +224,7 @@ class OrcaBotDataManager extends BotDataManager {
      */
     public SetMaxZipSize(maxsize: Number) {
         this.ZIP_FILE_MAX_SIZE_MB = maxsize;
+        this.FILE_MAX_SIZE_MB = maxsize;
     }
 
     /**
@@ -270,6 +271,17 @@ class OrcaBotDataManager extends BotDataManager {
         if (client.user)
             client.user.setActivity(" ", { type: ActivityType.Custom, state: "Listening for New Orca Calculation" });
     }
+
+    public GetSCPInfo(discordUser: string) : SCPInfo {
+        if (Object.keys(this.DISCORD_USER_SCP_INFO).includes(discordUser))
+            return this.DISCORD_USER_SCP_INFO[discordUser];
+        else
+            return new SCPInfo(new SSHInfo("", 0, "", ""), "");
+    }
+
+
+
+
 }
 
 export default OrcaBotDataManager;
