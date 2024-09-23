@@ -45,16 +45,18 @@ class Download extends dna_discord_framework_1.Command {
                 this.AddToMessage("The Archive Name has not been Supplied, cannot Download a File without an Archive Name");
                 return;
             }
+            /*
             if (!Object.keys(dataManager.DISCORD_USER_SCP_INFO).includes(this.DiscordUser)) {
                 this.AddToMessage("The SCP Information for the User has not been Setup. Run the /registersync Command to Configure SCP Information.");
                 return;
             }
+                */
             try {
                 if (!Object.keys(dataManager.JOB_ARCHIVE_MAP).includes(archiveName)) {
                     this.AddToMessage(`The Archive Name ${archiveName} is not Valid. Use /listarchive to list all Downloadable Archives.`);
                     return;
                 }
-                const scpInfo = dataManager === null || dataManager === void 0 ? void 0 : dataManager.DISCORD_USER_SCP_INFO[this.DiscordUser];
+                const scpInfo = dataManager.GetSCPInfo(this.DiscordUser);
                 const orcaJobManager = new OrcaJobManager_1.default();
                 const orcaJob = dataManager.JOB_ARCHIVE_MAP[archiveName];
                 const filePath = this.GetArchiveFilePath(orcaJob);

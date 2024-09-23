@@ -39,12 +39,14 @@ class Sync extends dna_discord_framework_1.Command {
                 this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
                 return;
             }
+            /*
             if (!Object.keys(dataManager.DISCORD_USER_SCP_INFO).includes(this.DiscordUser)) {
                 this.AddToMessage("The SCP Information for the User has not been Setup. Run the /registersync Command to Configure SCP Information.");
                 return;
             }
+                */
             this.AddToMessage("Use the following Command to Sync Archive to Local Device.");
-            this.AddToMessage("```" + JobManager.GetArchiveSyncCommand(dataManager.DISCORD_USER_SCP_INFO[this.DiscordUser]) + "```");
+            this.AddToMessage("```" + JobManager.GetArchiveSyncCommand(dataManager.GetSCPInfo(this.DiscordUser)) + "```");
         });
         /* <inheritdoc> */
         this.IsEphemeralResponse = true;

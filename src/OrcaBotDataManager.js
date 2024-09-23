@@ -187,6 +187,7 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
      */
     SetMaxZipSize(maxsize) {
         this.ZIP_FILE_MAX_SIZE_MB = maxsize;
+        this.FILE_MAX_SIZE_MB = maxsize;
     }
     /**
      * Adds a Job and it's Full Archive File Name
@@ -227,6 +228,12 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
     SetActivityToListen(client) {
         if (client.user)
             client.user.setActivity(" ", { type: discord_js_1.ActivityType.Custom, state: "Listening for New Orca Calculation" });
+    }
+    GetSCPInfo(discordUser) {
+        if (Object.keys(this.DISCORD_USER_SCP_INFO).includes(discordUser))
+            return this.DISCORD_USER_SCP_INFO[discordUser];
+        else
+            return new SCPInfo_1.default(new SSHInfo_1.default("", 0, "", ""), "");
     }
 }
 exports.default = OrcaBotDataManager;
