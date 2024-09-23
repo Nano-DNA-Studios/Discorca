@@ -48,7 +48,8 @@ class OrcaJob extends Job_1.default {
         const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
         const filePath = `${this.JobManager.HostJobDirectory}/${this.JobName}/${this.GetFileName(file)}`;
         const scpInfo = dataManager.GetSCPInfo(this.JobAuthor);
-        return scpInfo.GetSCPCommand(filePath);
+        return this.JobManager.GetSCPCommand(scpInfo, filePath);
+        // return scpInfo.GetSCPCommand(filePath);
     }
     /**
      * Runs the Orca Calculation Job
