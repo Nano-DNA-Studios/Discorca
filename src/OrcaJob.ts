@@ -68,7 +68,8 @@ class OrcaJob extends Job {
         const dataManager = BotData.Instance(OrcaBotDataManager);
         const filePath = `${this.JobManager.HostJobDirectory}/${this.JobName}/${this.GetFileName(file)}`;
         const scpInfo: SCPInfo = dataManager.GetSCPInfo(this.JobAuthor);
-        return scpInfo.GetSCPCommand(filePath);
+        return this.JobManager.GetSCPCommand(scpInfo, filePath);
+       // return scpInfo.GetSCPCommand(filePath);
     }
 
 
