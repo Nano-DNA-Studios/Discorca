@@ -1,23 +1,25 @@
 import SSHInfo from "./SSHInfo";
 
-class SCPInfo {
-    public DownloadLocation: string;
+class SCPInfo implements SSHInfo{
     public HostName: string;
     public Port: number;
     public Username: string;
     public Password: string;
+    public DestinationPath: string;
+    public SourcePath: string;
 
-    constructor(sshInfo: SSHInfo, downloadLocation: string) {
+    constructor(sshInfo: SSHInfo, sourcePath: string,  destinationPath: string) {
         this.HostName = sshInfo.HostName;
         this.Port = sshInfo.Port;
         this.Username = sshInfo.Username;
         this.Password = sshInfo.Password;
-        this.DownloadLocation = downloadLocation
+        this.DestinationPath = destinationPath;
+        this.SourcePath = sourcePath;
     }
 
     public GetSCPCommand(path: string): string {
         const user = this?.Username;
-        const downloadLocation = this?.DownloadLocation;
+        const downloadLocation = this?.DestinationPath;
         const hostName = this?.HostName;
         const port = this?.Port;
         let command = "";

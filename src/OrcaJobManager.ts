@@ -2,7 +2,7 @@ import { BotData } from "dna-discord-framework";
 import JobManager from "./Jobs/JobManager";
 import OrcaBotDataManager from "./OrcaBotDataManager";
 import Job from "./Jobs/Job";
-import SCPInfo from "./SCPInfo";
+import SCPInfo from "./SSH/SCPInfo";
 
 class OrcaJobManager extends JobManager {
 

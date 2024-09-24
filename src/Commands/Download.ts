@@ -4,7 +4,7 @@ import OrcaBotDataManager from "../OrcaBotDataManager";
 import fs from "fs";
 import OrcaJob from "../OrcaJob";
 import OrcaJobManager from "../OrcaJobManager";
-import SCPInfo from "../SCPInfo";
+import SCPInfo from "../SSH/SCPInfo";
 import Job from "../Jobs/Job";
 
 /**

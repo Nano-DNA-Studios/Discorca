@@ -1,4 +1,4 @@
-import SCPInfo from "../SCPInfo";
+import SCPInfo from "../SSH/SCPInfo";
 import Job from "./Job";
 
 

@@ -5,7 +5,7 @@ import { User } from "discord.js";
 import fs from "fs";
 import Job from "./Jobs/Job";
 import OrcaJobManager from "./OrcaJobManager";
-import SCPInfo from "./SCPInfo";
+import SCPInfo from "./SSH/SCPInfo";
 
 //class OrcaJob implements IOrcaJob {
 class OrcaJob extends Job {
