@@ -65,9 +65,9 @@ abstract class JobManager {
    */
     //abstract GetCopyCommand(job: Job): string;
 
-    abstract GetHostArchiveCopyCommand(syncInfo: SyncInfo, jobName: string): string;
+    abstract GetHostArchiveCopyCommand(syncInfo: SyncInfo, jobName: string, destinationPath: string): string;
 
-    abstract GetHostJobCopyCommand(syncInfo: SyncInfo, jobName: string): string;
+    abstract GetHostJobCopyCommand(syncInfo: SyncInfo, jobName: string, destinationPath: string): string;
 
     //abstract GetHostArchiveCopyCommand(scpInfo: SCPInfo, jobName : string): string;
 

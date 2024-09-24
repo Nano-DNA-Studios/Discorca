@@ -3,6 +3,7 @@ import { BotData, BotDataManager, Command } from "dna-discord-framework";
 import OrcaBotDataManager from "../OrcaBotDataManager";
 import OrcaJob from "../OrcaJob";
 import OrcaJobManager from "../OrcaJobManager";
+import SyncInfo from "../SyncInfo";
 
 /**
  * Command that 
@@ -41,8 +42,10 @@ class Sync extends Command {
         }
             */
 
+        const syncInfo: SyncInfo = dataManager.GetSCPInfo(this.DiscordUser);
+
         this.AddToMessage("Use the following Command to Sync Archive to Local Device.");
-        this.AddToMessage("```" + JobManager.GetArchiveSyncCommand(dataManager.GetSCPInfo(this.DiscordUser)) + "```")
+        this.AddToMessage("```" + JobManager.GetArchiveSyncCommand(syncInfo, syncInfo.DownloadLocation) + "```")
     };
 
     /* <inheritdoc> */

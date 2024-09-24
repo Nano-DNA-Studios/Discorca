@@ -22,23 +22,22 @@ class OrcaJobManager extends JobManager {
         this.HostJobDirectory = `${dataManager.HOST_DEVICE_MOUNT_LOCATION}/${this.JobCategory}/${Job.JobSubdirectory}`;
     }
 
-    GetArchiveSyncCommand(syncInfo: SyncInfo): string {
-        return this.GetSCPCommand(syncInfo, this.HostArchiveDirectory, syncInfo.DownloadLocation);
+    GetArchiveSyncCommand(syncInfo: SyncInfo, destinationPath: string): string {
+        return this.GetSCPCommand(syncInfo, this.HostArchiveDirectory, destinationPath);
     }
 
-    GetHostArchiveCopyCommand(syncInfo: SyncInfo, jobName: string): string {
+    GetHostArchiveCopyCommand(syncInfo: SyncInfo, jobName: string, destinationPath: string): string {
         const path = this.HostArchiveDirectory + "/" + jobName;
-        return this.GetSCPCommand(syncInfo, path, syncInfo.DownloadLocation);
+        return this.GetSCPCommand(syncInfo, path, destinationPath);
     }
 
-    GetHostJobCopyCommand(syncInfo: SyncInfo, jobName: string): string {
+    GetHostJobCopyCommand(syncInfo: SyncInfo, jobName: string, destinationPath: string): string {
         const path = this.HostArchiveDirectory + "/" + jobName;
-        return this.GetSCPCommand(syncInfo, path, syncInfo.DownloadLocation);
+        return this.GetSCPCommand(syncInfo, path, destinationPath);
     }
 
     public GetSCPCommand(scpInfo: SSHInfo, sourcePath : string, destinationPath: string): string {
         const user = scpInfo?.Username;
-        //const downloadLocation = scpInfo?.DownloadLocation;
         const hostName = scpInfo?.HostName;
         const port = scpInfo?.Port;
         let command = "";

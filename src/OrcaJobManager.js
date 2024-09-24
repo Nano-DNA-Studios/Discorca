@@ -16,20 +16,19 @@ class OrcaJobManager extends JobManager_1.default {
         this.HostArchiveDirectory = `${dataManager.HOST_DEVICE_MOUNT_LOCATION}/${this.JobCategory}/${Job_1.default.ArchiveSubdirectory}`;
         this.HostJobDirectory = `${dataManager.HOST_DEVICE_MOUNT_LOCATION}/${this.JobCategory}/${Job_1.default.JobSubdirectory}`;
     }
-    GetArchiveSyncCommand(syncInfo) {
-        return this.GetSCPCommand(syncInfo, this.HostArchiveDirectory, syncInfo.DownloadLocation);
+    GetArchiveSyncCommand(syncInfo, destinationPath) {
+        return this.GetSCPCommand(syncInfo, this.HostArchiveDirectory, destinationPath);
     }
-    GetHostArchiveCopyCommand(syncInfo, jobName) {
+    GetHostArchiveCopyCommand(syncInfo, jobName, destinationPath) {
         const path = this.HostArchiveDirectory + "/" + jobName;
-        return this.GetSCPCommand(syncInfo, path, syncInfo.DownloadLocation);
+        return this.GetSCPCommand(syncInfo, path, destinationPath);
     }
-    GetHostJobCopyCommand(syncInfo, jobName) {
+    GetHostJobCopyCommand(syncInfo, jobName, destinationPath) {
         const path = this.HostArchiveDirectory + "/" + jobName;
-        return this.GetSCPCommand(syncInfo, path, syncInfo.DownloadLocation);
+        return this.GetSCPCommand(syncInfo, path, destinationPath);
     }
     GetSCPCommand(scpInfo, sourcePath, destinationPath) {
         const user = scpInfo === null || scpInfo === void 0 ? void 0 : scpInfo.Username;
-        //const downloadLocation = scpInfo?.DownloadLocation;
         const hostName = scpInfo === null || scpInfo === void 0 ? void 0 : scpInfo.HostName;
         const port = scpInfo === null || scpInfo === void 0 ? void 0 : scpInfo.Port;
         let command = "";

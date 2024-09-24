@@ -45,8 +45,9 @@ class Sync extends dna_discord_framework_1.Command {
                 return;
             }
                 */
+            const syncInfo = dataManager.GetSCPInfo(this.DiscordUser);
             this.AddToMessage("Use the following Command to Sync Archive to Local Device.");
-            this.AddToMessage("```" + JobManager.GetArchiveSyncCommand(dataManager.GetSCPInfo(this.DiscordUser)) + "```");
+            this.AddToMessage("```" + JobManager.GetArchiveSyncCommand(syncInfo, syncInfo.DownloadLocation) + "```");
         });
         /* <inheritdoc> */
         this.IsEphemeralResponse = true;

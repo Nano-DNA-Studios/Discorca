@@ -67,7 +67,7 @@ class Download extends dna_discord_framework_1.Command {
                 this.AddToMessage("File is found in Archive, Uploading...");
                 const size = this.GetFileSize(filePath);
                 if (size[0] > dataManager.ZIP_FILE_MAX_SIZE_MB && size[1] == "MB")
-                    this.AddToMessage(`The Archive File is too Large (${size[0]} MB), it can be Downloaded using the Following Command ${orcaJobManager.GetHostArchiveCopyCommand(syncInfo, orcaJob.JobName)}`);
+                    this.AddToMessage(`The Archive File is too Large (${size[0]} MB), it can be Downloaded using the Following Command ${orcaJobManager.GetHostArchiveCopyCommand(syncInfo, orcaJob.JobName, syncInfo.DownloadLocation)}`);
                 else
                     this.AddFileToMessage(filePath);
             }
