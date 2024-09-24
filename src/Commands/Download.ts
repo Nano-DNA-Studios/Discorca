@@ -6,6 +6,7 @@ import OrcaJob from "../OrcaJob";
 import OrcaJobManager from "../OrcaJobManager";
 import SCPInfo from "../SSH/SCPInfo";
 import Job from "../Jobs/Job";
+import SyncInfo from "../SyncInfo";
 
 /**
  * Command that Purges all Job Folders in the Job Directory
@@ -53,7 +54,7 @@ class Download extends Command {
                 this.AddToMessage(`The Archive Name ${archiveName} is not Valid. Use /listarchive to list all Downloadable Archives.`);
                 return;
             }
-            const scpInfo: SCPInfo = dataManager.GetSCPInfo(this.DiscordUser);
+            const syncInfo: SyncInfo = dataManager.GetSCPInfo(this.DiscordUser);
             const orcaJobManager = new OrcaJobManager();
             const orcaJob: OrcaJob = dataManager.JOB_ARCHIVE_MAP[archiveName] as OrcaJob;
             const filePath = this.GetArchiveFilePath(orcaJob);
@@ -67,7 +68,7 @@ class Download extends Command {
             const size = this.GetFileSize(filePath);
 
             if (size[0] > dataManager.ZIP_FILE_MAX_SIZE_MB && size[1] == "MB")
-                this.AddToMessage(`The Archive File is too Large (${size[0]} MB), it can be Downloaded using the Following Command ${orcaJobManager.GetHostArchiveCopyCommand(scpInfo, orcaJob.JobName)}`);
+                this.AddToMessage(`The Archive File is too Large (${size[0]} MB), it can be Downloaded using the Following Command ${orcaJobManager.GetHostArchiveCopyCommand(syncInfo, orcaJob.JobName)}`);
             else
                 this.AddFileToMessage(filePath);
         } catch (error) {

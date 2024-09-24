@@ -1,4 +1,5 @@
 import SCPInfo from "../SSH/SCPInfo";
+import SyncInfo from "../SyncInfo";
 import Job from "./Job";
 
 
@@ -64,9 +65,13 @@ abstract class JobManager {
    */
     //abstract GetCopyCommand(job: Job): string;
 
-    abstract GetHostArchiveCopyCommand(scpInfo: SCPInfo, jobName : string): string;
+    abstract GetHostArchiveCopyCommand(syncInfo: SyncInfo, jobName: string): string;
 
-    abstract GetHostJobCopyCommand(scpInfo: SCPInfo, jobName : string): string;
+    abstract GetHostJobCopyCommand(syncInfo: SyncInfo, jobName: string): string;
+
+    //abstract GetHostArchiveCopyCommand(scpInfo: SCPInfo, jobName : string): string;
+
+    //abstract GetHostJobCopyCommand(scpInfo: SCPInfo, jobName : string): string;
 
 
 

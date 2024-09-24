@@ -5,6 +5,7 @@ import fs from "fs";
 import Job from "./Jobs/Job";
 import SCPInfo from "./SSH/SCPInfo";
 import SSHInfo from "./SSH/SSHInfo";
+import SyncInfo from "./SyncInfo";
 
 /**
  * Class Handling Data Management
@@ -46,7 +47,7 @@ class OrcaBotDataManager extends BotDataManager {
      */
    // public DISCORD_USER_TO_SERVER_USER: Record<string, string> = {};
 
-    public DISCORD_USER_SCP_INFO: Record<string, SCPInfo> = {};
+    public DISCORD_USER_SCP_INFO: Record<string, SyncInfo> = {};
 
     /**
      * A Mapping between the Discord User who sent the Command and the Download Location on their Personal Device
@@ -181,10 +182,8 @@ class OrcaBotDataManager extends BotDataManager {
 
 
     public AddSCPUser (discordUser: string, serverUser: string, downloadLocation: string) {
-        let sshInfo = new SSHInfo(this.HOSTNAME, this.PORT, serverUser, "");
-        let scpInfo = new SCPInfo(sshInfo, downloadLocation);
-
-        this.DISCORD_USER_SCP_INFO[discordUser] = scpInfo;
+        let syncInfo: SyncInfo = new SyncInfo(this.HOSTNAME, this.PORT, serverUser, "", downloadLocation);
+        this.DISCORD_USER_SCP_INFO[discordUser] = syncInfo;
         this.SaveData();
     }
 
@@ -272,11 +271,11 @@ class OrcaBotDataManager extends BotDataManager {
             client.user.setActivity(" ", { type: ActivityType.Custom, state: "Listening for New Orca Calculation" });
     }
 
-    public GetSCPInfo(discordUser: string) : SCPInfo {
+    public GetSCPInfo(discordUser: string) : SyncInfo {
         if (Object.keys(this.DISCORD_USER_SCP_INFO).includes(discordUser))
             return this.DISCORD_USER_SCP_INFO[discordUser];
         else
-            return new SCPInfo(new SSHInfo("", 0, "", ""), "");
+            return new SyncInfo("", 0, "", "", "");
     }
 
 

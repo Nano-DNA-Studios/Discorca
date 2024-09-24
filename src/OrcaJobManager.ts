@@ -2,7 +2,8 @@ import { BotData } from "dna-discord-framework";
 import JobManager from "./Jobs/JobManager";
 import OrcaBotDataManager from "./OrcaBotDataManager";
 import Job from "./Jobs/Job";
-import SCPInfo from "./SSH/SCPInfo";
+import SSHInfo from "./SSH/SSHInfo";
+import SyncInfo from "./SyncInfo";
 
 class OrcaJobManager extends JobManager {
 
@@ -21,36 +22,36 @@ class OrcaJobManager extends JobManager {
         this.HostJobDirectory = `${dataManager.HOST_DEVICE_MOUNT_LOCATION}/${this.JobCategory}/${Job.JobSubdirectory}`;
     }
 
-    GetArchiveSyncCommand(scpInfo: SCPInfo): string {
-        return this.GetSCPCommand(scpInfo, this.HostArchiveDirectory);
+    GetArchiveSyncCommand(syncInfo: SyncInfo): string {
+        return this.GetSCPCommand(syncInfo, this.HostArchiveDirectory, syncInfo.DownloadLocation);
     }
 
-    GetHostArchiveCopyCommand(scpInfo: SCPInfo, jobName: string): string {
+    GetHostArchiveCopyCommand(syncInfo: SyncInfo, jobName: string): string {
         const path = this.HostArchiveDirectory + "/" + jobName;
-        return this.GetSCPCommand(scpInfo, path);
+        return this.GetSCPCommand(syncInfo, path, syncInfo.DownloadLocation);
     }
 
-    GetHostJobCopyCommand(scpInfo: SCPInfo, jobName: string): string {
+    GetHostJobCopyCommand(syncInfo: SyncInfo, jobName: string): string {
         const path = this.HostArchiveDirectory + "/" + jobName;
-        return this.GetSCPCommand(scpInfo, path);
+        return this.GetSCPCommand(syncInfo, path, syncInfo.DownloadLocation);
     }
 
-    public GetSCPCommand(scpInfo: SCPInfo, path: string): string {
+    public GetSCPCommand(scpInfo: SSHInfo, sourcePath : string, destinationPath: string): string {
         const user = scpInfo?.Username;
-        const downloadLocation = scpInfo?.DownloadLocation;
+        //const downloadLocation = scpInfo?.DownloadLocation;
         const hostName = scpInfo?.HostName;
         const port = scpInfo?.Port;
         let command = "";
 
-        if (!(user && downloadLocation && hostName)) {
-            const command = `scp -P port serverUser@hostName:${path} /Path/on/local/device`;
+        if (!(user && destinationPath && hostName)) {
+            const command = `scp -P port serverUser@hostName:${sourcePath} /Path/on/local/device`;
             return "```" + command + "```"
         }
 
         if (port == 0)
-            command = `scp ${user}@${hostName}:${path} ${downloadLocation}`;
+            command = `scp ${user}@${hostName}:${sourcePath} ${destinationPath}`;
         else
-            command = `scp -P ${port} ${user}@${hostName}:${path} ${downloadLocation}`;
+            command = `scp -P ${port} ${user}@${hostName}:${sourcePath} ${destinationPath}`;
 
         return "```" + command + "```";
     }

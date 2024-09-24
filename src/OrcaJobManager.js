@@ -16,31 +16,31 @@ class OrcaJobManager extends JobManager_1.default {
         this.HostArchiveDirectory = `${dataManager.HOST_DEVICE_MOUNT_LOCATION}/${this.JobCategory}/${Job_1.default.ArchiveSubdirectory}`;
         this.HostJobDirectory = `${dataManager.HOST_DEVICE_MOUNT_LOCATION}/${this.JobCategory}/${Job_1.default.JobSubdirectory}`;
     }
-    GetArchiveSyncCommand(scpInfo) {
-        return this.GetSCPCommand(scpInfo, this.HostArchiveDirectory);
+    GetArchiveSyncCommand(syncInfo) {
+        return this.GetSCPCommand(syncInfo, this.HostArchiveDirectory, syncInfo.DownloadLocation);
     }
-    GetHostArchiveCopyCommand(scpInfo, jobName) {
+    GetHostArchiveCopyCommand(syncInfo, jobName) {
         const path = this.HostArchiveDirectory + "/" + jobName;
-        return this.GetSCPCommand(scpInfo, path);
+        return this.GetSCPCommand(syncInfo, path, syncInfo.DownloadLocation);
     }
-    GetHostJobCopyCommand(scpInfo, jobName) {
+    GetHostJobCopyCommand(syncInfo, jobName) {
         const path = this.HostArchiveDirectory + "/" + jobName;
-        return this.GetSCPCommand(scpInfo, path);
+        return this.GetSCPCommand(syncInfo, path, syncInfo.DownloadLocation);
     }
-    GetSCPCommand(scpInfo, path) {
+    GetSCPCommand(scpInfo, sourcePath, destinationPath) {
         const user = scpInfo === null || scpInfo === void 0 ? void 0 : scpInfo.Username;
-        const downloadLocation = scpInfo === null || scpInfo === void 0 ? void 0 : scpInfo.DownloadLocation;
+        //const downloadLocation = scpInfo?.DownloadLocation;
         const hostName = scpInfo === null || scpInfo === void 0 ? void 0 : scpInfo.HostName;
         const port = scpInfo === null || scpInfo === void 0 ? void 0 : scpInfo.Port;
         let command = "";
-        if (!(user && downloadLocation && hostName)) {
-            const command = `scp -P port serverUser@hostName:${path} /Path/on/local/device`;
+        if (!(user && destinationPath && hostName)) {
+            const command = `scp -P port serverUser@hostName:${sourcePath} /Path/on/local/device`;
             return "```" + command + "```";
         }
         if (port == 0)
-            command = `scp ${user}@${hostName}:${path} ${downloadLocation}`;
+            command = `scp ${user}@${hostName}:${sourcePath} ${destinationPath}`;
         else
-            command = `scp -P ${port} ${user}@${hostName}:${path} ${downloadLocation}`;
+            command = `scp -P ${port} ${user}@${hostName}:${sourcePath} ${destinationPath}`;
         return "```" + command + "```";
     }
 }

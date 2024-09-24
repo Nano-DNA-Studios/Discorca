@@ -6,6 +6,7 @@ import fs from "fs";
 import Job from "./Jobs/Job";
 import OrcaJobManager from "./OrcaJobManager";
 import SCPInfo from "./SSH/SCPInfo";
+import SyncInfo from "./SyncInfo";
 
 //class OrcaJob implements IOrcaJob {
 class OrcaJob extends Job {
@@ -67,9 +68,8 @@ class OrcaJob extends Job {
     GetFileCopyCommand(file: OrcaJobFile): string {
         const dataManager = BotData.Instance(OrcaBotDataManager);
         const filePath = `${this.JobManager.HostJobDirectory}/${this.JobName}/${this.GetFileName(file)}`;
-        const scpInfo: SCPInfo = dataManager.GetSCPInfo(this.JobAuthor);
-        return this.JobManager.GetSCPCommand(scpInfo, filePath);
-       // return scpInfo.GetSCPCommand(filePath);
+        const syncInfo: SyncInfo = dataManager.GetSCPInfo(this.JobAuthor);
+        return this.JobManager.GetSCPCommand(syncInfo, filePath, syncInfo.DownloadLocation);
     }
 
 

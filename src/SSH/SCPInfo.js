@@ -1,16 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class SCPInfo {
-    constructor(sshInfo, downloadLocation) {
+    constructor(sshInfo, sourcePath, destinationPath) {
         this.HostName = sshInfo.HostName;
         this.Port = sshInfo.Port;
         this.Username = sshInfo.Username;
         this.Password = sshInfo.Password;
-        this.DownloadLocation = downloadLocation;
+        this.DestinationPath = destinationPath;
+        this.SourcePath = sourcePath;
     }
     GetSCPCommand(path) {
         const user = this === null || this === void 0 ? void 0 : this.Username;
-        const downloadLocation = this === null || this === void 0 ? void 0 : this.DownloadLocation;
+        const downloadLocation = this === null || this === void 0 ? void 0 : this.DestinationPath;
         const hostName = this === null || this === void 0 ? void 0 : this.HostName;
         const port = this === null || this === void 0 ? void 0 : this.Port;
         let command = "";

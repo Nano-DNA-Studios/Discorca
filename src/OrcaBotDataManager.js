@@ -6,8 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const dna_discord_framework_1 = require("dna-discord-framework");
 const discord_js_1 = require("discord.js");
 const fs_1 = __importDefault(require("fs"));
-const SCPInfo_1 = __importDefault(require("./SCPInfo"));
-const SSHInfo_1 = __importDefault(require("./SSHInfo"));
+const SyncInfo_1 = __importDefault(require("./SyncInfo"));
 /**
  * Class Handling Data Management
  */
@@ -149,9 +148,8 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
         this.HOSTNAME = hostName;
     }
     AddSCPUser(discordUser, serverUser, downloadLocation) {
-        let sshInfo = new SSHInfo_1.default(this.HOSTNAME, this.PORT, serverUser, "");
-        let scpInfo = new SCPInfo_1.default(sshInfo, downloadLocation);
-        this.DISCORD_USER_SCP_INFO[discordUser] = scpInfo;
+        let syncInfo = new SyncInfo_1.default(this.HOSTNAME, this.PORT, serverUser, "", downloadLocation);
+        this.DISCORD_USER_SCP_INFO[discordUser] = syncInfo;
         this.SaveData();
     }
     /**
@@ -233,7 +231,7 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
         if (Object.keys(this.DISCORD_USER_SCP_INFO).includes(discordUser))
             return this.DISCORD_USER_SCP_INFO[discordUser];
         else
-            return new SCPInfo_1.default(new SSHInfo_1.default("", 0, "", ""), "");
+            return new SyncInfo_1.default("", 0, "", "", "");
     }
 }
 exports.default = OrcaBotDataManager;

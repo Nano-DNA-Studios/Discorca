@@ -56,7 +56,7 @@ class Download extends dna_discord_framework_1.Command {
                     this.AddToMessage(`The Archive Name ${archiveName} is not Valid. Use /listarchive to list all Downloadable Archives.`);
                     return;
                 }
-                const scpInfo = dataManager.GetSCPInfo(this.DiscordUser);
+                const syncInfo = dataManager.GetSCPInfo(this.DiscordUser);
                 const orcaJobManager = new OrcaJobManager_1.default();
                 const orcaJob = dataManager.JOB_ARCHIVE_MAP[archiveName];
                 const filePath = this.GetArchiveFilePath(orcaJob);
@@ -67,7 +67,7 @@ class Download extends dna_discord_framework_1.Command {
                 this.AddToMessage("File is found in Archive, Uploading...");
                 const size = this.GetFileSize(filePath);
                 if (size[0] > dataManager.ZIP_FILE_MAX_SIZE_MB && size[1] == "MB")
-                    this.AddToMessage(`The Archive File is too Large (${size[0]} MB), it can be Downloaded using the Following Command ${orcaJobManager.GetHostArchiveCopyCommand(scpInfo, orcaJob.JobName)}`);
+                    this.AddToMessage(`The Archive File is too Large (${size[0]} MB), it can be Downloaded using the Following Command ${orcaJobManager.GetHostArchiveCopyCommand(syncInfo, orcaJob.JobName)}`);
                 else
                     this.AddFileToMessage(filePath);
             }

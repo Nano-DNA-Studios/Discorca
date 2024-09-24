@@ -1,6 +1,4 @@
 
-
-
 class SSHInfo {
     public HostName: string;
     public Port: number;

@@ -47,9 +47,8 @@ class OrcaJob extends Job_1.default {
     GetFileCopyCommand(file) {
         const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
         const filePath = `${this.JobManager.HostJobDirectory}/${this.JobName}/${this.GetFileName(file)}`;
-        const scpInfo = dataManager.GetSCPInfo(this.JobAuthor);
-        return this.JobManager.GetSCPCommand(scpInfo, filePath);
-        // return scpInfo.GetSCPCommand(filePath);
+        const syncInfo = dataManager.GetSCPInfo(this.JobAuthor);
+        return this.JobManager.GetSCPCommand(syncInfo, filePath, syncInfo.DownloadLocation);
     }
     /**
      * Runs the Orca Calculation Job
