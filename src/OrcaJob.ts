@@ -186,17 +186,20 @@ class OrcaJob extends Job {
 
         if (sizeAndFormat[0] > BotData.Instance(OrcaBotDataManager).FILE_MAX_SIZE_MB && sizeAndFormat[1] == "MB") {
 
-            if (message.content?.includes("The Output file is too large")) {
+            let sepperateMessage = `The Output file is too large`
+            let outputFileMessage = `The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.GetFileCopyCommand(file)}`;
 
-                if (message.content?.includes(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.GetFileCopyCommand(file)}`))
+            if (message.content?.includes(sepperateMessage)) {
+
+                if (message.content?.includes(outputFileMessage))
                     return;
 
-                let content: string[] = message.content.split("The Output file is too large");
+                let content: string[] = message.content.split(sepperateMessage);
                 message.content = "";
                 message.content = content[0];
             }
 
-            message.AddMessage(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.GetFileCopyCommand(file)}`);
+            message.AddMessage(outputFileMessage);
         }
         else
             message.AddFile(filePath);
