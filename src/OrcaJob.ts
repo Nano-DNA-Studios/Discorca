@@ -5,7 +5,6 @@ import { User } from "discord.js";
 import fs from "fs";
 import Job from "./Jobs/Job";
 import OrcaJobManager from "./OrcaJobManager";
-import SCPInfo from "./SSH/SCPInfo";
 import SyncInfo from "./SyncInfo";
 
 //class OrcaJob implements IOrcaJob {
@@ -44,6 +43,8 @@ class OrcaJob extends Job {
      * The Name of the Trajectory XYZ File (With Extension)
      */
     TrjXYZFileName: string;
+
+
 
     /**
      * Sets the Job Name 
@@ -184,8 +185,18 @@ class OrcaJob extends Job {
         const sizeAndFormat = this.GetFileSize(filePath);
 
         if (sizeAndFormat[0] > BotData.Instance(OrcaBotDataManager).FILE_MAX_SIZE_MB && sizeAndFormat[1] == "MB") {
-            if (!message.content?.includes(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.GetFileCopyCommand(file)}`))
-                message.AddMessage(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.GetFileCopyCommand(file)}`);
+
+            if (message.content?.includes("The Output file is too large")) {
+
+                if (message.content?.includes(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.GetFileCopyCommand(file)}`))
+                    return;
+
+                let content: string[] = message.content.split("The Output file is too large");
+                message.content = "";
+                message.content = content[0];
+            }
+
+            message.AddMessage(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.GetFileCopyCommand(file)}`);
         }
         else
             message.AddFile(filePath);
