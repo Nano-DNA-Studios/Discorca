@@ -27,19 +27,24 @@ class OrcaJobManager extends JobManager_1.default {
         const path = this.HostArchiveDirectory + "/" + jobName;
         return this.GetSCPCommand(syncInfo, path, destinationPath);
     }
-    GetSCPCommand(scpInfo, sourcePath, destinationPath) {
+    GetSCPCommand(scpInfo, sourcePath, destinationPath, isDirectory = false) {
         const user = scpInfo === null || scpInfo === void 0 ? void 0 : scpInfo.Username;
         const hostName = scpInfo === null || scpInfo === void 0 ? void 0 : scpInfo.HostName;
         const port = scpInfo === null || scpInfo === void 0 ? void 0 : scpInfo.Port;
         let command = "";
+        let recursive = "";
+        if (isDirectory) {
+            sourcePath += "/";
+            recursive = "-r";
+        }
         if (!(user && destinationPath && hostName)) {
-            const command = `scp -P port serverUser@hostName:${sourcePath} /Path/on/local/device`;
+            const command = `scp ${recursive} -P port serverUser@hostName:${sourcePath} /Path/on/local/device`;
             return "```" + command + "```";
         }
         if (port == 0)
-            command = `scp ${user}@${hostName}:${sourcePath} ${destinationPath}`;
+            command = `scp ${recursive} ${user}@${hostName}:${sourcePath} ${destinationPath}`;
         else
-            command = `scp -P ${port} ${user}@${hostName}:${sourcePath} ${destinationPath}`;
+            command = `scp ${recursive} -P ${port} ${user}@${hostName}:${sourcePath} ${destinationPath}`;
         return "```" + command + "```";
     }
 }

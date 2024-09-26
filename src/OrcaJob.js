@@ -153,14 +153,27 @@ class OrcaJob extends Job_1.default {
      */
     SendFile(message, file) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
+            var _a, _b;
             const filePath = this.GetFullFilePath(file);
             if (!fs_1.default.existsSync(filePath))
                 return;
             const sizeAndFormat = this.GetFileSize(filePath);
             if (sizeAndFormat[0] > dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default).FILE_MAX_SIZE_MB && sizeAndFormat[1] == "MB") {
-                if (!((_a = message.content) === null || _a === void 0 ? void 0 : _a.includes(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.GetFileCopyCommand(file)}`)))
-                    message.AddMessage(`The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.GetFileCopyCommand(file)}`);
+                let sepperateMessage = `The Output file is too large`;
+                let outputFileMessage = `The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.GetFileCopyCommand(file)}`;
+                if ((_a = message.content) === null || _a === void 0 ? void 0 : _a.includes(sepperateMessage)) {
+                    if ((_b = message.content) === null || _b === void 0 ? void 0 : _b.includes(outputFileMessage)) {
+                        console.log("Message already contains the Output File Message");
+                        console.log(message.content);
+                        return;
+                    }
+                    console.log("Erasing");
+                    let content = message.content.split(sepperateMessage);
+                    //message.content = "";
+                    message.content = content[0];
+                    console.log(message.content);
+                }
+                message.AddMessage(outputFileMessage);
             }
             else
                 message.AddFile(filePath);

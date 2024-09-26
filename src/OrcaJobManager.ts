@@ -36,21 +36,29 @@ class OrcaJobManager extends JobManager {
         return this.GetSCPCommand(syncInfo, path, destinationPath);
     }
 
-    public GetSCPCommand(scpInfo: SSHInfo, sourcePath : string, destinationPath: string): string {
+    public GetSCPCommand(scpInfo: SSHInfo, sourcePath : string, destinationPath: string, isDirectory: boolean = false): string {
         const user = scpInfo?.Username;
         const hostName = scpInfo?.HostName;
         const port = scpInfo?.Port;
         let command = "";
+        let recursive = "";
+
+        if (isDirectory)
+        {
+            sourcePath += "/";
+            recursive = "-r";
+        }
+            
 
         if (!(user && destinationPath && hostName)) {
-            const command = `scp -P port serverUser@hostName:${sourcePath} /Path/on/local/device`;
+            const command = `scp ${recursive} -P port serverUser@hostName:${sourcePath} /Path/on/local/device`;
             return "```" + command + "```"
         }
 
         if (port == 0)
-            command = `scp ${user}@${hostName}:${sourcePath} ${destinationPath}`;
+            command = `scp ${recursive} ${user}@${hostName}:${sourcePath} ${destinationPath}`;
         else
-            command = `scp -P ${port} ${user}@${hostName}:${sourcePath} ${destinationPath}`;
+            command = `scp ${recursive} -P ${port} ${user}@${hostName}:${sourcePath} ${destinationPath}`;
 
         return "```" + command + "```";
     }

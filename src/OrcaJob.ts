@@ -44,8 +44,6 @@ class OrcaJob extends Job {
      */
     TrjXYZFileName: string;
 
-
-
     /**
      * Sets the Job Name 
      * @param jobName The Name of the Job / Orca Input File Supplied (Without File Extension)
@@ -192,11 +190,19 @@ class OrcaJob extends Job {
             if (message.content?.includes(sepperateMessage)) {
 
                 if (message.content?.includes(outputFileMessage))
+                {
+                    console.log("Message already contains the Output File Message");
+                    console.log(message.content);
                     return;
+                }
+                    
+                console.log("Erasing");
 
                 let content: string[] = message.content.split(sepperateMessage);
-                message.content = "";
+                //message.content = "";
                 message.content = content[0];
+
+                console.log(message.content);
             }
 
             message.AddMessage(outputFileMessage);
