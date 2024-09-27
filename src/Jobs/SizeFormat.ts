@@ -1,3 +1,7 @@
+
+/**
+ * The Size Format for files
+ */
 enum SizeFormat {
     B = 1,
     KB = 1024,

@@ -41,8 +41,6 @@ class RegisterSync extends dna_discord_framework_1.Command {
                 return;
             }
             dataManager.AddSCPUser(interaction.user.username, user, downloadLocation);
-            //dataManager.AddServerUser(interaction.user.username, user);
-            //dataManager.AddDownloadLocation(interaction.user.username, downloadLocation);
             this.AddToMessage(`New User has been registered for Syncing.`);
             this.AddToMessage(`User : ${interaction.user.username} --> Server User : ${user}`);
             this.AddToMessage(`Download Location : ${downloadLocation}`);

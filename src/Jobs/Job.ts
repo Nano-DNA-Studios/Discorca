@@ -13,18 +13,14 @@ abstract class Job implements IJob {
     /* <inheritdoc> */
     //abstract JobCategory: string;
 
-    
-    public abstract JobManager: JobManager;
-
     /* <inheritdoc> */
-    //abstract HostArchiveDirectory: string;
+    public abstract JobManager: JobManager;
 
     /* <inheritdoc> */
     public static JobSubdirectory: string = "Job";
 
     /* <inheritdoc> */
     public static ArchiveSubdirectory: string = "Archive";
-
 
     /* <inheritdoc> */
     public JobName: string;
@@ -41,6 +37,10 @@ abstract class Job implements IJob {
     /* <inheritdoc> */
     public JobSuccess: boolean;
 
+    //public JobDirectory: string = "";
+
+    //public ArchiveDirectory: string = "";
+
     constructor(jobName: string, jobAuthor: string) {
         this.JobName = jobName;
         this.JobAuthor = jobAuthor;
@@ -49,6 +49,11 @@ abstract class Job implements IJob {
         this.StartTime = Date.now();
         //this.SetDirectories();
     }
+
+    //public SetDirectories() {
+    //    this.JobDirectory = this.JobManager.JobLibraryDirectory + "/" + this.JobName;
+    //    this.ArchiveDirectory = this.JobManager.ArchiveLibraryDirectory + "/" + this.JobName;
+    //}
 
     /* <inheritdoc> */
     get JobDirectory(): string {

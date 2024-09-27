@@ -15,6 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(require("axios"));
 const fs_1 = __importDefault(require("fs"));
 class Job {
+    //public JobDirectory: string = "";
+    //public ArchiveDirectory: string = "";
     constructor(jobName, jobAuthor) {
         this.JobName = jobName;
         this.JobAuthor = jobAuthor;
@@ -23,6 +25,10 @@ class Job {
         this.StartTime = Date.now();
         //this.SetDirectories();
     }
+    //public SetDirectories() {
+    //    this.JobDirectory = this.JobManager.JobLibraryDirectory + "/" + this.JobName;
+    //    this.ArchiveDirectory = this.JobManager.ArchiveLibraryDirectory + "/" + this.JobName;
+    //}
     /* <inheritdoc> */
     get JobDirectory() {
         return this.JobManager.JobLibraryDirectory + "/" + this.JobName;
@@ -165,8 +171,6 @@ class Job {
             return false;
     }
 }
-/* <inheritdoc> */
-//abstract HostArchiveDirectory: string;
 /* <inheritdoc> */
 Job.JobSubdirectory = "Job";
 /* <inheritdoc> */

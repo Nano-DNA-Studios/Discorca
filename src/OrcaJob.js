@@ -32,8 +32,6 @@ class OrcaJob extends Job_1.default {
         /* <inheritdoc> */
         this.JobGlobalDirectory = "/DiscorcaJobs";
         /* <inheritdoc> */
-        this.JobCategory = "Orca";
-        /* <inheritdoc> */
         this.JobManager = new OrcaJobManager_1.default();
         this.InputFileName = `${this.JobName}.inp`;
         this.OutputFileName = `${this.JobName}.out`;

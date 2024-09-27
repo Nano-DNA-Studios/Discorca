@@ -1,5 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * The Size Format for files
+ */
 var SizeFormat;
 (function (SizeFormat) {
     SizeFormat[SizeFormat["B"] = 1] = "B";

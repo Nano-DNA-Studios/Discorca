@@ -2,8 +2,6 @@ import { BotData } from "dna-discord-framework";
 import JobManager from "./Jobs/JobManager";
 import OrcaBotDataManager from "./OrcaBotDataManager";
 import Job from "./Jobs/Job";
-import SyncInfo from "./SyncInfo";
-import SSHManager from "./SSH/SSHManager";
 
 class OrcaJobManager extends JobManager {
 
@@ -22,6 +20,7 @@ class OrcaJobManager extends JobManager {
         this.HostJobDirectory = `${dataManager.HOST_DEVICE_MOUNT_LOCATION}/${this.JobCategory}/${Job.JobSubdirectory}`;
     }
 
+    /*
     GetArchiveSyncCommand(syncInfo: SyncInfo, destinationPath: string): string {
         return SSHManager.GetSCPCommand(syncInfo, this.HostArchiveDirectory, destinationPath, true);
     }
@@ -35,6 +34,7 @@ class OrcaJobManager extends JobManager {
         const path = this.HostJobDirectory + "/" + jobName;
         return SSHManager.GetSCPCommand(syncInfo, path, destinationPath, true);
     }
+        */
 }
 
 export default OrcaJobManager;

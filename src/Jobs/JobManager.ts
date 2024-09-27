@@ -1,4 +1,4 @@
-import SCPInfo from "../SSH/SCPInfo";
+import SSHManager from "../SSH/SSHManager";
 import SyncInfo from "../SyncInfo";
 import Job from "./Job";
 
@@ -14,40 +14,32 @@ abstract class JobManager {
 
     public abstract HostJobDirectory: string;
 
-   // public  JobLibraryDirectory: string = "";
-
-    //public ArchiveLibraryDirectory: string = "";
-
     constructor() {
         //this.SetDirectories();
     }
 
-   // SetDirectories ()
-    //{
-       // this.JobLibraryDirectory = `${this.JobGlobalDirectory}/${this.JobCategory}/${Job.JobSubdirectory}`;
-       // this.ArchiveLibraryDirectory = `${this.JobGlobalDirectory}/${this.JobCategory}/${Job.ArchiveSubdirectory}`;
+    //SetDirectories() {
+    //    this.JobLibraryDirectory = `${this.JobGlobalDirectory}/${this.JobCategory}/${Job.JobSubdirectory}`;
+    //    this.ArchiveLibraryDirectory = `${this.JobGlobalDirectory}/${this.JobCategory}/${Job.ArchiveSubdirectory}`;
     //}
 
     /* <inheritdoc> */
-    
-    get JobLibraryDirectory (): string {
+    get JobLibraryDirectory(): string {
         if (!this.ValidPathValues())
             return "";
 
         return this.JobGlobalDirectory + "/" + this.JobCategory + "/" + Job.JobSubdirectory;
     }
-    
 
-    /* <inheritdoc> */
-    
+    ///* <inheritdoc> */
     get ArchiveLibraryDirectory(): string {
         if (!this.ValidPathValues())
             return "";
 
         return this.JobGlobalDirectory + "/" + this.JobCategory + "/" + Job.ArchiveSubdirectory;
     }
-    
 
+    /* <inheritdoc> */
     private ValidPathValues(): boolean {
         if (this.JobGlobalDirectory === "")
             throw new Error("Job Default Directory is not Set, Set the values of JobGlobalDirectory in the Class");
@@ -65,9 +57,23 @@ abstract class JobManager {
    */
     //abstract GetCopyCommand(job: Job): string;
 
-    abstract GetHostArchiveCopyCommand(syncInfo: SyncInfo, jobName: string, destinationPath: string): string;
+    GetArchiveSyncCommand(syncInfo: SyncInfo, destinationPath: string): string {
+        return SSHManager.GetSCPCommand(syncInfo, this.HostArchiveDirectory, destinationPath, true);
+    }
 
-    abstract GetHostJobCopyCommand(syncInfo: SyncInfo, jobName: string, destinationPath: string): string;
+    GetHostArchiveCopyCommand(syncInfo: SyncInfo, jobName: string, destinationPath: string): string {
+        const path = this.HostArchiveDirectory + "/" + jobName;
+        return SSHManager.GetSCPCommand(syncInfo, path, destinationPath, true);
+    }
+
+    GetHostJobCopyCommand(syncInfo: SyncInfo, jobName: string, destinationPath: string): string {
+        const path = this.HostJobDirectory + "/" + jobName;
+        return SSHManager.GetSCPCommand(syncInfo, path, destinationPath, true);
+    }
+
+    //abstract GetHostArchiveCopyCommand(syncInfo: SyncInfo, jobName: string, destinationPath: string): string;
+
+    //abstract GetHostJobCopyCommand(syncInfo: SyncInfo, jobName: string, destinationPath: string): string;
 
     //abstract GetHostArchiveCopyCommand(scpInfo: SCPInfo, jobName : string): string;
 

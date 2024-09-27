@@ -16,9 +16,6 @@ class OrcaJob extends Job {
     JobGlobalDirectory: string = "/DiscorcaJobs";
 
     /* <inheritdoc> */
-    JobCategory: string = "Orca";
-
-    /* <inheritdoc> */
     JobManager: OrcaJobManager = new OrcaJobManager();
 
     /**
