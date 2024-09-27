@@ -6,6 +6,7 @@ import fs from "fs";
 import Job from "./Jobs/Job";
 import OrcaJobManager from "./OrcaJobManager";
 import SyncInfo from "./SyncInfo";
+import SizeFormat from "./Jobs/SizeFormat";
 
 //class OrcaJob implements IOrcaJob {
 class OrcaJob extends Job {
@@ -70,7 +71,6 @@ class OrcaJob extends Job {
         const syncInfo: SyncInfo = dataManager.GetSCPInfo(this.JobAuthor);
         return this.JobManager.GetSCPCommand(syncInfo, filePath, syncInfo.DownloadLocation);
     }
-
 
     /**
      * Runs the Orca Calculation Job
@@ -143,6 +143,23 @@ class OrcaJob extends Job {
         }
     }
 
+    public GetFileFriendlyName(fileName: OrcaJobFile) {
+        switch (fileName) {
+            case OrcaJobFile.InputFile:
+                return "Input File";
+            case OrcaJobFile.OutputFile:
+                return "Output File";
+            case OrcaJobFile.XYZFile:
+                return "XYZ File";
+            case OrcaJobFile.TrajectoryXYZFile:
+                return "Trajectory XYZ File";
+            case OrcaJobFile.ArchiveFile:
+                return "Archive File";
+            default:
+                return "";
+        }
+    }
+
     /**
      * Pings the User that the Job has been Completed
      * @param message The Message related to the Job
@@ -180,31 +197,15 @@ class OrcaJob extends Job {
         if (!fs.existsSync(filePath))
             return
 
-        const sizeAndFormat = this.GetFileSize(filePath);
+        if (this.IsFileLarger(filePath, BotData.Instance(OrcaBotDataManager).FILE_MAX_SIZE_MB, SizeFormat.MB)) {
+            let outputFileMessage = `The ${this.GetFileFriendlyName(file)} is too large, download it using the following command ${this.GetFileCopyCommand(file)}`;
 
-        if (sizeAndFormat[0] > BotData.Instance(OrcaBotDataManager).FILE_MAX_SIZE_MB && sizeAndFormat[1] == "MB") {
+            if (message.content?.includes(outputFileMessage)) 
+                return;
 
-            let sepperateMessage = `The Output file is too large`
-            let outputFileMessage = `The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.GetFileCopyCommand(file)}`;
-
-            if (message.content?.includes(sepperateMessage)) {
-
-                if (message.content?.includes(outputFileMessage))
-                {
-                    console.log("Message already contains the Output File Message");
-                    console.log(message.content);
-                    return;
-                }
-                    
-                console.log("Erasing");
-
-                let content: string[] = message.content.split(sepperateMessage);
-                //message.content = "";
-                message.content = content[0];
-
-                console.log(message.content);
-            }
-
+            let valIndex = message.files?.indexOf(filePath);
+            if (valIndex != -1 && typeof valIndex !== 'undefined')
+                message.files?.splice(valIndex, 1);
             message.AddMessage(outputFileMessage);
         }
         else

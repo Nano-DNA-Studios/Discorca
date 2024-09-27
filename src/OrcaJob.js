@@ -18,6 +18,7 @@ const OrcaJobFile_1 = __importDefault(require("./OrcaJobFile"));
 const fs_1 = __importDefault(require("fs"));
 const Job_1 = __importDefault(require("./Jobs/Job"));
 const OrcaJobManager_1 = __importDefault(require("./OrcaJobManager"));
+const SizeFormat_1 = __importDefault(require("./Jobs/SizeFormat"));
 //class OrcaJob implements IOrcaJob {
 class OrcaJob extends Job_1.default {
     /**
@@ -119,6 +120,22 @@ class OrcaJob extends Job_1.default {
                 return "";
         }
     }
+    GetFileFriendlyName(fileName) {
+        switch (fileName) {
+            case OrcaJobFile_1.default.InputFile:
+                return "Input File";
+            case OrcaJobFile_1.default.OutputFile:
+                return "Output File";
+            case OrcaJobFile_1.default.XYZFile:
+                return "XYZ File";
+            case OrcaJobFile_1.default.TrajectoryXYZFile:
+                return "Trajectory XYZ File";
+            case OrcaJobFile_1.default.ArchiveFile:
+                return "Archive File";
+            default:
+                return "";
+        }
+    }
     /**
      * Pings the User that the Job has been Completed
      * @param message The Message related to the Job
@@ -153,26 +170,17 @@ class OrcaJob extends Job_1.default {
      */
     SendFile(message, file) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a, _b;
+            var _a, _b, _c;
             const filePath = this.GetFullFilePath(file);
             if (!fs_1.default.existsSync(filePath))
                 return;
-            const sizeAndFormat = this.GetFileSize(filePath);
-            if (sizeAndFormat[0] > dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default).FILE_MAX_SIZE_MB && sizeAndFormat[1] == "MB") {
-                let sepperateMessage = `The Output file is too large`;
-                let outputFileMessage = `The Output file is too large (${sizeAndFormat[0]} ${sizeAndFormat[1]}), it can be downloaded through the following command ${this.GetFileCopyCommand(file)}`;
-                if ((_a = message.content) === null || _a === void 0 ? void 0 : _a.includes(sepperateMessage)) {
-                    if ((_b = message.content) === null || _b === void 0 ? void 0 : _b.includes(outputFileMessage)) {
-                        console.log("Message already contains the Output File Message");
-                        console.log(message.content);
-                        return;
-                    }
-                    console.log("Erasing");
-                    let content = message.content.split(sepperateMessage);
-                    //message.content = "";
-                    message.content = content[0];
-                    console.log(message.content);
-                }
+            if (this.IsFileLarger(filePath, dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default).FILE_MAX_SIZE_MB, SizeFormat_1.default.MB)) {
+                let outputFileMessage = `The ${this.GetFileFriendlyName(file)} is too large, download it using the following command ${this.GetFileCopyCommand(file)}`;
+                if ((_a = message.content) === null || _a === void 0 ? void 0 : _a.includes(outputFileMessage))
+                    return;
+                let valIndex = (_b = message.files) === null || _b === void 0 ? void 0 : _b.indexOf(filePath);
+                if (valIndex != -1 && typeof valIndex !== 'undefined')
+                    (_c = message.files) === null || _c === void 0 ? void 0 : _c.splice(valIndex, 1);
                 message.AddMessage(outputFileMessage);
             }
             else

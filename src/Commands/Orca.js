@@ -114,12 +114,12 @@ class Orca extends dna_discord_framework_1.Command {
                 this.AddToMessage(`Server will start the Orca Calculation :hourglass_flowing_sand:`);
                 orcaJob.UpdateOutputFile(this.CalculationMessage);
                 yield orcaJob.RunJob();
+                yield orcaJob.SendAllFiles(this.CalculationMessage, dataManager);
+                yield orcaJob.PingUser(this.CalculationMessage, this.DiscordCommandUser);
                 if (orcaJob.JobSuccess)
                     this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation (${orcaJob.JobElapsedTime()}) :white_check_mark:`);
                 else
                     this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation with Errors (${orcaJob.JobElapsedTime()}) :warning:`);
-                yield orcaJob.SendAllFiles(this.CalculationMessage, dataManager);
-                yield orcaJob.PingUser(this.CalculationMessage, this.DiscordCommandUser);
                 yield dataManager.RemoveJob(orcaJob);
                 this.QueueNextActivity(client, dataManager);
             }

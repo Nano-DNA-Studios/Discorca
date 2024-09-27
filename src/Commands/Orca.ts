@@ -2,6 +2,7 @@ import { OptionTypesEnum, BotDataManager, Command, DefaultCommandHandler, BotDat
 import { ActivityType, CacheType, ChatInputCommandInteraction, Client, TextChannel, User } from "discord.js";
 import OrcaBotDataManager from "../OrcaBotDataManager";
 import OrcaJob from "../OrcaJob";
+import { resolve } from "path";
 
 /**
  * Command that Runs an Orca Calculation on the Device the Bot is hosted by
@@ -126,13 +127,14 @@ class Orca extends Command {
 
             await orcaJob.RunJob();
 
+            await orcaJob.SendAllFiles(this.CalculationMessage, dataManager);
+            await orcaJob.PingUser(this.CalculationMessage, this.DiscordCommandUser);
+
             if (orcaJob.JobSuccess)
                 this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation (${orcaJob.JobElapsedTime()}) :white_check_mark:`);
             else
                 this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation with Errors (${orcaJob.JobElapsedTime()}) :warning:`);
-
-            await orcaJob.SendAllFiles(this.CalculationMessage, dataManager);
-            await orcaJob.PingUser(this.CalculationMessage, this.DiscordCommandUser);
+            
             await dataManager.RemoveJob(orcaJob);
 
             this.QueueNextActivity(client, dataManager);

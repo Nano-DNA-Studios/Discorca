@@ -155,6 +155,15 @@ class Job {
         }
         return [realsize, sizeFormat];
     }
+    IsFileLarger(filePath, maxSize, sizeFormat) {
+        if (!fs_1.default.existsSync(filePath))
+            return false;
+        let size = fs_1.default.statSync(filePath).size;
+        if (size > maxSize * sizeFormat)
+            return true;
+        else
+            return false;
+    }
 }
 /* <inheritdoc> */
 //abstract HostArchiveDirectory: string;

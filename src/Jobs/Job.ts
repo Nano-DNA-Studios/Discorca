@@ -3,6 +3,7 @@ import IJob from "./IJob";
 import fs from "fs";
 import { Attachment } from "discord.js";
 import JobManager from "./JobManager";
+import SizeFormat from "./SizeFormat";
 
 abstract class Job implements IJob {
 
@@ -183,7 +184,8 @@ abstract class Job implements IJob {
     }
 
     /* <inheritdoc> */
-    GetFileSize(filePath: string): [Number, string] {
+    
+    GetFileSize(filePath: string): [number, string] {
 
         if (!fs.existsSync(filePath))
             return [0, "B"];
@@ -205,6 +207,19 @@ abstract class Job implements IJob {
         }
 
         return [realsize, sizeFormat];
+    }
+
+    IsFileLarger (filePath: string, maxSize: number, sizeFormat: SizeFormat): boolean {
+
+        if (!fs.existsSync(filePath))
+            return false;
+
+        let size = fs.statSync(filePath).size;
+
+        if (size > maxSize * sizeFormat)
+            return true;
+        else 
+            return false;
     }
 }
 

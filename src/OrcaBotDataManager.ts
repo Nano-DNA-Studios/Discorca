@@ -35,12 +35,12 @@ class OrcaBotDataManager extends BotDataManager {
     /**
      * The Maximum File size for a Zip File to be sent through Discord (in MB)
      */
-    public ZIP_FILE_MAX_SIZE_MB: Number = 5;
+    public ZIP_FILE_MAX_SIZE_MB: number = 5;
 
     /**
      * The Maximum File size for a regular File to be sent through Discord (in MB) 
      */
-    public FILE_MAX_SIZE_MB: Number = 5;
+    public FILE_MAX_SIZE_MB: number = 5;
 
     /**
      * A Mapping between the Discord User who sent the Command and the Server User
@@ -221,7 +221,7 @@ class OrcaBotDataManager extends BotDataManager {
      * Sets the Maximum Size Zip Files can be before returning a SCP Copy Command
      * @param maxsize The new Max Size of Zip Files
      */
-    public SetMaxZipSize(maxsize: Number) {
+    public SetMaxZipSize(maxsize: number) {
         this.ZIP_FILE_MAX_SIZE_MB = maxsize;
         this.FILE_MAX_SIZE_MB = maxsize;
     }

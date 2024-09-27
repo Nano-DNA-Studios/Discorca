@@ -7,6 +7,7 @@ import OrcaJobManager from "../OrcaJobManager";
 import SCPInfo from "../SSH/SCPInfo";
 import Job from "../Jobs/Job";
 import SyncInfo from "../SyncInfo";
+import SizeFormat from "../Jobs/SizeFormat";
 
 /**
  * Command that Purges all Job Folders in the Job Directory
@@ -42,13 +43,6 @@ class Download extends Command {
             return;
         }
 
-        /*
-        if (!Object.keys(dataManager.DISCORD_USER_SCP_INFO).includes(this.DiscordUser)) {
-            this.AddToMessage("The SCP Information for the User has not been Setup. Run the /registersync Command to Configure SCP Information.");
-            return;
-        }
-            */
-
         try {
             if (!Object.keys(dataManager.JOB_ARCHIVE_MAP).includes(archiveName)) {
                 this.AddToMessage(`The Archive Name ${archiveName} is not Valid. Use /listarchive to list all Downloadable Archives.`);
@@ -67,7 +61,7 @@ class Download extends Command {
             this.AddToMessage("File is found in Archive, Uploading...");
             const size = this.GetFileSize(filePath);
 
-            if (size[0] > dataManager.ZIP_FILE_MAX_SIZE_MB && size[1] == "MB")
+            if (this.IsFileLarger(filePath, dataManager.FILE_MAX_SIZE_MB, SizeFormat.MB))
                 this.AddToMessage(`The Archive File is too Large (${size[0]} MB), it can be Downloaded using the Following Command ${orcaJobManager.GetHostArchiveCopyCommand(syncInfo, orcaJob.JobName, syncInfo.DownloadLocation)}`);
             else
                 this.AddFileToMessage(filePath);
@@ -102,6 +96,19 @@ class Download extends Command {
         }
 
         return [realsize, sizeFormat];
+    }
+
+    IsFileLarger (filePath: string, maxSize: number, sizeFormat: SizeFormat): boolean {
+
+        if (!fs.existsSync(filePath))
+            return false;
+
+        let size = fs.statSync(filePath).size;
+
+        if (size > maxSize * sizeFormat)
+            return true;
+        else 
+            return false;
     }
 
     /* <inheritdoc> */

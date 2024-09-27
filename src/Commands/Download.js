@@ -16,6 +16,7 @@ const OrcaBotDataManager_1 = __importDefault(require("../OrcaBotDataManager"));
 const fs_1 = __importDefault(require("fs"));
 const OrcaJobManager_1 = __importDefault(require("../OrcaJobManager"));
 const Job_1 = __importDefault(require("../Jobs/Job"));
+const SizeFormat_1 = __importDefault(require("../Jobs/SizeFormat"));
 /**
  * Command that Purges all Job Folders in the Job Directory
  */
@@ -45,12 +46,6 @@ class Download extends dna_discord_framework_1.Command {
                 this.AddToMessage("The Archive Name has not been Supplied, cannot Download a File without an Archive Name");
                 return;
             }
-            /*
-            if (!Object.keys(dataManager.DISCORD_USER_SCP_INFO).includes(this.DiscordUser)) {
-                this.AddToMessage("The SCP Information for the User has not been Setup. Run the /registersync Command to Configure SCP Information.");
-                return;
-            }
-                */
             try {
                 if (!Object.keys(dataManager.JOB_ARCHIVE_MAP).includes(archiveName)) {
                     this.AddToMessage(`The Archive Name ${archiveName} is not Valid. Use /listarchive to list all Downloadable Archives.`);
@@ -66,7 +61,7 @@ class Download extends dna_discord_framework_1.Command {
                 }
                 this.AddToMessage("File is found in Archive, Uploading...");
                 const size = this.GetFileSize(filePath);
-                if (size[0] > dataManager.ZIP_FILE_MAX_SIZE_MB && size[1] == "MB")
+                if (this.IsFileLarger(filePath, dataManager.FILE_MAX_SIZE_MB, SizeFormat_1.default.MB))
                     this.AddToMessage(`The Archive File is too Large (${size[0]} MB), it can be Downloaded using the Following Command ${orcaJobManager.GetHostArchiveCopyCommand(syncInfo, orcaJob.JobName, syncInfo.DownloadLocation)}`);
                 else
                     this.AddFileToMessage(filePath);
@@ -109,6 +104,15 @@ class Download extends dna_discord_framework_1.Command {
             sizeFormat = "B";
         }
         return [realsize, sizeFormat];
+    }
+    IsFileLarger(filePath, maxSize, sizeFormat) {
+        if (!fs_1.default.existsSync(filePath))
+            return false;
+        let size = fs_1.default.statSync(filePath).size;
+        if (size > maxSize * sizeFormat)
+            return true;
+        else
+            return false;
     }
 }
 module.exports = Download;

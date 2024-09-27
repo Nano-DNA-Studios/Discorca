@@ -1,7 +1,6 @@
 import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
 import { BotData, BotDataManager, Command } from "dna-discord-framework";
 import OrcaBotDataManager from "../OrcaBotDataManager";
-import OrcaJob from "../OrcaJob";
 import OrcaJobManager from "../OrcaJobManager";
 import SyncInfo from "../SyncInfo";
 
@@ -34,13 +33,6 @@ class Sync extends Command {
             this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
             return;
         }
-
-        /*
-        if (!Object.keys(dataManager.DISCORD_USER_SCP_INFO).includes(this.DiscordUser)) {
-            this.AddToMessage("The SCP Information for the User has not been Setup. Run the /registersync Command to Configure SCP Information.");
-            return;
-        }
-            */
 
         const syncInfo: SyncInfo = dataManager.GetSCPInfo(this.DiscordUser);
 
