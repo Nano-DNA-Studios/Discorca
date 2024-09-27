@@ -19,6 +19,7 @@ const fs_1 = __importDefault(require("fs"));
 const Job_1 = __importDefault(require("./Jobs/Job"));
 const OrcaJobManager_1 = __importDefault(require("./OrcaJobManager"));
 const SizeFormat_1 = __importDefault(require("./Jobs/SizeFormat"));
+const SSHManager_1 = __importDefault(require("./SSH/SSHManager"));
 //class OrcaJob implements IOrcaJob {
 class OrcaJob extends Job_1.default {
     /**
@@ -49,7 +50,7 @@ class OrcaJob extends Job_1.default {
         const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
         const filePath = `${this.JobManager.HostJobDirectory}/${this.JobName}/${this.GetFileName(file)}`;
         const syncInfo = dataManager.GetSCPInfo(this.JobAuthor);
-        return this.JobManager.GetSCPCommand(syncInfo, filePath, syncInfo.DownloadLocation);
+        return SSHManager_1.default.GetSCPCommand(syncInfo, filePath, syncInfo.DownloadLocation);
     }
     /**
      * Runs the Orca Calculation Job

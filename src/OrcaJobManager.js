@@ -7,6 +7,7 @@ const dna_discord_framework_1 = require("dna-discord-framework");
 const JobManager_1 = __importDefault(require("./Jobs/JobManager"));
 const OrcaBotDataManager_1 = __importDefault(require("./OrcaBotDataManager"));
 const Job_1 = __importDefault(require("./Jobs/Job"));
+const SSHManager_1 = __importDefault(require("./SSH/SSHManager"));
 class OrcaJobManager extends JobManager_1.default {
     constructor() {
         super();
@@ -17,35 +18,15 @@ class OrcaJobManager extends JobManager_1.default {
         this.HostJobDirectory = `${dataManager.HOST_DEVICE_MOUNT_LOCATION}/${this.JobCategory}/${Job_1.default.JobSubdirectory}`;
     }
     GetArchiveSyncCommand(syncInfo, destinationPath) {
-        return this.GetSCPCommand(syncInfo, this.HostArchiveDirectory, destinationPath);
+        return SSHManager_1.default.GetSCPCommand(syncInfo, this.HostArchiveDirectory, destinationPath, true);
     }
     GetHostArchiveCopyCommand(syncInfo, jobName, destinationPath) {
         const path = this.HostArchiveDirectory + "/" + jobName;
-        return this.GetSCPCommand(syncInfo, path, destinationPath);
+        return SSHManager_1.default.GetSCPCommand(syncInfo, path, destinationPath, true);
     }
     GetHostJobCopyCommand(syncInfo, jobName, destinationPath) {
-        const path = this.HostArchiveDirectory + "/" + jobName;
-        return this.GetSCPCommand(syncInfo, path, destinationPath);
-    }
-    GetSCPCommand(scpInfo, sourcePath, destinationPath, isDirectory = false) {
-        const user = scpInfo === null || scpInfo === void 0 ? void 0 : scpInfo.Username;
-        const hostName = scpInfo === null || scpInfo === void 0 ? void 0 : scpInfo.HostName;
-        const port = scpInfo === null || scpInfo === void 0 ? void 0 : scpInfo.Port;
-        let command = "";
-        let recursive = "";
-        if (isDirectory) {
-            sourcePath += "/";
-            recursive = "-r ";
-        }
-        if (!(user && destinationPath && hostName)) {
-            const command = `scp ${recursive}-P port serverUser@hostName:${sourcePath} /Path/on/local/device`;
-            return "```" + command + "```";
-        }
-        if (port == 0)
-            command = `scp ${recursive}${user}@${hostName}:${sourcePath} ${destinationPath}`;
-        else
-            command = `scp ${recursive}-P ${port} ${user}@${hostName}:${sourcePath} ${destinationPath}`;
-        return "```" + command + "```";
+        const path = this.HostJobDirectory + "/" + jobName;
+        return SSHManager_1.default.GetSCPCommand(syncInfo, path, destinationPath, true);
     }
 }
 exports.default = OrcaJobManager;
