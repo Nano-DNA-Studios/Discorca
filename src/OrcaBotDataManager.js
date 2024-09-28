@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const dna_discord_framework_1 = require("dna-discord-framework");
-const OrcaJobDescription_1 = __importDefault(require("./OrcaJobDescription"));
 const discord_js_1 = require("discord.js");
 const fs_1 = __importDefault(require("fs"));
 /**
@@ -40,13 +39,14 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
         /**
          * A Mapping between the Discord User who sent the Command and the Server User
          */
-        this.DISCORD_USER_TO_SERVER_USER = {};
+        // public DISCORD_USER_TO_SERVER_USER: Record<string, string> = {};
+        this.DISCORD_USER_SCP_INFO = {};
         /**
          * A Mapping between the Discord User who sent the Command and the Download Location on their Personal Device
          */
         this.DISCORD_USER_TO_DOWNLOAD_LOCATION = {};
         /**
-         * Stores the Job Name and a mapping to the Full Job Archive
+         * Stores the Job Name and a mapping to the Job Instance
          */
         this.JOB_ARCHIVE_MAP = {};
         /**
@@ -108,7 +108,9 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
     PurgeArchive() {
         if (fs_1.default.existsSync(this.JOB_ARCHIVE_FOLDER))
             fs_1.default.rmSync(this.JOB_ARCHIVE_FOLDER, { recursive: true });
+        this.JOB_ARCHIVE_MAP = {};
         this.CreateJobDirectories();
+        this.SaveData();
     }
     /**
      * Creates the Job Directories if they don't Exist
@@ -144,15 +146,22 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
     SetHostName(hostName) {
         this.HOSTNAME = hostName;
     }
+    AddSCPUser(discordUser, serverUser, downloadLocation) {
+        let syncInfo = new dna_discord_framework_1.SyncInfo(this.HOSTNAME, this.PORT, serverUser, "", downloadLocation);
+        this.DISCORD_USER_SCP_INFO[discordUser] = syncInfo;
+        this.SaveData();
+    }
     /**
      * Adds a Mapping of the Discord User to the Server User
      * @param discordUser The Discord User who called the Command
      * @param serverUser The Server User of the Discord User
      */
-    AddServerUser(discordUser, serverUser) {
+    /*
+    public AddServerUser(discordUser: string, serverUser: string) {
         this.DISCORD_USER_TO_SERVER_USER[discordUser] = serverUser;
         this.SaveData();
     }
+        */
     /**
      * Adds a Mapping of the Discord User to a Personalized Download Location
      * @param discordUser The Discord User who called the Command
@@ -175,14 +184,15 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
      */
     SetMaxZipSize(maxsize) {
         this.ZIP_FILE_MAX_SIZE_MB = maxsize;
+        this.FILE_MAX_SIZE_MB = maxsize;
     }
     /**
      * Adds a Job and it's Full Archive File Name
      * @param jobName The Name of the Job to Archive
-     * @param jobArchiveFile The File of the Job Archive
+     * @param job The Job to Archive
      */
-    AddJobArchive(jobName, jobArchiveFilePath) {
-        this.JOB_ARCHIVE_MAP[jobName] = jobArchiveFilePath;
+    AddJobArchive(job) {
+        this.JOB_ARCHIVE_MAP[job.JobName] = job;
         this.SaveData();
     }
     /**
@@ -190,7 +200,7 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
      * @param job The Job to Add to the Running Jobs
      */
     AddJob(job) {
-        this.RUNNING_JOBS[job.JobName] = new OrcaJobDescription_1.default(job);
+        this.RUNNING_JOBS[job.JobName] = job;
         this.SaveData();
     }
     /**
@@ -215,6 +225,12 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
     SetActivityToListen(client) {
         if (client.user)
             client.user.setActivity(" ", { type: discord_js_1.ActivityType.Custom, state: "Listening for New Orca Calculation" });
+    }
+    GetSCPInfo(discordUser) {
+        if (Object.keys(this.DISCORD_USER_SCP_INFO).includes(discordUser))
+            return this.DISCORD_USER_SCP_INFO[discordUser];
+        else
+            return new dna_discord_framework_1.SyncInfo("", 0, "", "", "");
     }
 }
 exports.default = OrcaBotDataManager;

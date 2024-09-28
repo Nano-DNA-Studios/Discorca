@@ -1,6 +1,7 @@
 import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
-import { BotData, BotDataManager, Command } from "dna-discord-framework";
+import { BotData, BotDataManager, Command, SyncInfo } from "dna-discord-framework";
 import OrcaBotDataManager from "../OrcaBotDataManager";
+import OrcaJobManager from "../OrcaJob/OrcaJobManager";
 
 /**
  * Command that 
@@ -25,41 +26,21 @@ class Sync extends Command {
         const dataManager = BotData.Instance(OrcaBotDataManager);
         this.DiscordUser = interaction.user.username;
 
+        const JobManager = new OrcaJobManager(); 
+
         if (!dataManager.IsDiscorcaSetup()) {
             this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
             return;
         }
 
+        const syncInfo: SyncInfo = dataManager.GetSCPInfo(this.DiscordUser);
+
         this.AddToMessage("Use the following Command to Sync Archive to Local Device.");
-        this.AddToMessage("```" + this.GetSyncCommand() + "```")
+        this.AddToMessage(JobManager.GetArchiveSyncCommand(syncInfo, syncInfo.DownloadLocation))
     };
 
     /* <inheritdoc> */
     public IsEphemeralResponse = true;
-
-    /**
-     * Gets the Full Sync Command Needed to paste in the Terminal to Sync the Archive
-     * @returns The Full Sync Command to paste in Terminal
-     */
-    GetSyncCommand() {
-        const dataManager = BotData.Instance(OrcaBotDataManager);
-        let command = "";
-        try {
-            const user = dataManager.DISCORD_USER_TO_SERVER_USER[this.DiscordUser];
-            const downloadLocation = dataManager.DISCORD_USER_TO_DOWNLOAD_LOCATION[this.DiscordUser];
-            const hostName = dataManager.HOSTNAME;
-
-            if (dataManager.PORT == 0)
-                command = `scp -r ${user}@${hostName}:${dataManager.GetHostDeviceArchivePath()} "${downloadLocation}"`;
-            else
-                command = `scp -r -P ${dataManager.PORT} ${user}@${hostName}:${dataManager.GetHostDeviceArchivePath()} "${downloadLocation}"`;
-
-        } catch (e) {
-            command = `scp -r serverUser@hostName:${dataManager.GetHostDeviceArchivePath()} /Path/on/local/device`;
-        }
-
-        return command;
-    }
 }
 
 export = Sync;

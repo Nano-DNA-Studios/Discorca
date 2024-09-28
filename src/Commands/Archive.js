@@ -39,7 +39,6 @@ class Archive extends dna_discord_framework_1.Command {
             }
             this.AddToMessage("Here are the Job Archives Stored on the Device: \n");
             yield fs_1.default.readdirSync(dataManager.JOB_ARCHIVE_FOLDER).forEach(job => {
-                dataManager.JOB_ARCHIVE_MAP[job] = `${dataManager.HOST_DEVICE_MOUNT_LOCATION}/${job}/${job}Full.tar.gz`;
                 this.AddToMessage(job);
             });
             //this.AddToResponseMessage("\nTo Download an Archive use the /download Command and supply it with the Archives Name")

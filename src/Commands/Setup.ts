@@ -104,6 +104,14 @@ class Setup extends Command {
             type: OptionTypesEnum.Number,
             choices: [
                 {
+                    name: "0.1",
+                    value: 0.1
+                },
+                {
+                    name: "1",
+                    value: 1
+                },
+                {
                     name: "5",
                     value: 5
                 },
