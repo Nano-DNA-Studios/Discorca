@@ -1,11 +1,7 @@
-import { BotDataManager } from "dna-discord-framework";
+import { BotDataManager, SyncInfo, Job} from "dna-discord-framework";
 import OrcaJob from "./OrcaJob";
 import { ActivityType, Client } from "discord.js";
 import fs from "fs";
-import Job from "./Jobs/Job";
-import SCPInfo from "./SSH/SCPInfo";
-import SSHInfo from "./SSH/SSHInfo";
-import SyncInfo from "./SyncInfo";
 
 /**
  * Class Handling Data Management

@@ -15,8 +15,6 @@ const dna_discord_framework_1 = require("dna-discord-framework");
 const OrcaBotDataManager_1 = __importDefault(require("../OrcaBotDataManager"));
 const fs_1 = __importDefault(require("fs"));
 const OrcaJobManager_1 = __importDefault(require("../OrcaJobManager"));
-const Job_1 = __importDefault(require("../Jobs/Job"));
-const SizeFormat_1 = __importDefault(require("../Jobs/SizeFormat"));
 /**
  * Command that Purges all Job Folders in the Job Directory
  */
@@ -61,7 +59,7 @@ class Download extends dna_discord_framework_1.Command {
                 }
                 this.AddToMessage("File is found in Archive, Uploading...");
                 const size = this.GetFileSize(filePath);
-                if (this.IsFileLarger(filePath, dataManager.FILE_MAX_SIZE_MB, SizeFormat_1.default.MB))
+                if (this.IsFileLarger(filePath, dataManager.FILE_MAX_SIZE_MB, dna_discord_framework_1.SizeFormat.MB))
                     this.AddToMessage(`The Archive File is too Large (${size[0]} MB), it can be Downloaded using the Following Command ${orcaJobManager.GetHostArchiveCopyCommand(syncInfo, orcaJob.JobName, syncInfo.DownloadLocation)}`);
                 else
                     this.AddFileToMessage(filePath);
@@ -83,7 +81,7 @@ class Download extends dna_discord_framework_1.Command {
         ];
     }
     GetArchiveFilePath(orcaJob) {
-        return `${orcaJob.JobManager.JobGlobalDirectory}/${orcaJob.JobManager.JobCategory}/${Job_1.default.ArchiveSubdirectory}/${orcaJob.JobName}/${orcaJob.ArchiveFile}`;
+        return `${orcaJob.JobManager.JobGlobalDirectory}/${orcaJob.JobManager.JobCategory}/${dna_discord_framework_1.Job.ArchiveSubdirectory}/${orcaJob.JobName}/${orcaJob.ArchiveFile}`;
     }
     GetFileSize(filePath) {
         if (!fs_1.default.existsSync(filePath))

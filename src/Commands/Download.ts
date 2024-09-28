@@ -1,13 +1,10 @@
-import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
-import { BotData, BotDataManager, Command, ICommandOption, OptionTypesEnum } from "dna-discord-framework";
+import { Client, ChatInputCommandInteraction, CacheType} from "discord.js";
+import { BotData, BotDataManager, Command, ICommandOption, OptionTypesEnum, SyncInfo, Job, SizeFormat } from "dna-discord-framework";
 import OrcaBotDataManager from "../OrcaBotDataManager";
 import fs from "fs";
 import OrcaJob from "../OrcaJob";
 import OrcaJobManager from "../OrcaJobManager";
-import SCPInfo from "../SSH/SCPInfo";
-import Job from "../Jobs/Job";
-import SyncInfo from "../SyncInfo";
-import SizeFormat from "../Jobs/SizeFormat";
+
 
 /**
  * Command that Purges all Job Folders in the Job Directory

@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const dna_discord_framework_1 = require("dna-discord-framework");
 const discord_js_1 = require("discord.js");
 const fs_1 = __importDefault(require("fs"));
-const SyncInfo_1 = __importDefault(require("./SyncInfo"));
 /**
  * Class Handling Data Management
  */
@@ -148,7 +147,7 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
         this.HOSTNAME = hostName;
     }
     AddSCPUser(discordUser, serverUser, downloadLocation) {
-        let syncInfo = new SyncInfo_1.default(this.HOSTNAME, this.PORT, serverUser, "", downloadLocation);
+        let syncInfo = new dna_discord_framework_1.SyncInfo(this.HOSTNAME, this.PORT, serverUser, "", downloadLocation);
         this.DISCORD_USER_SCP_INFO[discordUser] = syncInfo;
         this.SaveData();
     }
@@ -231,7 +230,7 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
         if (Object.keys(this.DISCORD_USER_SCP_INFO).includes(discordUser))
             return this.DISCORD_USER_SCP_INFO[discordUser];
         else
-            return new SyncInfo_1.default("", 0, "", "", "");
+            return new dna_discord_framework_1.SyncInfo("", 0, "", "", "");
     }
 }
 exports.default = OrcaBotDataManager;

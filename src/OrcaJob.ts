@@ -1,15 +1,10 @@
-import { BashScriptRunner, BotCommunication, BotData, BotDataManager } from "dna-discord-framework"
+import { BashScriptRunner, BotCommunication, BotData, BotDataManager, SSHManager, SizeFormat, SyncInfo, Job } from "dna-discord-framework"
 import OrcaBotDataManager from "./OrcaBotDataManager";
 import OrcaJobFile from "./OrcaJobFile";
 import { User } from "discord.js";
 import fs from "fs";
-import Job from "./Jobs/Job";
 import OrcaJobManager from "./OrcaJobManager";
-import SyncInfo from "./SyncInfo";
-import SizeFormat from "./Jobs/SizeFormat";
-import SSHManager from "./SSH/SSHManager";
 
-//class OrcaJob implements IOrcaJob {
 class OrcaJob extends Job {
 
     /* <inheritdoc> */
@@ -48,8 +43,6 @@ class OrcaJob extends Job {
      * @param jobName The Name of the Job / Orca Input File Supplied (Without File Extension)
      */
     constructor(jobName: string, commandUser: string) {
-        const dataManager = BotData.Instance(OrcaBotDataManager);
-
         super(jobName.split(".")[0], commandUser);
         this.InputFileName = `${this.JobName}.inp`;
         this.OutputFileName = `${this.JobName}.out`;
@@ -178,17 +171,50 @@ class OrcaJob extends Job {
     public async SendAllFiles(message: BotCommunication, dataManager: BotDataManager): Promise<void> {
         await this.ArchiveJob(dataManager);
 
-        this.SendFile(message, OrcaJobFile.OutputFile);
-        this.SendFile(message, OrcaJobFile.XYZFile);
-        this.SendFile(message, OrcaJobFile.TrajectoryXYZFile);
-        this.SendFile(message, OrcaJobFile.ArchiveFile);
+        //this.SendFile(message, this.GetFullFilePath(OrcaJobFile.InputFile), `The Input File is too large, download it using the following command ${this.GetFileCopyCommand(OrcaJobFile.InputFile)}`, maxFileSizeMB);
+        this.SendOrcaFile(message, OrcaJobFile.OutputFile);
+        this.SendOrcaFile(message, OrcaJobFile.XYZFile);
+        this.SendOrcaFile(message, OrcaJobFile.TrajectoryXYZFile);
+        this.SendOrcaFile(message, OrcaJobFile.ArchiveFile);
+
     }
+
+    public async SendOrcaFile(message: BotCommunication, file: OrcaJobFile): Promise<void> {
+
+        let outputFileMessage = `The ${this.GetFileFriendlyName(file)} is too large, download it using the following command ${this.GetFileCopyCommand(file)}`;
+        let maxFileSizeMB = BotData.Instance(OrcaBotDataManager).FILE_MAX_SIZE_MB;
+
+        this.SendFile(message, this.GetFullFilePath(file), outputFileMessage, maxFileSizeMB);
+    }
+
+    /*
+    public async SendFile(message: BotCommunication, filePath: string, largeFileMessage: string, maxFileSizeMB: number): Promise<void> {
+        if (!fs.existsSync(filePath))
+            return
+
+        if (this.IsFileLarger(filePath, maxFileSizeMB, SizeFormat.MB)) {
+            let outputFileMessage = largeFileMessage;
+
+            if (message.content?.includes(outputFileMessage))
+                return;
+
+            let valIndex = message.files?.indexOf(filePath);
+            if (valIndex != -1 && typeof valIndex !== 'undefined')
+                message.files?.splice(valIndex, 1);
+            message.AddMessage(outputFileMessage);
+        }
+        else
+            message.AddFile(filePath);
+    }
+            */
+
 
     /**
      * Sends an individual File to the Message for the Job
      * @param message 
      * @param file 
      */
+    /*
     public async SendFile(message: BotCommunication, file: OrcaJobFile): Promise<void> {
         const filePath = this.GetFullFilePath(file);
 
@@ -209,6 +235,7 @@ class OrcaJob extends Job {
         else
             message.AddFile(filePath);
     }
+            */
 
     /**
      * Starts a loop that Sends the latest version of the Output file and uploads it to Discord. 
@@ -226,11 +253,11 @@ class OrcaJob extends Job {
 
             if (count > 100) {
                 count = 0;
-                this.SendFile(message, OrcaJobFile.OutputFile);
+                this.SendOrcaFile(message, OrcaJobFile.OutputFile);
             }
         }
 
-        this.SendFile(message, OrcaJobFile.OutputFile);
+        this.SendOrcaFile(message, OrcaJobFile.OutputFile);
     }
 
     public JobResourceUsage(): Record<string, number> {
@@ -246,13 +273,19 @@ class OrcaJob extends Job {
      */
     private GetNumberOfCores(): number {
         const file = fs.readFileSync(this.GetFullFilePath(OrcaJobFile.InputFile), 'utf8');
-        const regexPattern = /PAL(\d+)/;
-        const match = file.match(regexPattern);
+        const regexPatternPAL = /PAL(\d+)/;
+        const regexPatternNPROCS = /nprocs\s+(\d+)/i;
+        let match;
 
-        if (match)
+        if (file.includes("nprocs"))
+            match = file.match(regexPatternNPROCS);
+        else
+            match = file.match(regexPatternPAL);
+
+        if (match && match[1])
             return parseInt(match[1]);
         else
-            return 1;
+            return 1; 
     }
 }
 

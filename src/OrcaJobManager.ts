@@ -1,7 +1,5 @@
-import { BotData } from "dna-discord-framework";
-import JobManager from "./Jobs/JobManager";
+import { BotData, Job, JobManager} from "dna-discord-framework";
 import OrcaBotDataManager from "./OrcaBotDataManager";
-import Job from "./Jobs/Job";
 
 class OrcaJobManager extends JobManager {
 

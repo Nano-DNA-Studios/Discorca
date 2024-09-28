@@ -16,18 +16,13 @@ const dna_discord_framework_1 = require("dna-discord-framework");
 const OrcaBotDataManager_1 = __importDefault(require("./OrcaBotDataManager"));
 const OrcaJobFile_1 = __importDefault(require("./OrcaJobFile"));
 const fs_1 = __importDefault(require("fs"));
-const Job_1 = __importDefault(require("./Jobs/Job"));
 const OrcaJobManager_1 = __importDefault(require("./OrcaJobManager"));
-const SizeFormat_1 = __importDefault(require("./Jobs/SizeFormat"));
-const SSHManager_1 = __importDefault(require("./SSH/SSHManager"));
-//class OrcaJob implements IOrcaJob {
-class OrcaJob extends Job_1.default {
+class OrcaJob extends dna_discord_framework_1.Job {
     /**
      * Sets the Job Name
      * @param jobName The Name of the Job / Orca Input File Supplied (Without File Extension)
      */
     constructor(jobName, commandUser) {
-        const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
         super(jobName.split(".")[0], commandUser);
         /* <inheritdoc> */
         this.JobGlobalDirectory = "/DiscorcaJobs";
@@ -48,7 +43,7 @@ class OrcaJob extends Job_1.default {
         const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
         const filePath = `${this.JobManager.HostJobDirectory}/${this.JobName}/${this.GetFileName(file)}`;
         const syncInfo = dataManager.GetSCPInfo(this.JobAuthor);
-        return SSHManager_1.default.GetSCPCommand(syncInfo, filePath, syncInfo.DownloadLocation);
+        return dna_discord_framework_1.SSHManager.GetSCPCommand(syncInfo, filePath, syncInfo.DownloadLocation);
     }
     /**
      * Runs the Orca Calculation Job
@@ -156,36 +151,67 @@ class OrcaJob extends Job_1.default {
     SendAllFiles(message, dataManager) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.ArchiveJob(dataManager);
-            this.SendFile(message, OrcaJobFile_1.default.OutputFile);
-            this.SendFile(message, OrcaJobFile_1.default.XYZFile);
-            this.SendFile(message, OrcaJobFile_1.default.TrajectoryXYZFile);
-            this.SendFile(message, OrcaJobFile_1.default.ArchiveFile);
+            //this.SendFile(message, this.GetFullFilePath(OrcaJobFile.InputFile), `The Input File is too large, download it using the following command ${this.GetFileCopyCommand(OrcaJobFile.InputFile)}`, maxFileSizeMB);
+            this.SendOrcaFile(message, OrcaJobFile_1.default.OutputFile);
+            this.SendOrcaFile(message, OrcaJobFile_1.default.XYZFile);
+            this.SendOrcaFile(message, OrcaJobFile_1.default.TrajectoryXYZFile);
+            this.SendOrcaFile(message, OrcaJobFile_1.default.ArchiveFile);
         });
     }
+    SendOrcaFile(message, file) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let outputFileMessage = `The ${this.GetFileFriendlyName(file)} is too large, download it using the following command ${this.GetFileCopyCommand(file)}`;
+            let maxFileSizeMB = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default).FILE_MAX_SIZE_MB;
+            this.SendFile(message, this.GetFullFilePath(file), outputFileMessage, maxFileSizeMB);
+        });
+    }
+    /*
+    public async SendFile(message: BotCommunication, filePath: string, largeFileMessage: string, maxFileSizeMB: number): Promise<void> {
+        if (!fs.existsSync(filePath))
+            return
+
+        if (this.IsFileLarger(filePath, maxFileSizeMB, SizeFormat.MB)) {
+            let outputFileMessage = largeFileMessage;
+
+            if (message.content?.includes(outputFileMessage))
+                return;
+
+            let valIndex = message.files?.indexOf(filePath);
+            if (valIndex != -1 && typeof valIndex !== 'undefined')
+                message.files?.splice(valIndex, 1);
+            message.AddMessage(outputFileMessage);
+        }
+        else
+            message.AddFile(filePath);
+    }
+            */
     /**
      * Sends an individual File to the Message for the Job
      * @param message
      * @param file
      */
-    SendFile(message, file) {
-        return __awaiter(this, void 0, void 0, function* () {
-            var _a, _b, _c;
-            const filePath = this.GetFullFilePath(file);
-            if (!fs_1.default.existsSync(filePath))
+    /*
+    public async SendFile(message: BotCommunication, file: OrcaJobFile): Promise<void> {
+        const filePath = this.GetFullFilePath(file);
+
+        if (!fs.existsSync(filePath))
+            return
+
+        if (this.IsFileLarger(filePath, BotData.Instance(OrcaBotDataManager).FILE_MAX_SIZE_MB, SizeFormat.MB)) {
+            let outputFileMessage = `The ${this.GetFileFriendlyName(file)} is too large, download it using the following command ${this.GetFileCopyCommand(file)}`;
+
+            if (message.content?.includes(outputFileMessage))
                 return;
-            if (this.IsFileLarger(filePath, dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default).FILE_MAX_SIZE_MB, SizeFormat_1.default.MB)) {
-                let outputFileMessage = `The ${this.GetFileFriendlyName(file)} is too large, download it using the following command ${this.GetFileCopyCommand(file)}`;
-                if ((_a = message.content) === null || _a === void 0 ? void 0 : _a.includes(outputFileMessage))
-                    return;
-                let valIndex = (_b = message.files) === null || _b === void 0 ? void 0 : _b.indexOf(filePath);
-                if (valIndex != -1 && typeof valIndex !== 'undefined')
-                    (_c = message.files) === null || _c === void 0 ? void 0 : _c.splice(valIndex, 1);
-                message.AddMessage(outputFileMessage);
-            }
-            else
-                message.AddFile(filePath);
-        });
+
+            let valIndex = message.files?.indexOf(filePath);
+            if (valIndex != -1 && typeof valIndex !== 'undefined')
+                message.files?.splice(valIndex, 1);
+            message.AddMessage(outputFileMessage);
+        }
+        else
+            message.AddFile(filePath);
     }
+            */
     /**
      * Starts a loop that Sends the latest version of the Output file and uploads it to Discord.
      * @param message The Bot Communication Message the file will be uploaded to
@@ -202,10 +228,10 @@ class OrcaJob extends Job_1.default {
                 });
                 if (count > 100) {
                     count = 0;
-                    this.SendFile(message, OrcaJobFile_1.default.OutputFile);
+                    this.SendOrcaFile(message, OrcaJobFile_1.default.OutputFile);
                 }
             }
-            this.SendFile(message, OrcaJobFile_1.default.OutputFile);
+            this.SendOrcaFile(message, OrcaJobFile_1.default.OutputFile);
         });
     }
     JobResourceUsage() {
@@ -218,9 +244,36 @@ class OrcaJob extends Job_1.default {
      * @returns The Number of Cores that will be used
      */
     GetNumberOfCores() {
+        /*
+        const file = fs.readFileSync(this.GetFullFilePath(OrcaJobFile.InputFile), 'utf8');
+        const regexPatternPAL = /PAL(\d+)/i;  // Assuming the format is PAL followed by the number
+        const regexPatternNPROCS = /nprocs\s+(\d+)/i;  // No global flag needed, `i` for case-insensitive match
+        let match;
+
+        // Check for nprocs first
+        if (file.includes("nprocs")) {
+            match = regexPatternNPROCS.exec(file);  // Use `exec()` for capturing groups
+        } else {
+            console.log("No nprocs found, trying PAL");
+            match = regexPatternPAL.exec(file);
+        }
+
+        console.log(match);  // For debugging: shows the match result
+
+        if (match && match[1]) {
+            return parseInt(match[1]);  // Extract the captured group with the number
+        } else {
+            return 1;  // Default value if no match
+        }
+            */
         const file = fs_1.default.readFileSync(this.GetFullFilePath(OrcaJobFile_1.default.InputFile), 'utf8');
-        const regexPattern = /PAL(\d+)/;
-        const match = file.match(regexPattern);
+        const regexPatternPAL = /PAL(\d+)/;
+        const regexPatternNPROCS = /nprocs\s+(\d+)/i;
+        let match;
+        if (file.includes("nprocs"))
+            match = file.match(regexPatternNPROCS);
+        else
+            match = file.match(regexPatternPAL);
         if (match)
             return parseInt(match[1]);
         else
