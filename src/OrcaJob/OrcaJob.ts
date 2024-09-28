@@ -1,5 +1,5 @@
 import { BashScriptRunner, BotCommunication, BotData, BotDataManager, SSHManager, SizeFormat, SyncInfo, Job } from "dna-discord-framework"
-import OrcaBotDataManager from "./OrcaBotDataManager";
+import OrcaBotDataManager from "../OrcaBotDataManager";
 import OrcaJobFile from "./OrcaJobFile";
 import fs from "fs";
 import OrcaJobManager from "./OrcaJobManager";

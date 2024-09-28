@@ -1,7 +1,7 @@
 import { OptionTypesEnum, BotDataManager, Command, DefaultCommandHandler, BotData, BotMessage, BotCommunication, DefaultBotCommunication } from "dna-discord-framework"
 import { ActivityType, CacheType, ChatInputCommandInteraction, Client, TextChannel, User } from "discord.js";
 import OrcaBotDataManager from "../OrcaBotDataManager";
-import OrcaJob from "../OrcaJob";
+import OrcaJob from "../OrcaJob/OrcaJob";
 import { resolve } from "path";
 
 /**

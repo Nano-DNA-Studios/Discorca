@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 const dna_discord_framework_1 = require("dna-discord-framework");
 const discord_js_1 = require("discord.js");
 const OrcaBotDataManager_1 = __importDefault(require("../OrcaBotDataManager"));
-const OrcaJob_1 = __importDefault(require("../OrcaJob"));
+const OrcaJob_1 = __importDefault(require("../OrcaJob/OrcaJob"));
 /**
  * Command that Runs an Orca Calculation on the Device the Bot is hosted by
  */

@@ -1,5 +1,5 @@
 import { BotDataManager, SyncInfo, Job} from "dna-discord-framework";
-import OrcaJob from "./OrcaJob";
+import OrcaJob from "./OrcaJob/OrcaJob";
 import { ActivityType, Client } from "discord.js";
 import fs from "fs";
 

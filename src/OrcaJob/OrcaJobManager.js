@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const dna_discord_framework_1 = require("dna-discord-framework");
-const OrcaBotDataManager_1 = __importDefault(require("./OrcaBotDataManager"));
+const OrcaBotDataManager_1 = __importDefault(require("../OrcaBotDataManager"));
 class OrcaJobManager extends dna_discord_framework_1.JobManager {
     constructor() {
         super();

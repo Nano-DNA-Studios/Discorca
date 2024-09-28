@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 const dna_discord_framework_1 = require("dna-discord-framework");
 const OrcaBotDataManager_1 = __importDefault(require("../OrcaBotDataManager"));
 const fs_1 = __importDefault(require("fs"));
-const OrcaJobManager_1 = __importDefault(require("../OrcaJobManager"));
+const OrcaJobManager_1 = __importDefault(require("../OrcaJob/OrcaJobManager"));
 /**
  * Command that Purges all Job Folders in the Job Directory
  */

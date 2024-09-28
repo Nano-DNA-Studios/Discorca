@@ -1,7 +1,7 @@
 import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
 import { BotData, BotDataManager, Command, SyncInfo } from "dna-discord-framework";
 import OrcaBotDataManager from "../OrcaBotDataManager";
-import OrcaJobManager from "../OrcaJobManager";
+import OrcaJobManager from "../OrcaJob/OrcaJobManager";
 
 /**
  * Command that 

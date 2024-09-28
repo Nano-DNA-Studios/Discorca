@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const dna_discord_framework_1 = require("dna-discord-framework");
-const OrcaBotDataManager_1 = __importDefault(require("./OrcaBotDataManager"));
+const OrcaBotDataManager_1 = __importDefault(require("../OrcaBotDataManager"));
 const OrcaJobFile_1 = __importDefault(require("./OrcaJobFile"));
 const fs_1 = __importDefault(require("fs"));
 const OrcaJobManager_1 = __importDefault(require("./OrcaJobManager"));
@@ -32,7 +32,6 @@ class OrcaJob extends dna_discord_framework_1.Job {
         this.OutputFileName = `${this.JobName}.out`;
         this.XYZFileName = `${this.JobName}.xyz`;
         this.TrjXYZFileName = `${this.JobName}_trj.xyz`;
-        //this.ArchiveFile = `${this.JobName}Full.tar.gz`;
     }
     /**
     * Creates the SCP Copy Command for the User to Copy and use in their Terminal
@@ -60,18 +59,6 @@ class OrcaJob extends dna_discord_framework_1.Job {
             this.JobFinished = true;
         });
     }
-    /**
-     * Creates the Compressed Archive File
-     */
-    /*
-    public async ArchiveJob(dataManager: BotDataManager) {
-        let runner = new BashScriptRunner();
-        await runner.RunLocally(`tar -zcvf  ${this.GetFullFilePath(OrcaJobFile.ArchiveFile)} -C  ${this.JobManager.JobLibraryDirectory} ${this.JobName}`).catch(e => {
-            e.name += `: Archive Job (${this.JobName})`;
-            dataManager.AddErrorLog(e);
-        });
-    }
-        */
     /**
      * Gets the Full Path to the Specified File
      * @param fileName The Name of the Job File
