@@ -58,24 +58,33 @@ class Python extends dna_discord_framework_1.Command {
             yield pythonJob.ExtractPackage();
             if (!pythonJob.PythonDefaultFilesExist()) {
                 this.AddToMessage(`Package provided is not a Valid Python Package. Please provide a valid Python Package to Run. It must container a Install.txt file and a Start.py file`);
-                pythonJob.RemoveDirectories();
+                //pythonJob.RemoveDirectories();
                 return;
             }
+            this.CalculationMessage.AddMessage(`Running Python Calculation on ${pythonpackage.name} :snake:`);
             dataManager.AddJobArchive(pythonJob);
             dataManager.AddJob(pythonJob);
             if (client.user)
                 client.user.setActivity(`Python Calculation ${pythonJob.JobName}`, { type: discord_js_1.ActivityType.Playing });
             this.AddToMessage(`Discorca will start the Python Calculation :hourglass_flowing_sand:`);
-            this.CalculationMessage.AddMessage(`Running Python Calculation on ${pythonpackage.name} :snake:`);
-            yield pythonJob.InstallPackages(this.CalculationMessage);
-            if (!pythonJob.JobSuccess) {
-                this.AddToMessage(`Python Package Install Failed. Check the Logs for more Information`);
-                pythonJob.RemoveDirectories();
+            if (yield pythonJob.InstallPackages(this.CalculationMessage)) {
+                this.CalculationMessage.AddMessage(`Python Package Install Failed : \n ${pythonJob.PythonInstaller.StandardErrorLogs}`);
+                this.CalculationMessage.AddTextFile(pythonJob.PythonInstaller.StandardErrorLogs, "InstallErrorLog.txt");
                 return;
             }
             else
                 this.CalculationMessage.AddMessage(`Pip Packages Installed Successfully`);
+            pythonJob.UpdateOutputFile(this.CalculationMessage);
             yield pythonJob.RunJob();
+            //await pythonJob.UninstallPackages(this.CalculationMessage);
+            if (!pythonJob.JobSuccess) {
+                this.CalculationMessage.AddMessage(`Python Calculation Failed :warning:`);
+                return;
+            }
+            else
+                this.CalculationMessage.AddMessage(`Python Calculation Completed Successfully (${pythonJob.JobElapsedTime()}) :white_check_mark:`);
+            yield pythonJob.SendPythonLogs(this.CalculationMessage);
+            this.QueueNextActivity(client, dataManager);
         });
         this.Options = [
             {

@@ -23,7 +23,11 @@ class PythonJob extends dna_discord_framework_1.Job {
         this.PythonPackage = "PythonPackage.tar.gz";
         this.InstallFile = "Install.txt";
         this.StartFile = "Start.py";
+        this.PythonLogs = "";
         this.PythonPackage = `${this.JobName}.tar.gz`;
+        this.PythonLogs = `${this.JobName}Logs`;
+        this.PythonJobRunner = new dna_discord_framework_1.BashScriptRunner();
+        this.PythonInstaller = new dna_discord_framework_1.BashScriptRunner();
     }
     JobResourceUsage() {
         let record = { "Cores": 1 };
@@ -64,13 +68,34 @@ class PythonJob extends dna_discord_framework_1.Job {
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
             let file = fs_1.default.readFileSync(`${this.JobDirectory}/${this.InstallFile}`, 'utf8');
             let packages = file.split("\n").filter((line) => line.length > 0);
-            yield packages.forEach((pipPackage) => __awaiter(this, void 0, void 0, function* () {
-                let runner = new dna_discord_framework_1.BashScriptRunner();
-                yield runner.RunLocally(`pip install ${pipPackage}`, true, this.JobDirectory).catch(e => {
+            let errors = false;
+            console.log(packages);
+            // Use for...of to handle async properly
+            for (const pipPackage of packages) {
+                console.log(`Installing Package : ${pipPackage}`);
+                yield this.PythonInstaller.RunLocally(`pip install ${pipPackage}`, true, this.JobDirectory).catch(e => {
                     e.name += `: Install Package (${pipPackage})`;
                     dataManager.AddErrorLog(e);
                     this.JobSuccess = false;
+                    errors = true;
                     message.AddMessage(`Failed to Install Package : ${pipPackage}`);
+                });
+            }
+            return errors;
+        });
+    }
+    UninstallPackages(message) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
+            let file = fs_1.default.readFileSync(`${this.JobDirectory}/${this.InstallFile}`, 'utf8');
+            let packages = file.split("\n").filter((line) => line.length > 0);
+            packages.forEach((pipPackage) => __awaiter(this, void 0, void 0, function* () {
+                let runner = new dna_discord_framework_1.BashScriptRunner();
+                yield runner.RunLocally(`pip uninstall ${pipPackage}`, true, this.JobDirectory).catch(e => {
+                    e.name += `: Uninstall Package (${pipPackage})`;
+                    dataManager.AddErrorLog(e);
+                    this.JobSuccess = false;
+                    message.AddMessage(`Failed to Uninstall Package : ${pipPackage}`);
                     return;
                 });
             }));
@@ -79,19 +104,45 @@ class PythonJob extends dna_discord_framework_1.Job {
     RunJob() {
         return __awaiter(this, void 0, void 0, function* () {
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
-            //This is how we generate packages
+            //This is how we generate packagess
             //tar -zcvf name.tar.gz -C /home/mrdna/tests ./*
             //tar -xzf file.tar.gz (Extracts the tar file)
-            let runner = new dna_discord_framework_1.BashScriptRunner();
-            yield runner.RunLocally(`python3 ${this.StartFile}`, true, this.JobDirectory).catch(e => {
+            //let runner = new BashScriptRunner();
+            console.log(`Running Python Job : ${this.JobName}`);
+            yield this.PythonJobRunner.RunLocally(`python3 ${this.StartFile}`, true, this.JobDirectory).catch(e => {
                 console.log(e);
                 e.name += `: Run Job (${this.JobName})`;
                 dataManager.AddErrorLog(e);
                 this.JobSuccess = false;
+                this.JobFinished = true;
+                return;
             });
-            console.log("Job Finished");
-            console.log(runner.StandardOutputLogs);
             this.JobFinished = true;
+        });
+    }
+    SendPythonLogs(message) {
+        message.AddTextFile(this.PythonJobRunner.StandardOutputLogs, this.PythonLogs);
+    }
+    /**
+     * Starts a loop that Sends the latest version of the Output file and uploads it to Discord.
+     * @param message The Bot Communication Message the file will be uploaded to
+     */
+    UpdateOutputFile(message) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let count = 0;
+            while (!this.JobFinished) {
+                yield new Promise(resolve => {
+                    setTimeout(() => {
+                        count += 1;
+                        resolve(undefined); // Call the resolve function to resolve the promise
+                    }, 100);
+                });
+                if (count > 100) {
+                    count = 0;
+                    this.SendPythonLogs(message);
+                }
+            }
+            this.SendPythonLogs(message);
         });
     }
 }

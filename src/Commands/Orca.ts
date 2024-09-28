@@ -113,7 +113,7 @@ class Orca extends Command {
             await orcaJob.DownloadFiles(files);
 
             this.AddToMessage(`Files Received`);
-            this.CalculationMessage.AddMessage(`Running Orca Calculation on ${inputfile.name} :orca:`);
+            this.CalculationMessage.AddMessage(`Running Orca Calculation on ${inputfile.name} :atom:`);
 
             dataManager.AddJobArchive(orcaJob);
             dataManager.AddJob(orcaJob);
@@ -121,7 +121,7 @@ class Orca extends Command {
             if (client.user)
                 client.user.setActivity(`Orca Calculation ${orcaJob.JobName}`, { type: ActivityType.Playing });
 
-            this.AddToMessage(`Discorca will start the Orca Calculation :hourglass_flowing_sand: :orca:`);
+            this.AddToMessage(`Discorca will start the Orca Calculation :hourglass_flowing_sand: :atom:`);
 
             orcaJob.UpdateOutputFile(this.CalculationMessage);
 

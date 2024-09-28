@@ -64,9 +64,11 @@ class Python extends Command {
 
         if (!pythonJob.PythonDefaultFilesExist()) {
             this.AddToMessage(`Package provided is not a Valid Python Package. Please provide a valid Python Package to Run. It must container a Install.txt file and a Start.py file`);
-            pythonJob.RemoveDirectories();
+            //pythonJob.RemoveDirectories();
             return;
         }
+
+        this.CalculationMessage.AddMessage(`Running Python Calculation on ${pythonpackage.name} :snake:`);
 
         dataManager.AddJobArchive(pythonJob);
         dataManager.AddJob(pythonJob);
@@ -76,18 +78,28 @@ class Python extends Command {
 
         this.AddToMessage(`Discorca will start the Python Calculation :hourglass_flowing_sand:`);
 
-        this.CalculationMessage.AddMessage(`Running Python Calculation on ${pythonpackage.name} :snake:`);
-
-        await pythonJob.InstallPackages(this.CalculationMessage);
-
-        if (!pythonJob.JobSuccess) {
-            this.AddToMessage(`Python Package Install Failed. Check the Logs for more Information`);
-            pythonJob.RemoveDirectories();
+        if (await pythonJob.InstallPackages(this.CalculationMessage)) {
+            this.CalculationMessage.AddMessage(`Python Package Install Failed : \n ${pythonJob.PythonInstaller.StandardErrorLogs}`);
+            this.CalculationMessage.AddTextFile(pythonJob.PythonInstaller.StandardErrorLogs, "InstallErrorLog.txt");
             return;
         } else
             this.CalculationMessage.AddMessage(`Pip Packages Installed Successfully`);
 
+        pythonJob.UpdateOutputFile(this.CalculationMessage);
+
         await pythonJob.RunJob();
+        //await pythonJob.UninstallPackages(this.CalculationMessage);
+
+        if (!pythonJob.JobSuccess) {
+            this.CalculationMessage.AddMessage(`Python Calculation Failed :warning:`);
+            return;
+        } else
+            this.CalculationMessage.AddMessage(`Python Calculation Completed Successfully (${pythonJob.JobElapsedTime()}) :white_check_mark:`);
+
+        await pythonJob.SendPythonLogs(this.CalculationMessage);
+
+        this.QueueNextActivity(client, dataManager);
+
     };
 
     /**
