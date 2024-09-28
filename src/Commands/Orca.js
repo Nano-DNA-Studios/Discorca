@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 const dna_discord_framework_1 = require("dna-discord-framework");
 const discord_js_1 = require("discord.js");
 const OrcaBotDataManager_1 = __importDefault(require("../OrcaBotDataManager"));
-const OrcaJob_1 = __importDefault(require("../OrcaJob"));
+const OrcaJob_1 = __importDefault(require("../OrcaJob/OrcaJob"));
 /**
  * Command that Runs an Orca Calculation on the Device the Bot is hosted by
  */
@@ -102,22 +102,24 @@ class Orca extends dna_discord_framework_1.Command {
             let orcaJob = new OrcaJob_1.default(inputfile.name, (_a = this.DiscordCommandUser) === null || _a === void 0 ? void 0 : _a.username);
             this.CalculationMessage = new dna_discord_framework_1.BotMessage(yield client.channels.fetch(dataManager.CALCULATION_CHANNEL_ID));
             try {
+                yield orcaJob.RemoveDirectories();
                 yield orcaJob.CreateDirectories();
                 yield orcaJob.DownloadFiles(files);
                 this.AddToMessage(`Files Received`);
                 this.CalculationMessage.AddMessage(`Running Orca Calculation on ${inputfile.name}`);
+                dataManager.AddJobArchive(orcaJob);
                 dataManager.AddJob(orcaJob);
                 if (client.user)
                     client.user.setActivity(`Orca Calculation ${orcaJob.JobName}`, { type: discord_js_1.ActivityType.Playing });
                 this.AddToMessage(`Server will start the Orca Calculation :hourglass_flowing_sand:`);
                 orcaJob.UpdateOutputFile(this.CalculationMessage);
                 yield orcaJob.RunJob();
-                if (orcaJob.JobSuccess)
-                    this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation (${orcaJob.GetJobTime()}) :white_check_mark:`);
-                else
-                    this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation with Errors (${orcaJob.GetJobTime()}) :warning:`);
-                yield orcaJob.SendAllFiles(this.CalculationMessage);
+                yield orcaJob.SendAllFiles(this.CalculationMessage, dataManager);
                 yield orcaJob.PingUser(this.CalculationMessage, this.DiscordCommandUser);
+                if (orcaJob.JobSuccess)
+                    this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation (${orcaJob.JobElapsedTime()}) :white_check_mark:`);
+                else
+                    this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation with Errors (${orcaJob.JobElapsedTime()}) :warning:`);
                 yield dataManager.RemoveJob(orcaJob);
                 this.QueueNextActivity(client, dataManager);
             }

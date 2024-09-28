@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 const dna_discord_framework_1 = require("dna-discord-framework");
 const OrcaBotDataManager_1 = __importDefault(require("../OrcaBotDataManager"));
+const OrcaJobManager_1 = __importDefault(require("../OrcaJob/OrcaJobManager"));
 /**
  * Command that
  */
@@ -33,36 +34,17 @@ class Sync extends dna_discord_framework_1.Command {
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
             this.DiscordUser = interaction.user.username;
+            const JobManager = new OrcaJobManager_1.default();
             if (!dataManager.IsDiscorcaSetup()) {
                 this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
                 return;
             }
+            const syncInfo = dataManager.GetSCPInfo(this.DiscordUser);
             this.AddToMessage("Use the following Command to Sync Archive to Local Device.");
-            this.AddToMessage("```" + this.GetSyncCommand() + "```");
+            this.AddToMessage(JobManager.GetArchiveSyncCommand(syncInfo, syncInfo.DownloadLocation));
         });
         /* <inheritdoc> */
         this.IsEphemeralResponse = true;
-    }
-    /**
-     * Gets the Full Sync Command Needed to paste in the Terminal to Sync the Archive
-     * @returns The Full Sync Command to paste in Terminal
-     */
-    GetSyncCommand() {
-        const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
-        let command = "";
-        try {
-            const user = dataManager.DISCORD_USER_TO_SERVER_USER[this.DiscordUser];
-            const downloadLocation = dataManager.DISCORD_USER_TO_DOWNLOAD_LOCATION[this.DiscordUser];
-            const hostName = dataManager.HOSTNAME;
-            if (dataManager.PORT == 0)
-                command = `scp -r ${user}@${hostName}:${dataManager.GetHostDeviceArchivePath()} "${downloadLocation}"`;
-            else
-                command = `scp -r -P ${dataManager.PORT} ${user}@${hostName}:${dataManager.GetHostDeviceArchivePath()} "${downloadLocation}"`;
-        }
-        catch (e) {
-            command = `scp -r serverUser@hostName:${dataManager.GetHostDeviceArchivePath()} /Path/on/local/device`;
-        }
-        return command;
     }
 }
 module.exports = Sync;

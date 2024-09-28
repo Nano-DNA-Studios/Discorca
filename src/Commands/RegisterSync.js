@@ -40,8 +40,7 @@ class RegisterSync extends dna_discord_framework_1.Command {
                 this.AddToMessage("The Add User Command requires all the Options to be set.");
                 return;
             }
-            dataManager.AddServerUser(interaction.user.username, user);
-            dataManager.AddDownloadLocation(interaction.user.username, downloadLocation);
+            dataManager.AddSCPUser(interaction.user.username, user, downloadLocation);
             this.AddToMessage(`New User has been registered for Syncing.`);
             this.AddToMessage(`User : ${interaction.user.username} --> Server User : ${user}`);
             this.AddToMessage(`Download Location : ${downloadLocation}`);

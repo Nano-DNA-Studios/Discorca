@@ -33,7 +33,6 @@ class Archive extends Command {
         this.AddToMessage("Here are the Job Archives Stored on the Device: \n");
 
         await fs.readdirSync(dataManager.JOB_ARCHIVE_FOLDER).forEach(job => {
-            dataManager.JOB_ARCHIVE_MAP[job] = `${dataManager.HOST_DEVICE_MOUNT_LOCATION}/${job}/${job}Full.tar.gz`
             this.AddToMessage(job);
         });
 

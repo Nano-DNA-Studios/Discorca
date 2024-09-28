@@ -1,6 +1,5 @@
-import { BotDataManager } from "dna-discord-framework";
-import OrcaJob from "./OrcaJob";
-import OrcaJobDescription from "./OrcaJobDescription";
+import { BotDataManager, SyncInfo, Job} from "dna-discord-framework";
+import OrcaJob from "./OrcaJob/OrcaJob";
 import { ActivityType, Client } from "discord.js";
 import fs from "fs";
 
@@ -17,7 +16,7 @@ class OrcaBotDataManager extends BotDataManager {
     /**
      * The Port to the Server is Port Forwarded on
      */
-    public PORT: Number = 0;
+    public PORT: number = 0;
 
     /**
      * The File Path on the Host Device that is storing the Mounted Data
@@ -32,17 +31,19 @@ class OrcaBotDataManager extends BotDataManager {
     /**
      * The Maximum File size for a Zip File to be sent through Discord (in MB)
      */
-    public ZIP_FILE_MAX_SIZE_MB: Number = 5;
+    public ZIP_FILE_MAX_SIZE_MB: number = 5;
 
     /**
      * The Maximum File size for a regular File to be sent through Discord (in MB) 
      */
-    public FILE_MAX_SIZE_MB: Number = 5;
+    public FILE_MAX_SIZE_MB: number = 5;
 
     /**
      * A Mapping between the Discord User who sent the Command and the Server User
      */
-    public DISCORD_USER_TO_SERVER_USER: Record<string, string> = {};
+   // public DISCORD_USER_TO_SERVER_USER: Record<string, string> = {};
+
+    public DISCORD_USER_SCP_INFO: Record<string, SyncInfo> = {};
 
     /**
      * A Mapping between the Discord User who sent the Command and the Download Location on their Personal Device
@@ -50,9 +51,9 @@ class OrcaBotDataManager extends BotDataManager {
     public DISCORD_USER_TO_DOWNLOAD_LOCATION: Record<string, string> = {};
 
     /**
-     * Stores the Job Name and a mapping to the Full Job Archive
+     * Stores the Job Name and a mapping to the Job Instance
      */
-    public JOB_ARCHIVE_MAP: Record<string, string> = {};
+    public JOB_ARCHIVE_MAP : Record<string, Job> = {};
 
     /**
      * The Path to the Folder for Orca Jobs that are running
@@ -77,7 +78,7 @@ class OrcaBotDataManager extends BotDataManager {
     /**
      * A Dictionary of Running Jobs on the Server
      */
-    public RUNNING_JOBS: Record<string, OrcaJobDescription> = {};
+    public RUNNING_JOBS: Record<string, Job> = {};
 
     /**
      * The Channel ID for the Text Channel Calculation Results are sent to
@@ -126,7 +127,10 @@ class OrcaBotDataManager extends BotDataManager {
         if (fs.existsSync(this.JOB_ARCHIVE_FOLDER))
             fs.rmSync(this.JOB_ARCHIVE_FOLDER, { recursive: true });
 
+        this.JOB_ARCHIVE_MAP = {};
+
         this.CreateJobDirectories();
+        this.SaveData();
     }
 
     /**
@@ -172,15 +176,24 @@ class OrcaBotDataManager extends BotDataManager {
         this.HOSTNAME = hostName;
     }
 
+
+    public AddSCPUser (discordUser: string, serverUser: string, downloadLocation: string) {
+        let syncInfo: SyncInfo = new SyncInfo(this.HOSTNAME, this.PORT, serverUser, "", downloadLocation);
+        this.DISCORD_USER_SCP_INFO[discordUser] = syncInfo;
+        this.SaveData();
+    }
+
     /**
      * Adds a Mapping of the Discord User to the Server User
      * @param discordUser The Discord User who called the Command 
      * @param serverUser The Server User of the Discord User
      */
+    /*
     public AddServerUser(discordUser: string, serverUser: string) {
         this.DISCORD_USER_TO_SERVER_USER[discordUser] = serverUser;
         this.SaveData();
     }
+        */
 
     /**
      * Adds a Mapping of the Discord User to a Personalized Download Location 
@@ -196,7 +209,7 @@ class OrcaBotDataManager extends BotDataManager {
      * Sets the Port Number of the Server
      * @param port The Port Number
      */
-    public SetPort(port: Number) {
+    public SetPort(port: number) {
         this.PORT = port;
     }
 
@@ -204,17 +217,18 @@ class OrcaBotDataManager extends BotDataManager {
      * Sets the Maximum Size Zip Files can be before returning a SCP Copy Command
      * @param maxsize The new Max Size of Zip Files
      */
-    public SetMaxZipSize(maxsize: Number) {
+    public SetMaxZipSize(maxsize: number) {
         this.ZIP_FILE_MAX_SIZE_MB = maxsize;
+        this.FILE_MAX_SIZE_MB = maxsize;
     }
 
     /**
      * Adds a Job and it's Full Archive File Name
      * @param jobName The Name of the Job to Archive
-     * @param jobArchiveFile The File of the Job Archive
+     * @param job The Job to Archive
      */
-    public AddJobArchive(jobName: string, jobArchiveFilePath: string) {
-        this.JOB_ARCHIVE_MAP[jobName] = jobArchiveFilePath;
+    public AddJobArchive(job : Job) {
+        this.JOB_ARCHIVE_MAP[job.JobName] = job;
         this.SaveData();
     }
 
@@ -222,8 +236,8 @@ class OrcaBotDataManager extends BotDataManager {
      * Adds a Job Instance to the Running Jobs
      * @param job The Job to Add to the Running Jobs
      */
-    public AddJob(job: OrcaJob) {
-        this.RUNNING_JOBS[job.JobName] = new OrcaJobDescription(job);
+    public AddJob(job: Job) {
+        this.RUNNING_JOBS[job.JobName] = job;
         this.SaveData();
     }
 
@@ -252,6 +266,17 @@ class OrcaBotDataManager extends BotDataManager {
         if (client.user)
             client.user.setActivity(" ", { type: ActivityType.Custom, state: "Listening for New Orca Calculation" });
     }
+
+    public GetSCPInfo(discordUser: string) : SyncInfo {
+        if (Object.keys(this.DISCORD_USER_SCP_INFO).includes(discordUser))
+            return this.DISCORD_USER_SCP_INFO[discordUser];
+        else
+            return new SyncInfo("", 0, "", "", "");
+    }
+
+
+
+
 }
 
 export default OrcaBotDataManager;

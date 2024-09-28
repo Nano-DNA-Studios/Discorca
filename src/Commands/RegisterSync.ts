@@ -34,8 +34,7 @@ class RegisterSync extends Command {
             return;
         }
 
-        dataManager.AddServerUser(interaction.user.username, user);
-        dataManager.AddDownloadLocation(interaction.user.username, downloadLocation);
+        dataManager.AddSCPUser(interaction.user.username, user, downloadLocation);
 
         this.AddToMessage(`New User has been registered for Syncing.`);
         this.AddToMessage(`User : ${interaction.user.username} --> Server User : ${user}`);
