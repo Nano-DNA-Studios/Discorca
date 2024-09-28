@@ -25,8 +25,6 @@ class OrcaJob extends dna_discord_framework_1.Job {
     constructor(jobName, commandUser) {
         super(jobName.split(".")[0], commandUser);
         /* <inheritdoc> */
-        this.JobGlobalDirectory = "/DiscorcaJobs";
-        /* <inheritdoc> */
         this.JobManager = new OrcaJobManager_1.default();
         this.InputFileName = `${this.JobName}.inp`;
         this.OutputFileName = `${this.JobName}.out`;

@@ -106,12 +106,12 @@ class Orca extends dna_discord_framework_1.Command {
                 yield orcaJob.CreateDirectories();
                 yield orcaJob.DownloadFiles(files);
                 this.AddToMessage(`Files Received`);
-                this.CalculationMessage.AddMessage(`Running Orca Calculation on ${inputfile.name}`);
+                this.CalculationMessage.AddMessage(`Running Orca Calculation on ${inputfile.name} :orca:`);
                 dataManager.AddJobArchive(orcaJob);
                 dataManager.AddJob(orcaJob);
                 if (client.user)
                     client.user.setActivity(`Orca Calculation ${orcaJob.JobName}`, { type: discord_js_1.ActivityType.Playing });
-                this.AddToMessage(`Server will start the Orca Calculation :hourglass_flowing_sand:`);
+                this.AddToMessage(`Discorca will start the Orca Calculation :hourglass_flowing_sand: :orca:`);
                 orcaJob.UpdateOutputFile(this.CalculationMessage);
                 yield orcaJob.RunJob();
                 yield orcaJob.SendAllFiles(this.CalculationMessage, dataManager);

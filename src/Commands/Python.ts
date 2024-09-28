@@ -1,20 +1,25 @@
-import { CacheType, ChatInputCommandInteraction, Client, User } from "discord.js";
-import { Command, BotDataManager, BotData, OptionTypesEnum } from "dna-discord-framework";
+import { ActivityType, CacheType, ChatInputCommandInteraction, Client, TextChannel, User } from "discord.js";
+import { Command, BotDataManager, BotData, OptionTypesEnum, BotMessage, BotCommunication, DefaultBotCommunication } from "dna-discord-framework";
 import OrcaBotDataManager from "../OrcaBotDataManager";
-
+import PythonJob from "../PythonJob/PythonJob";
 
 class Python extends Command {
     /* <inheritdoc> */
-    public CommandName = "status";
+    public CommandName = "python";
 
     /* <inheritdoc> */
-    public CommandDescription = "Displays Discorca's Status and Resource Usage";
+    public CommandDescription = "Runs a Python Calculation on the Server";
 
     /* <inheritdoc> */
     public IsCommandBlocking: boolean = false;
 
     /* <inheritdoc> */
     public IsEphemeralResponse = true;
+
+    /**
+         * The Message that will be sent to the Calculation Channel
+         */
+    CalculationMessage: BotCommunication = new DefaultBotCommunication();
 
     /**
      * User instance that called the Command
@@ -38,11 +43,68 @@ class Python extends Command {
             return;
         }
 
-        
+        this.AddToMessage(`Starting Python Job: ${pythonpackage.name} :snake:`);
 
-        
+        let pythonJob = new PythonJob(pythonpackage.name, this.DiscordCommandUser.username);
+        this.CalculationMessage = new BotMessage(await client.channels.fetch(dataManager.CALCULATION_CHANNEL_ID) as TextChannel);
 
+        await pythonJob.RemoveDirectories();
+        await pythonJob.CreateDirectories();
+        await pythonJob.DownloadFiles([pythonpackage]);
+
+        this.AddToMessage(`Files Received`);
+
+        if (!pythonJob.PythonPackageExists()) {
+            this.AddToMessage(`File provided is not a valid Python Package. Please provide a valid Python Package to Run`);
+            pythonJob.RemoveDirectories();
+            return;
+        }
+
+        await pythonJob.ExtractPackage();
+
+        if (!pythonJob.PythonDefaultFilesExist()) {
+            this.AddToMessage(`Package provided is not a Valid Python Package. Please provide a valid Python Package to Run. It must container a Install.txt file and a Start.py file`);
+            pythonJob.RemoveDirectories();
+            return;
+        }
+
+        dataManager.AddJobArchive(pythonJob);
+        dataManager.AddJob(pythonJob);
+
+        if (client.user)
+            client.user.setActivity(`Python Calculation ${pythonJob.JobName}`, { type: ActivityType.Playing });
+
+        this.AddToMessage(`Discorca will start the Python Calculation :hourglass_flowing_sand:`);
+
+        this.CalculationMessage.AddMessage(`Running Python Calculation on ${pythonpackage.name} :snake:`);
+
+        await pythonJob.InstallPackages(this.CalculationMessage);
+
+        if (!pythonJob.JobSuccess) {
+            this.AddToMessage(`Python Package Install Failed. Check the Logs for more Information`);
+            pythonJob.RemoveDirectories();
+            return;
+        } else
+            this.CalculationMessage.AddMessage(`Pip Packages Installed Successfully`);
+
+        await pythonJob.RunJob();
     };
+
+    /**
+     * Updates the Status of the Bot to the Next Job in the Queue
+     * @param client Discord Bot Client Instance
+     * @param dataManager The OrcaBotDataManager Instance
+     */
+    private QueueNextActivity(client: Client<boolean>, dataManager: OrcaBotDataManager): void {
+        if (client.user) {
+            if (Object.keys(dataManager.RUNNING_JOBS).length == 0)
+                client.user.setActivity(" ", { type: ActivityType.Custom, state: "Listening for New Orca Calculation" });
+            else {
+                let job = Object.values(dataManager.RUNNING_JOBS)[0];
+                client.user.setActivity(`Orca Calculation ${job.JobName}`, { type: ActivityType.Playing, });
+            }
+        }
+    }
 
     Options = [
         {
