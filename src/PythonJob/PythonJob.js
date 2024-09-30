@@ -20,14 +20,24 @@ class PythonJob extends dna_discord_framework_1.Job {
     constructor(jobName, commandUser) {
         super(jobName.split(".")[0], commandUser);
         this.JobManager = new PythonJobManager_1.default();
-        this.PythonPackage = "PythonPackage.tar.gz";
         this.InstallFile = "Install.txt";
         this.StartFile = "Start.py";
+        this.PipPackages = [];
         this.PythonLogs = "";
         this.PythonPackage = `${this.JobName}.tar.gz`;
-        this.PythonLogs = `${this.JobName}Logs`;
+        this.PythonLogs = `${this.JobName}Logs.txt`;
         this.PythonJobRunner = new dna_discord_framework_1.BashScriptRunner();
         this.PythonInstaller = new dna_discord_framework_1.BashScriptRunner();
+    }
+    /**
+   * Creates the SCP Copy Command for the User to Copy and use in their Terminal
+   * @param file The Name of the File to Copy
+   * @returns The SCP Copy Command to Download the File
+   */
+    GetArchiveCopyCommand() {
+        const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
+        const syncInfo = dataManager.GetSCPInfo(this.JobAuthor);
+        return dna_discord_framework_1.SSHManager.GetSCPCommand(syncInfo, `${this.ArchiveDirectory}/${this.ArchiveFile}`, syncInfo.DownloadLocation);
     }
     JobResourceUsage() {
         let record = { "Cores": 1 };
@@ -63,42 +73,33 @@ class PythonJob extends dna_discord_framework_1.Job {
             });
         });
     }
-    InstallPackages(message) {
+    InstallPackages() {
         return __awaiter(this, void 0, void 0, function* () {
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
             let file = fs_1.default.readFileSync(`${this.JobDirectory}/${this.InstallFile}`, 'utf8');
-            let packages = file.split("\n").filter((line) => line.length > 0);
-            let errors = false;
-            console.log(packages);
-            // Use for...of to handle async properly
-            for (const pipPackage of packages) {
-                console.log(`Installing Package : ${pipPackage}`);
+            this.PipPackages = file.split("\n").filter((line) => line.length > 0);
+            for (const pipPackage of this.PipPackages) {
                 yield this.PythonInstaller.RunLocally(`pip install ${pipPackage}`, true, this.JobDirectory).catch(e => {
                     e.name += `: Install Package (${pipPackage})`;
                     dataManager.AddErrorLog(e);
                     this.JobSuccess = false;
-                    errors = true;
-                    message.AddMessage(`Failed to Install Package : ${pipPackage}`);
+                    return false;
                 });
             }
-            return errors;
+            return true;
         });
     }
-    UninstallPackages(message) {
+    UninstallPackages() {
         return __awaiter(this, void 0, void 0, function* () {
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
-            let file = fs_1.default.readFileSync(`${this.JobDirectory}/${this.InstallFile}`, 'utf8');
-            let packages = file.split("\n").filter((line) => line.length > 0);
-            packages.forEach((pipPackage) => __awaiter(this, void 0, void 0, function* () {
-                let runner = new dna_discord_framework_1.BashScriptRunner();
-                yield runner.RunLocally(`pip uninstall ${pipPackage}`, true, this.JobDirectory).catch(e => {
+            for (const pipPackage of this.PipPackages) {
+                yield this.PythonInstaller.RunLocally(`pip uninstall -y ${pipPackage}`, true, this.JobDirectory).catch(e => {
                     e.name += `: Uninstall Package (${pipPackage})`;
                     dataManager.AddErrorLog(e);
                     this.JobSuccess = false;
-                    message.AddMessage(`Failed to Uninstall Package : ${pipPackage}`);
-                    return;
+                    return false;
                 });
-            }));
+            }
         });
     }
     RunJob() {
@@ -108,8 +109,7 @@ class PythonJob extends dna_discord_framework_1.Job {
             //tar -zcvf name.tar.gz -C /home/mrdna/tests ./*
             //tar -xzf file.tar.gz (Extracts the tar file)
             //let runner = new BashScriptRunner();
-            console.log(`Running Python Job : ${this.JobName}`);
-            yield this.PythonJobRunner.RunLocally(`python3 ${this.StartFile}`, true, this.JobDirectory).catch(e => {
+            yield this.PythonJobRunner.RunLocally(`python3 ${this.StartFile} > ${this.JobDirectory}/${this.PythonLogs}`, true, this.JobDirectory).catch(e => {
                 console.log(e);
                 e.name += `: Run Job (${this.JobName})`;
                 dataManager.AddErrorLog(e);
@@ -121,29 +121,13 @@ class PythonJob extends dna_discord_framework_1.Job {
         });
     }
     SendPythonLogs(message) {
-        message.AddTextFile(this.PythonJobRunner.StandardOutputLogs, this.PythonLogs);
-    }
-    /**
-     * Starts a loop that Sends the latest version of the Output file and uploads it to Discord.
-     * @param message The Bot Communication Message the file will be uploaded to
-     */
-    UpdateOutputFile(message) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let count = 0;
-            while (!this.JobFinished) {
-                yield new Promise(resolve => {
-                    setTimeout(() => {
-                        count += 1;
-                        resolve(undefined); // Call the resolve function to resolve the promise
-                    }, 100);
-                });
-                if (count > 100) {
-                    count = 0;
-                    this.SendPythonLogs(message);
-                }
-            }
-            this.SendPythonLogs(message);
-        });
+        message.AddFile(this.PythonLogs);
+        const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
+        const syncInfo = dataManager.GetSCPInfo(this.JobAuthor);
+        //return SSHManager.GetSCPCommand(syncInfo, `${this.ArchiveDirectory}/${this.ArchiveFile}`, syncInfo.DownloadLocation);
+        this.SendFile(message, `${this.JobDirectory}/${this.PythonLogs}`, `Python Logs are too large, it can be downloaded using the command: ${dna_discord_framework_1.SSHManager.GetSCPCommand(syncInfo, `${this.JobDirectory}/${this.PythonLogs}`, syncInfo.DownloadLocation)}`);
+        this.SendArchive(message, `Archive file is too large, it can be downloaded using the command ${dna_discord_framework_1.SSHManager.GetSCPCommand(syncInfo, `${this.ArchiveDirectory}/${this.ArchiveFile}`, syncInfo.DownloadLocation)}`);
+        //message.AddTextFile(this.PythonJobRunner.StandardOutputLogs, this.PythonLogs);
     }
 }
 exports.default = PythonJob;

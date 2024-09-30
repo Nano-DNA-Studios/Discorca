@@ -137,7 +137,7 @@ class Orca extends Command {
             
             await dataManager.RemoveJob(orcaJob);
 
-            this.QueueNextActivity(client, dataManager);
+            dataManager.QueueNextActivity(client);
         } catch (e) {
             try {
                 if (orcaJob) {
@@ -148,7 +148,7 @@ class Orca extends Command {
                 if (e instanceof Error)
                     dataManager.AddErrorLog(e);
 
-                this.QueueNextActivity(client, dataManager);
+                dataManager.QueueNextActivity(client);
             } catch (j) {
                 if (j instanceof Error)
                     dataManager.AddErrorLog(j);

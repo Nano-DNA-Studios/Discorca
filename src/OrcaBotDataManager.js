@@ -4,8 +4,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const dna_discord_framework_1 = require("dna-discord-framework");
+const OrcaJob_1 = __importDefault(require("./OrcaJob/OrcaJob"));
 const discord_js_1 = require("discord.js");
 const fs_1 = __importDefault(require("fs"));
+const PythonJob_1 = __importDefault(require("./PythonJob/PythonJob"));
 /**
  * Class Handling Data Management
  */
@@ -231,6 +233,23 @@ class OrcaBotDataManager extends dna_discord_framework_1.BotDataManager {
             return this.DISCORD_USER_SCP_INFO[discordUser];
         else
             return new dna_discord_framework_1.SyncInfo("", 0, "", "", "");
+    }
+    /**
+     * Updates the Status of the Bot to the Next Job in the Queue
+     * @param client Discord Bot Client Instance
+     */
+    QueueNextActivity(client) {
+        if (client.user) {
+            if (Object.keys(this.RUNNING_JOBS).length == 0)
+                client.user.setActivity(" ", { type: discord_js_1.ActivityType.Custom, state: "Listening for New Orca Calculation" });
+            else {
+                let job = Object.values(this.RUNNING_JOBS)[0];
+                if (job instanceof OrcaJob_1.default)
+                    client.user.setActivity(`Orca Calculation ${job.JobName}`, { type: discord_js_1.ActivityType.Playing, });
+                else if (job instanceof PythonJob_1.default)
+                    client.user.setActivity(`Python Calculation ${job.JobName}`, { type: discord_js_1.ActivityType.Playing, });
+            }
+        }
     }
 }
 exports.default = OrcaBotDataManager;

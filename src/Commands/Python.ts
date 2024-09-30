@@ -46,11 +46,14 @@ class Python extends Command {
         this.AddToMessage(`Starting Python Job: ${pythonpackage.name} :snake:`);
 
         let pythonJob = new PythonJob(pythonpackage.name, this.DiscordCommandUser.username);
-        this.CalculationMessage = new BotMessage(await client.channels.fetch(dataManager.CALCULATION_CHANNEL_ID) as TextChannel);
+        let channel = await client.channels.fetch(dataManager.CALCULATION_CHANNEL_ID) as TextChannel;
+        this.CalculationMessage = new BotMessage(channel);
 
-        await pythonJob.RemoveDirectories();
-        await pythonJob.CreateDirectories();
-        await pythonJob.DownloadFiles([pythonpackage]);
+        await pythonJob.Setup([pythonpackage])
+
+        //await pythonJob.RemoveDirectories();
+        //await pythonJob.CreateDirectories();
+        //await pythonJob.DownloadFiles([pythonpackage]);
 
         this.AddToMessage(`Files Received`);
 
@@ -64,7 +67,6 @@ class Python extends Command {
 
         if (!pythonJob.PythonDefaultFilesExist()) {
             this.AddToMessage(`Package provided is not a Valid Python Package. Please provide a valid Python Package to Run. It must container a Install.txt file and a Start.py file`);
-            //pythonJob.RemoveDirectories();
             return;
         }
 
@@ -78,17 +80,18 @@ class Python extends Command {
 
         this.AddToMessage(`Discorca will start the Python Calculation :hourglass_flowing_sand:`);
 
-        if (await pythonJob.InstallPackages(this.CalculationMessage)) {
-            this.CalculationMessage.AddMessage(`Python Package Install Failed : \n ${pythonJob.PythonInstaller.StandardErrorLogs}`);
+        if (!(await pythonJob.InstallPackages())) {
+            this.CalculationMessage.AddMessage(`Python Package Install Failed :warning:`);
             this.CalculationMessage.AddTextFile(pythonJob.PythonInstaller.StandardErrorLogs, "InstallErrorLog.txt");
+            this.CalculationMessage.AddMessage(`Aborting Python Calculation :no_entry:`);
             return;
-        } else
-            this.CalculationMessage.AddMessage(`Pip Packages Installed Successfully`);
+        }
 
-        pythonJob.UpdateOutputFile(this.CalculationMessage);
+        this.CalculationMessage.AddMessage(`Pip Packages Installed Successfully`);
+
+        this.CalculationMessage.AddMessage(`Running Start.py :hourglass_flowing_sand:`);
 
         await pythonJob.RunJob();
-        //await pythonJob.UninstallPackages(this.CalculationMessage);
 
         if (!pythonJob.JobSuccess) {
             this.CalculationMessage.AddMessage(`Python Calculation Failed :warning:`);
@@ -96,27 +99,13 @@ class Python extends Command {
         } else
             this.CalculationMessage.AddMessage(`Python Calculation Completed Successfully (${pythonJob.JobElapsedTime()}) :white_check_mark:`);
 
+        await pythonJob.ArchiveJob(dataManager);
         await pythonJob.SendPythonLogs(this.CalculationMessage);
+        await pythonJob.UninstallPackages();
 
-        this.QueueNextActivity(client, dataManager);
-
+        dataManager.QueueNextActivity(client);
     };
 
-    /**
-     * Updates the Status of the Bot to the Next Job in the Queue
-     * @param client Discord Bot Client Instance
-     * @param dataManager The OrcaBotDataManager Instance
-     */
-    private QueueNextActivity(client: Client<boolean>, dataManager: OrcaBotDataManager): void {
-        if (client.user) {
-            if (Object.keys(dataManager.RUNNING_JOBS).length == 0)
-                client.user.setActivity(" ", { type: ActivityType.Custom, state: "Listening for New Orca Calculation" });
-            else {
-                let job = Object.values(dataManager.RUNNING_JOBS)[0];
-                client.user.setActivity(`Orca Calculation ${job.JobName}`, { type: ActivityType.Playing, });
-            }
-        }
-    }
 
     Options = [
         {

@@ -121,7 +121,7 @@ class Orca extends dna_discord_framework_1.Command {
                 else
                     this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation with Errors (${orcaJob.JobElapsedTime()}) :warning:`);
                 yield dataManager.RemoveJob(orcaJob);
-                this.QueueNextActivity(client, dataManager);
+                dataManager.QueueNextActivity(client);
             }
             catch (e) {
                 try {
@@ -132,7 +132,7 @@ class Orca extends dna_discord_framework_1.Command {
                     }
                     if (e instanceof Error)
                         dataManager.AddErrorLog(e);
-                    this.QueueNextActivity(client, dataManager);
+                    dataManager.QueueNextActivity(client);
                 }
                 catch (j) {
                     if (j instanceof Error)
