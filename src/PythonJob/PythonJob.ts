@@ -31,18 +31,16 @@ class PythonJob extends Job {
         this.PythonInstaller = new BashScriptRunner();
     }
 
-     /**
-    * Creates the SCP Copy Command for the User to Copy and use in their Terminal
-    * @param file The Name of the File to Copy
-    * @returns The SCP Copy Command to Download the File
-    */
-     GetArchiveCopyCommand(): string {
+    /**
+   * Creates the SCP Copy Command for the User to Copy and use in their Terminal
+   * @param file The Name of the File to Copy
+   * @returns The SCP Copy Command to Download the File
+   */
+    GetArchiveCopyCommand(): string {
         const dataManager = BotData.Instance(OrcaBotDataManager);
         const syncInfo: SyncInfo = dataManager.GetSCPInfo(this.JobAuthor);
         return SSHManager.GetSCPCommand(syncInfo, `${this.ArchiveDirectory}/${this.ArchiveFile}`, syncInfo.DownloadLocation);
     }
-
-
 
     public JobResourceUsage(): Record<string, number> {
         let record = { "Cores": 1 };
@@ -102,7 +100,7 @@ class PythonJob extends Job {
 
     public async UninstallPackages(): Promise<void> {
         const dataManager = BotData.Instance(OrcaBotDataManager);
-        
+
         for (const pipPackage of this.PipPackages) {
             await this.PythonInstaller.RunLocally(`pip uninstall -y ${pipPackage}`, true, this.JobDirectory).catch(e => {
                 e.name += `: Uninstall Package (${pipPackage})`;
@@ -136,48 +134,15 @@ class PythonJob extends Job {
     public SendPythonLogs(message: BotCommunication): void {
         message.AddFile(this.PythonLogs);
 
-
         const dataManager = BotData.Instance(OrcaBotDataManager);
         const syncInfo: SyncInfo = dataManager.GetSCPInfo(this.JobAuthor);
-
-
         //return SSHManager.GetSCPCommand(syncInfo, `${this.ArchiveDirectory}/${this.ArchiveFile}`, syncInfo.DownloadLocation);
-
-
         this.SendFile(message, `${this.JobDirectory}/${this.PythonLogs}`, `Python Logs are too large, it can be downloaded using the command: ${SSHManager.GetSCPCommand(syncInfo, `${this.JobDirectory}/${this.PythonLogs}`, syncInfo.DownloadLocation)}`);
         this.SendArchive(message, `Archive file is too large, it can be downloaded using the command ${SSHManager.GetSCPCommand(syncInfo, `${this.ArchiveDirectory}/${this.ArchiveFile}`, syncInfo.DownloadLocation)}`);
-        
-        
+
+
         //message.AddTextFile(this.PythonJobRunner.StandardOutputLogs, this.PythonLogs);
     }
-
-    /**
-     * Starts a loop that Sends the latest version of the Output file and uploads it to Discord. 
-     * @param message The Bot Communication Message the file will be uploaded to
-     */
-    /*
-    public async UpdateOutputFile(message: BotCommunication): Promise<void> {
-        let count = 0;
-        while (!this.JobFinished) {
-            await new Promise(resolve => {
-                setTimeout(() => {
-                    count += 1;
-                    resolve(undefined); // Call the resolve function to resolve the promise
-                }, 100);
-            });
-
-            if (count > 100) {
-                count = 0;
-                this.SendPythonLogs(message);
-            }
-        }
-
-        this.SendPythonLogs(message);
-    }
-        */
-
-
-
 }
 
 export default PythonJob;

@@ -103,6 +103,8 @@ class Python extends Command {
         await pythonJob.SendPythonLogs(this.CalculationMessage);
         await pythonJob.UninstallPackages();
 
+        dataManager.RemoveJob(pythonJob);
+
         dataManager.QueueNextActivity(client);
     };
 

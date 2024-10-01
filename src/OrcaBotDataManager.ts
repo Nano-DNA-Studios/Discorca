@@ -242,7 +242,7 @@ class OrcaBotDataManager extends BotDataManager {
      * Removes a Job Instance from the Running Jobs
      * @param job The Job to Remove from the Running Jobs
      */
-    public RemoveJob(job: OrcaJob) {
+    public RemoveJob(job: Job) {
         delete this.RUNNING_JOBS[job.JobName];
         this.SaveData();
     }
