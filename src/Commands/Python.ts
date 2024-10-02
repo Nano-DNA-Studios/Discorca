@@ -100,12 +100,22 @@ class Python extends Command {
 
         this.CalculationMessage.AddMessage(`Python Calculation Completed Successfully (${pythonJob.JobElapsedTime()}) :white_check_mark:`);
 
-        await pythonJob.ArchiveJob(dataManager);
-        await pythonJob.SendPythonLogs(this.CalculationMessage);
-        await pythonJob.UninstallPackages();
+        try{
+            await pythonJob.ArchiveJob(dataManager);
+            await pythonJob.SendPythonLogs(this.CalculationMessage);
+            await pythonJob.UninstallPackages();
+    
+            dataManager.RemoveJob(pythonJob);
+            dataManager.QueueNextActivity(client);
+        } catch (e) {
+            if (e instanceof Error)
+                dataManager.AddErrorLog(e);
 
-        dataManager.RemoveJob(pythonJob);
-        dataManager.QueueNextActivity(client);
+            console.log("Error");
+            console.log(e);
+        }
+
+        
     };
 
     Options = [
