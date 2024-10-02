@@ -108,9 +108,10 @@ class Orca extends Command {
         this.CalculationMessage = new BotMessage(await client.channels.fetch(dataManager.CALCULATION_CHANNEL_ID) as TextChannel);
 
         try {
-            await orcaJob.RemoveDirectories();
-            await orcaJob.CreateDirectories();
-            await orcaJob.DownloadFiles(files);
+            await orcaJob.Setup(files);
+            //await orcaJob.RemoveDirectories();
+            //await orcaJob.CreateDirectories();
+            //await orcaJob.DownloadFiles(files);
 
             this.AddToMessage(`Files Received`);
             this.CalculationMessage.AddMessage(`Running Orca Calculation on ${inputfile.name} :atom:`);

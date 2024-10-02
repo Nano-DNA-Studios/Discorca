@@ -88,7 +88,6 @@ class Python extends Command {
         }
 
         this.CalculationMessage.AddMessage(`Pip Packages Installed Successfully`);
-
         this.CalculationMessage.AddMessage(`Running Start.py :hourglass_flowing_sand:`);
 
         await pythonJob.RunJob();
@@ -104,7 +103,6 @@ class Python extends Command {
         await pythonJob.UninstallPackages();
 
         dataManager.RemoveJob(pythonJob);
-
         dataManager.QueueNextActivity(client);
     };
 
