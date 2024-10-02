@@ -1,8 +1,7 @@
-import { BashScriptRunner, BotData, Job, JobManager, SSHManager, SyncInfo } from "dna-discord-framework";
+import { BashScriptRunner, BotData, Job, JobManager, SSHManager, SyncInfo, BotCommunication } from "dna-discord-framework";
 import PythonJobManager from "./PythonJobManager";
 import OrcaBotDataManager from "../OrcaBotDataManager";
 import fs from "fs";
-import { BotCommunication } from "dna-discord-framework";
 
 class PythonJob extends Job {
 
