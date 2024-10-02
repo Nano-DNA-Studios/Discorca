@@ -103,7 +103,8 @@ class Python extends Command {
         try{
             await pythonJob.ArchiveJob(dataManager);
             await pythonJob.SendPythonLogs(this.CalculationMessage);
-            await pythonJob.UninstallPackages();
+            //await pythonJob.UninstallPackages();
+            await pythonJob.PingUser(this.CalculationMessage, this.DiscordCommandUser);
     
             dataManager.RemoveJob(pythonJob);
             dataManager.QueueNextActivity(client);
@@ -114,8 +115,6 @@ class Python extends Command {
             console.log("Error");
             console.log(e);
         }
-
-        
     };
 
     Options = [

@@ -81,6 +81,7 @@ class Orca extends Command {
 
     /* <inheritdoc> */
     RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
+        const dataManager = BotData.Instance(OrcaBotDataManager);
         const inputfile = interaction.options.getAttachment("inputfile");
         const xyzfile1 = interaction.options.getAttachment("xyzfile1");
         const xyzfile2 = interaction.options.getAttachment("xyzfile2");
@@ -89,17 +90,12 @@ class Orca extends Command {
         const xyzfile5 = interaction.options.getAttachment("xyzfile5");
 
         this.DiscordCommandUser = interaction.user;
-        const dataManager = BotData.Instance(OrcaBotDataManager);
 
-        if (!dataManager.IsDiscorcaSetup()) {
-            this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
-            return;
-        }
+        if (!dataManager.IsDiscorcaSetup())
+            return this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
 
-        if (!inputfile) {
-            this.AddToMessage("Input file was not provided");
-            return;
-        }
+        if (!inputfile)
+            return this.AddToMessage("Input file was not provided");
 
         this.AddToMessage(`Preparing Orca Calculation on ${inputfile.name}`);
 
@@ -125,16 +121,15 @@ class Orca extends Command {
 
             await orcaJob.RunJob();
 
+            if (!orcaJob.JobSuccess)
+                this.CalculationMessage.AddMessage(`Server has encountered Errors while running the Orca Calculation (${orcaJob.JobElapsedTime()}) :warning:`);
+
+            this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation (${orcaJob.JobElapsedTime()}) :white_check_mark:`);
+
             await orcaJob.SendAllFiles(this.CalculationMessage, dataManager);
             await orcaJob.PingUser(this.CalculationMessage, this.DiscordCommandUser);
 
-            if (orcaJob.JobSuccess)
-                this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation (${orcaJob.JobElapsedTime()}) :white_check_mark:`);
-            else
-                this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation with Errors (${orcaJob.JobElapsedTime()}) :warning:`);
-            
-            await dataManager.RemoveJob(orcaJob);
-
+            dataManager.RemoveJob(orcaJob);
             dataManager.QueueNextActivity(client);
         } catch (e) {
             try {
