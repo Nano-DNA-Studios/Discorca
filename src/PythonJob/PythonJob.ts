@@ -154,14 +154,14 @@ class PythonJob extends Job {
         this.JobFinished = true;
     }
 
-    public SendPythonLogs(message: BotCommunication): void {
+    public async SendPythonLogs(message: BotCommunication): Promise<void> {
         message.AddFile(this.PythonLogs);
 
         const dataManager = BotData.Instance(OrcaBotDataManager);
         const syncInfo: SyncInfo = dataManager.GetSCPInfo(this.JobAuthor);
         //return SSHManager.GetSCPCommand(syncInfo, `${this.ArchiveDirectory}/${this.ArchiveFile}`, syncInfo.DownloadLocation);
-        this.SendFile(message, `${this.JobDirectory}/${this.PythonLogs}`, `Python Logs are too large, it can be downloaded using the command: ${SSHManager.GetSCPCommand(syncInfo, `${this.JobDirectory}/${this.PythonLogs}`, syncInfo.DownloadLocation)}`);
-        this.SendArchive(message, `Archive file is too large, it can be downloaded using the command ${SSHManager.GetSCPCommand(syncInfo, `${this.ArchiveDirectory}/${this.ArchiveFile}`, syncInfo.DownloadLocation)}`);
+        await this.SendFile(message, `${this.JobDirectory}/${this.PythonLogs}`, `Python Logs are too large, it can be downloaded using the command: ${SSHManager.GetSCPCommand(syncInfo, `${this.JobDirectory}/${this.PythonLogs}`, syncInfo.DownloadLocation)}`);
+        await this.SendArchive(message, `Archive file is too large, it can be downloaded using the command ${SSHManager.GetSCPCommand(syncInfo, `${this.ArchiveDirectory}/${this.ArchiveFile}`, syncInfo.DownloadLocation)}`);
 
         //message.AddTextFile(this.PythonJobRunner.StandardOutputLogs, this.PythonLogs);
     }
