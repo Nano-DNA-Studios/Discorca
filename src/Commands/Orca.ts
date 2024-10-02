@@ -109,9 +109,6 @@ class Orca extends Command {
 
         try {
             await orcaJob.Setup(files);
-            //await orcaJob.RemoveDirectories();
-            //await orcaJob.CreateDirectories();
-            //await orcaJob.DownloadFiles(files);
 
             this.AddToMessage(`Files Received`);
             this.CalculationMessage.AddMessage(`Running Orca Calculation on ${inputfile.name} :atom:`);

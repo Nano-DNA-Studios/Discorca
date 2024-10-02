@@ -14,9 +14,9 @@ class PythonJob extends Job {
 
     public StartFile = "Start.py";
 
-    public PythonJobRunner: BashScriptRunner;
+    //public PythonJobRunner: BashScriptRunner;
 
-    public PythonInstaller: BashScriptRunner;
+    //public PythonInstaller: BashScriptRunner;
 
     public PipPackages: string[] = [];
 
@@ -27,8 +27,8 @@ class PythonJob extends Job {
 
         this.PythonPackage = `${this.JobName}.tar.gz`;
         this.PythonLogs = `${this.JobName}Logs.txt`;
-        this.PythonJobRunner = new BashScriptRunner();
-        this.PythonInstaller = new BashScriptRunner();
+        //this.PythonJobRunner = new BashScriptRunner();
+        //this.PythonInstaller = new BashScriptRunner();
     }
 
     /**
@@ -62,6 +62,26 @@ class PythonJob extends Job {
             return false;
     }
 
+    public async SetupPythonEnvironment(message: BotCommunication): Promise<boolean> {
+
+        await this.ExtractPackage();
+
+        if (!this.PythonDefaultFilesExist()) {
+            message.AddMessage(`Package provided is not a Valid Python Package. Please provide a valid Python Package to Run. It must container a Install.txt file and a Start.py file`);
+            return false;
+        }
+
+        if (!(await this.InstallPackages())) {
+            message.AddMessage(`Python Package Install Failed :warning:`);
+            message.AddMessage(`Aborting Python Calculation :no_entry:`);
+            return false;
+        }
+
+        message.AddMessage(`Python Environment Setup Complete`);
+
+        return true;
+    }
+
     public async ExtractPackage(): Promise<void> {
         const dataManager = BotData.Instance(OrcaBotDataManager);
 
@@ -83,11 +103,12 @@ class PythonJob extends Job {
 
     public async InstallPackages(): Promise<boolean> {
         const dataManager = BotData.Instance(OrcaBotDataManager);
+        let runner = new BashScriptRunner();
         let file = fs.readFileSync(`${this.JobDirectory}/${this.InstallFile}`, 'utf8');
         this.PipPackages = file.split("\n").filter((line) => line.length > 0);
 
         for (const pipPackage of this.PipPackages) {
-            await this.PythonInstaller.RunLocally(`pip install ${pipPackage}`, true, this.JobDirectory).catch(e => {
+            await runner.RunLocally(`pip install ${pipPackage}`, true, this.JobDirectory).catch(e => {
                 e.name += `: Install Package (${pipPackage})`;
                 dataManager.AddErrorLog(e);
                 this.JobSuccess = false;
@@ -100,9 +121,10 @@ class PythonJob extends Job {
 
     public async UninstallPackages(): Promise<void> {
         const dataManager = BotData.Instance(OrcaBotDataManager);
+        let runner = new BashScriptRunner();
 
         for (const pipPackage of this.PipPackages) {
-            await this.PythonInstaller.RunLocally(`pip uninstall -y ${pipPackage}`, true, this.JobDirectory).catch(e => {
+            await runner.RunLocally(`pip uninstall -y ${pipPackage}`, true, this.JobDirectory).catch(e => {
                 e.name += `: Uninstall Package (${pipPackage})`;
                 dataManager.AddErrorLog(e);
                 this.JobSuccess = false;
@@ -113,13 +135,14 @@ class PythonJob extends Job {
 
     public async RunJob(): Promise<void> {
         const dataManager = BotData.Instance(OrcaBotDataManager);
+        let runner = new BashScriptRunner();
 
         //This is how we generate packagess
         //tar -zcvf name.tar.gz -C /home/mrdna/tests ./*
         //tar -xzf file.tar.gz (Extracts the tar file)
         //let runner = new BashScriptRunner();
 
-        await this.PythonJobRunner.RunLocally(`python3 ${this.StartFile} > ${this.JobDirectory}/${this.PythonLogs}`, true, this.JobDirectory).catch(e => {
+        await runner.RunLocally(`python3 ${this.StartFile} > ${this.JobDirectory}/${this.PythonLogs}`, true, this.JobDirectory).catch(e => {
             console.log(e);
             e.name += `: Run Job (${this.JobName})`;
             dataManager.AddErrorLog(e);
@@ -139,7 +162,6 @@ class PythonJob extends Job {
         //return SSHManager.GetSCPCommand(syncInfo, `${this.ArchiveDirectory}/${this.ArchiveFile}`, syncInfo.DownloadLocation);
         this.SendFile(message, `${this.JobDirectory}/${this.PythonLogs}`, `Python Logs are too large, it can be downloaded using the command: ${SSHManager.GetSCPCommand(syncInfo, `${this.JobDirectory}/${this.PythonLogs}`, syncInfo.DownloadLocation)}`);
         this.SendArchive(message, `Archive file is too large, it can be downloaded using the command ${SSHManager.GetSCPCommand(syncInfo, `${this.ArchiveDirectory}/${this.ArchiveFile}`, syncInfo.DownloadLocation)}`);
-
 
         //message.AddTextFile(this.PythonJobRunner.StandardOutputLogs, this.PythonLogs);
     }

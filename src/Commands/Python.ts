@@ -30,30 +30,22 @@ class Python extends Command {
     public RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
         const dataManager = BotData.Instance(OrcaBotDataManager);
         const pythonpackage = interaction.options.getAttachment("pythonpackage");
+        const channel = await client.channels.fetch(dataManager.CALCULATION_CHANNEL_ID) as TextChannel;
 
+        this.CalculationMessage = new BotMessage(channel);
         this.DiscordCommandUser = interaction.user;
 
-        if (!dataManager.IsDiscorcaSetup()) {
-            this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
-            return;
-        }
+        if (!dataManager.IsDiscorcaSetup())
+            return this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
 
-        if (!pythonpackage) {
-            this.AddToMessage("No Python Package was Provided. Please Provide a Python Package to Run");
-            return;
-        }
-
-        this.AddToMessage(`Starting Python Job: ${pythonpackage.name} :snake:`);
+        if (!pythonpackage)
+            return this.AddToMessage("No Python Package was Provided. Please Provide a Python Package to Run");
 
         let pythonJob = new PythonJob(pythonpackage.name, this.DiscordCommandUser.username);
-        let channel = await client.channels.fetch(dataManager.CALCULATION_CHANNEL_ID) as TextChannel;
-        this.CalculationMessage = new BotMessage(channel);
+
+        this.AddToMessage(`Starting Python Job Setup: ${pythonpackage.name} :snake:`);
 
         await pythonJob.Setup([pythonpackage])
-
-        //await pythonJob.RemoveDirectories();
-        //await pythonJob.CreateDirectories();
-        //await pythonJob.DownloadFiles([pythonpackage]);
 
         this.AddToMessage(`Files Received`);
 
@@ -63,6 +55,14 @@ class Python extends Command {
             return;
         }
 
+        this.AddToMessage(`Discorca will start the Python Calculation :hourglass_flowing_sand:`);
+
+        this.CalculationMessage.AddMessage(`Running Python Calculation ${pythonJob.JobName} :snake:`);
+
+        if (!(await pythonJob.SetupPythonEnvironment(this.CalculationMessage)))
+            return;
+
+        /*
         await pythonJob.ExtractPackage();
 
         if (!pythonJob.PythonDefaultFilesExist()) {
@@ -75,28 +75,30 @@ class Python extends Command {
         dataManager.AddJobArchive(pythonJob);
         dataManager.AddJob(pythonJob);
 
-        if (client.user)
-            client.user.setActivity(`Python Calculation ${pythonJob.JobName}`, { type: ActivityType.Playing });
-
-        this.AddToMessage(`Discorca will start the Python Calculation :hourglass_flowing_sand:`);
-
         if (!(await pythonJob.InstallPackages())) {
             this.CalculationMessage.AddMessage(`Python Package Install Failed :warning:`);
             this.CalculationMessage.AddTextFile(pythonJob.PythonInstaller.StandardErrorLogs, "InstallErrorLog.txt");
             this.CalculationMessage.AddMessage(`Aborting Python Calculation :no_entry:`);
             return;
         }
+            */
 
-        this.CalculationMessage.AddMessage(`Pip Packages Installed Successfully`);
+        //this.CalculationMessage.AddMessage(`Pip Packages Installed Successfully`);
+
+        if (client.user)
+            client.user.setActivity(`Python Calculation ${pythonJob.JobName}`, { type: ActivityType.Playing });
+
+        dataManager.AddJobArchive(pythonJob);
+        dataManager.AddJob(pythonJob);
+
         this.CalculationMessage.AddMessage(`Running Start.py :hourglass_flowing_sand:`);
 
         await pythonJob.RunJob();
 
-        if (!pythonJob.JobSuccess) {
-            this.CalculationMessage.AddMessage(`Python Calculation Failed :warning:`);
-            return;
-        } else
-            this.CalculationMessage.AddMessage(`Python Calculation Completed Successfully (${pythonJob.JobElapsedTime()}) :white_check_mark:`);
+        if (!pythonJob.JobSuccess)
+            return this.CalculationMessage.AddMessage(`Python Calculation Failed :warning:`);
+
+        this.CalculationMessage.AddMessage(`Python Calculation Completed Successfully (${pythonJob.JobElapsedTime()}) :white_check_mark:`);
 
         await pythonJob.ArchiveJob(dataManager);
         await pythonJob.SendPythonLogs(this.CalculationMessage);
@@ -105,7 +107,6 @@ class Python extends Command {
         dataManager.RemoveJob(pythonJob);
         dataManager.QueueNextActivity(client);
     };
-
 
     Options = [
         {
