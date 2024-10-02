@@ -97,7 +97,7 @@ class Orca extends Command {
         if (!inputfile)
             return this.AddToMessage("Input file was not provided");
 
-        this.AddToMessage(`Preparing Orca Calculation on ${inputfile.name}`);
+        this.AddToMessage(`Preparing Orca Calculation on ${inputfile.name} :atom:`);
 
         let files = [inputfile, xyzfile1, xyzfile2, xyzfile3, xyzfile4, xyzfile5];
         let orcaJob = new OrcaJob(inputfile.name, this.DiscordCommandUser?.username);
@@ -115,7 +115,7 @@ class Orca extends Command {
             if (client.user)
                 client.user.setActivity(`Orca Calculation ${orcaJob.JobName}`, { type: ActivityType.Playing });
 
-            this.AddToMessage(`Discorca will start the Orca Calculation :hourglass_flowing_sand: :atom:`);
+            this.AddToMessage(`Discorca will start the Orca Calculation :hourglass_flowing_sand:`);
 
             orcaJob.UpdateOutputFile(this.CalculationMessage);
 
