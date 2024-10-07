@@ -81,47 +81,41 @@ class Orca extends dna_discord_framework_1.Command {
         /* <inheritdoc> */
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
             var _a;
+            const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
             const inputfile = interaction.options.getAttachment("inputfile");
             const xyzfile1 = interaction.options.getAttachment("xyzfile1");
             const xyzfile2 = interaction.options.getAttachment("xyzfile2");
             const xyzfile3 = interaction.options.getAttachment("xyzfile3");
             const xyzfile4 = interaction.options.getAttachment("xyzfile4");
             const xyzfile5 = interaction.options.getAttachment("xyzfile5");
+            this.CalculationMessage = new dna_discord_framework_1.BotMessage(yield client.channels.fetch(dataManager.CALCULATION_CHANNEL_ID));
             this.DiscordCommandUser = interaction.user;
-            const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
-            if (!dataManager.IsDiscorcaSetup()) {
-                this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
-                return;
-            }
-            if (!inputfile) {
-                this.AddToMessage("Input file was not provided");
-                return;
-            }
-            this.AddToMessage(`Preparing Orca Calculation on ${inputfile.name}`);
+            if (!dataManager.IsDiscorcaSetup())
+                return this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
+            if (!inputfile)
+                return this.AddToMessage("Input file was not provided");
+            this.AddToMessage(`Preparing Orca Calculation on ${inputfile.name} :atom:`);
             let files = [inputfile, xyzfile1, xyzfile2, xyzfile3, xyzfile4, xyzfile5];
             let orcaJob = new OrcaJob_1.default(inputfile.name, (_a = this.DiscordCommandUser) === null || _a === void 0 ? void 0 : _a.username);
-            this.CalculationMessage = new dna_discord_framework_1.BotMessage(yield client.channels.fetch(dataManager.CALCULATION_CHANNEL_ID));
             try {
-                yield orcaJob.RemoveDirectories();
-                yield orcaJob.CreateDirectories();
-                yield orcaJob.DownloadFiles(files);
+                yield orcaJob.Setup(files);
                 this.AddToMessage(`Files Received`);
-                this.CalculationMessage.AddMessage(`Running Orca Calculation on ${inputfile.name}`);
+                this.CalculationMessage.AddMessage(`Running Orca Calculation on ${inputfile.name} - ${orcaJob.JobAuthor} :atom:`);
                 dataManager.AddJobArchive(orcaJob);
                 dataManager.AddJob(orcaJob);
                 if (client.user)
                     client.user.setActivity(`Orca Calculation ${orcaJob.JobName}`, { type: discord_js_1.ActivityType.Playing });
-                this.AddToMessage(`Server will start the Orca Calculation :hourglass_flowing_sand:`);
+                this.AddToMessage(`Discorca will start the Orca Calculation :hourglass_flowing_sand:`);
                 orcaJob.UpdateOutputFile(this.CalculationMessage);
                 yield orcaJob.RunJob();
+                if (!orcaJob.JobSuccess)
+                    this.CalculationMessage.AddMessage(`Server has encountered Errors while running the Orca Calculation (${orcaJob.JobElapsedTime()}) :warning:`);
+                else
+                    this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation (${orcaJob.JobElapsedTime()}) :white_check_mark:`);
                 yield orcaJob.SendAllFiles(this.CalculationMessage, dataManager);
                 yield orcaJob.PingUser(this.CalculationMessage, this.DiscordCommandUser);
-                if (orcaJob.JobSuccess)
-                    this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation (${orcaJob.JobElapsedTime()}) :white_check_mark:`);
-                else
-                    this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation with Errors (${orcaJob.JobElapsedTime()}) :warning:`);
-                yield dataManager.RemoveJob(orcaJob);
-                this.QueueNextActivity(client, dataManager);
+                dataManager.RemoveJob(orcaJob);
+                dataManager.QueueNextActivity(client);
             }
             catch (e) {
                 try {
@@ -132,7 +126,7 @@ class Orca extends dna_discord_framework_1.Command {
                     }
                     if (e instanceof Error)
                         dataManager.AddErrorLog(e);
-                    this.QueueNextActivity(client, dataManager);
+                    dataManager.QueueNextActivity(client);
                 }
                 catch (j) {
                     if (j instanceof Error)
@@ -140,21 +134,6 @@ class Orca extends dna_discord_framework_1.Command {
                 }
             }
         });
-    }
-    /**
-     * Updates the Status of the Bot to the Next Job in the Queue
-     * @param client Discord Bot Client Instance
-     * @param dataManager The OrcaBotDataManager Instance
-     */
-    QueueNextActivity(client, dataManager) {
-        if (client.user) {
-            if (Object.keys(dataManager.RUNNING_JOBS).length == 0)
-                client.user.setActivity(" ", { type: discord_js_1.ActivityType.Custom, state: "Listening for New Orca Calculation" });
-            else {
-                let job = Object.values(dataManager.RUNNING_JOBS)[0];
-                client.user.setActivity(`Orca Calculation ${job.JobName}`, { type: discord_js_1.ActivityType.Playing, });
-            }
-        }
     }
 }
 module.exports = Orca;

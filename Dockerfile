@@ -14,6 +14,8 @@ RUN cd /tmp \
 
 # Install npm
 RUN apt-get install npm -y
+RUN apt-get install python3 -y
+RUN apt-get update && apt-get install --fix-missing python3-pip -y
 
 # Make a Folder for the Bot and a Folder for the Orca Jobs to Run
 RUN mkdir /OrcaBot

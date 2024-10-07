@@ -1,11 +1,11 @@
-import { BotData, Job, JobManager} from "dna-discord-framework";
+import { BotData, Job, JobManager } from "dna-discord-framework";
 import OrcaBotDataManager from "../OrcaBotDataManager";
 
-class OrcaJobManager extends JobManager {
 
-    public JobGlobalDirectory: string = "/DiscorcaJobs";
+class PythonJobManager extends JobManager{
+    JobGlobalDirectory: string = "/DiscorcaJobs";
 
-    public JobCategory: string = "Orca";
+    public JobCategory: string = "Python";
 
     public HostArchiveDirectory: string;
 
@@ -19,4 +19,4 @@ class OrcaJobManager extends JobManager {
     }
 }
 
-export default OrcaJobManager;
+export default PythonJobManager;

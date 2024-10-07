@@ -55,7 +55,7 @@ class Status extends dna_discord_framework_1.Command {
         let jobs = dataManager.RUNNING_JOBS;
         this.AddToMessage(`\nCurrent Jobs Running are: `);
         for (let job in jobs)
-            this.AddToMessage(`${jobs[job].JobName} (${jobs[job].JobElapsedTime()})`);
+            this.AddToMessage(`${jobs[job].JobName} - ${jobs[job].JobManager.JobCategory} (${jobs[job].JobElapsedTime()})`);
     }
     /**
      * Responds to the Resource Command Message with the CPU Usage (Number of Cores being used by Jobs)

@@ -1,7 +1,8 @@
-import { BotDataManager, SyncInfo, Job} from "dna-discord-framework";
+import { BotDataManager, SyncInfo, Job } from "dna-discord-framework";
 import OrcaJob from "./OrcaJob/OrcaJob";
 import { ActivityType, Client } from "discord.js";
 import fs from "fs";
+import PythonJob from "./PythonJob/PythonJob";
 
 /**
  * Class Handling Data Management
@@ -41,8 +42,6 @@ class OrcaBotDataManager extends BotDataManager {
     /**
      * A Mapping between the Discord User who sent the Command and the Server User
      */
-   // public DISCORD_USER_TO_SERVER_USER: Record<string, string> = {};
-
     public DISCORD_USER_SCP_INFO: Record<string, SyncInfo> = {};
 
     /**
@@ -53,7 +52,7 @@ class OrcaBotDataManager extends BotDataManager {
     /**
      * Stores the Job Name and a mapping to the Job Instance
      */
-    public JOB_ARCHIVE_MAP : Record<string, Job> = {};
+    public JOB_ARCHIVE_MAP: Record<string, Job> = {};
 
     /**
      * The Path to the Folder for Orca Jobs that are running
@@ -83,7 +82,7 @@ class OrcaBotDataManager extends BotDataManager {
     /**
      * The Channel ID for the Text Channel Calculation Results are sent to
      */
-    public CALCULATION_CHANNEL_ID : string = "";
+    public CALCULATION_CHANNEL_ID: string = "";
 
     /**
      * Sets the Calculation Channel ID
@@ -96,7 +95,7 @@ class OrcaBotDataManager extends BotDataManager {
      * Returns a Boolean based on if there are Jobs Running
      * @returns True if there are Jobs Running
      */
-    public IsJobRunning () : boolean {
+    public IsJobRunning(): boolean {
         return Object.keys(this.RUNNING_JOBS).length > 0;
     }
 
@@ -104,15 +103,14 @@ class OrcaBotDataManager extends BotDataManager {
      * Retrieves the Archive Direcotry Path on the Host Device
      * @returns 
      */
-    public GetHostDeviceArchivePath () : string{
+    public GetHostDeviceArchivePath(): string {
         return this.HOST_DEVICE_MOUNT_LOCATION + "/Orca/Archive";
     }
 
     /**
      * Purges the Jobs Folder by deleting it and recreating it
      */
-    public PurgeJobs () : void
-    {
+    public PurgeJobs(): void {
         if (fs.existsSync(this.JOB_FOLDER))
             fs.rmSync(this.JOB_FOLDER, { recursive: true });
 
@@ -122,8 +120,7 @@ class OrcaBotDataManager extends BotDataManager {
     /**
      * Purges the Archive Folder by deleting it and recreating it
      */
-    public PurgeArchive () : void
-    {
+    public PurgeArchive(): void {
         if (fs.existsSync(this.JOB_ARCHIVE_FOLDER))
             fs.rmSync(this.JOB_ARCHIVE_FOLDER, { recursive: true });
 
@@ -136,8 +133,7 @@ class OrcaBotDataManager extends BotDataManager {
     /**
      * Creates the Job Directories if they don't Exist
      */
-    public CreateJobDirectories () : void
-    {
+    public CreateJobDirectories(): void {
         if (!fs.existsSync(this.JOB_FOLDER))
             fs.mkdirSync(this.JOB_FOLDER, { recursive: true });
 
@@ -155,8 +151,7 @@ class OrcaBotDataManager extends BotDataManager {
      * Checks if the Server has been Setup
      * @returns True if the Server has been Setup
      */
-    public IsDiscorcaSetup () : boolean
-    {
+    public IsDiscorcaSetup(): boolean {
         return this.HOSTNAME != "" && this.HOST_DEVICE_MOUNT_LOCATION != "" && this.CALCULATION_CHANNEL_ID != "";
     }
 
@@ -177,23 +172,17 @@ class OrcaBotDataManager extends BotDataManager {
     }
 
 
-    public AddSCPUser (discordUser: string, serverUser: string, downloadLocation: string) {
+    /**
+     * Adds a Mapping of the Discord User to the Server User and the Download Location
+     * @param discordUser The Discord User who called the Command
+     * @param serverUser The Server User of the Discord User
+     * @param downloadLocation The Download Location on the Discord Users Device
+     */
+    public AddSCPUser(discordUser: string, serverUser: string, downloadLocation: string) {
         let syncInfo: SyncInfo = new SyncInfo(this.HOSTNAME, this.PORT, serverUser, "", downloadLocation);
         this.DISCORD_USER_SCP_INFO[discordUser] = syncInfo;
         this.SaveData();
     }
-
-    /**
-     * Adds a Mapping of the Discord User to the Server User
-     * @param discordUser The Discord User who called the Command 
-     * @param serverUser The Server User of the Discord User
-     */
-    /*
-    public AddServerUser(discordUser: string, serverUser: string) {
-        this.DISCORD_USER_TO_SERVER_USER[discordUser] = serverUser;
-        this.SaveData();
-    }
-        */
 
     /**
      * Adds a Mapping of the Discord User to a Personalized Download Location 
@@ -227,7 +216,7 @@ class OrcaBotDataManager extends BotDataManager {
      * @param jobName The Name of the Job to Archive
      * @param job The Job to Archive
      */
-    public AddJobArchive(job : Job) {
+    public AddJobArchive(job: Job) {
         this.JOB_ARCHIVE_MAP[job.JobName] = job;
         this.SaveData();
     }
@@ -245,7 +234,7 @@ class OrcaBotDataManager extends BotDataManager {
      * Removes a Job Instance from the Running Jobs
      * @param job The Job to Remove from the Running Jobs
      */
-    public RemoveJob(job: OrcaJob) {
+    public RemoveJob(job: Job) {
         delete this.RUNNING_JOBS[job.JobName];
         this.SaveData();
     }
@@ -267,16 +256,31 @@ class OrcaBotDataManager extends BotDataManager {
             client.user.setActivity(" ", { type: ActivityType.Custom, state: "Listening for New Orca Calculation" });
     }
 
-    public GetSCPInfo(discordUser: string) : SyncInfo {
+    public GetSCPInfo(discordUser: string): SyncInfo {
         if (Object.keys(this.DISCORD_USER_SCP_INFO).includes(discordUser))
             return this.DISCORD_USER_SCP_INFO[discordUser];
         else
             return new SyncInfo("", 0, "", "", "");
     }
 
+    /**
+     * Updates the Status of the Bot to the Next Job in the Queue
+     * @param client Discord Bot Client Instance
+     */
+    public QueueNextActivity(client: Client<boolean>): void {
+        if (client.user) {
+            if (Object.keys(this.RUNNING_JOBS).length == 0)
+                client.user.setActivity(" ", { type: ActivityType.Custom, state: "Listening for New Orca Calculation" });
+            else {
+                let job = Object.values(this.RUNNING_JOBS)[0];
 
-
-
+                if (job instanceof OrcaJob)
+                    client.user.setActivity(`Orca Calculation ${job.JobName}`, { type: ActivityType.Playing, });
+                else if (job instanceof PythonJob)
+                    client.user.setActivity(`Python Calculation ${job.JobName}`, { type: ActivityType.Playing, });
+            }
+        }
+    }
 }
 
 export default OrcaBotDataManager;

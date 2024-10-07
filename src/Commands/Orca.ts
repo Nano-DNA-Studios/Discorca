@@ -2,7 +2,6 @@ import { OptionTypesEnum, BotDataManager, Command, DefaultCommandHandler, BotDat
 import { ActivityType, CacheType, ChatInputCommandInteraction, Client, TextChannel, User } from "discord.js";
 import OrcaBotDataManager from "../OrcaBotDataManager";
 import OrcaJob from "../OrcaJob/OrcaJob";
-import { resolve } from "path";
 
 /**
  * Command that Runs an Orca Calculation on the Device the Bot is hosted by
@@ -81,6 +80,7 @@ class Orca extends Command {
 
     /* <inheritdoc> */
     RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
+        const dataManager = BotData.Instance(OrcaBotDataManager);
         const inputfile = interaction.options.getAttachment("inputfile");
         const xyzfile1 = interaction.options.getAttachment("xyzfile1");
         const xyzfile2 = interaction.options.getAttachment("xyzfile2");
@@ -88,32 +88,25 @@ class Orca extends Command {
         const xyzfile4 = interaction.options.getAttachment("xyzfile4");
         const xyzfile5 = interaction.options.getAttachment("xyzfile5");
 
+        this.CalculationMessage = new BotMessage(await client.channels.fetch(dataManager.CALCULATION_CHANNEL_ID) as TextChannel);
         this.DiscordCommandUser = interaction.user;
-        const dataManager = BotData.Instance(OrcaBotDataManager);
 
-        if (!dataManager.IsDiscorcaSetup()) {
-            this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
-            return;
-        }
+        if (!dataManager.IsDiscorcaSetup())
+            return this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
 
-        if (!inputfile) {
-            this.AddToMessage("Input file was not provided");
-            return;
-        }
+        if (!inputfile)
+            return this.AddToMessage("Input file was not provided");
 
-        this.AddToMessage(`Preparing Orca Calculation on ${inputfile.name}`);
+        this.AddToMessage(`Preparing Orca Calculation on ${inputfile.name} :atom:`);
 
         let files = [inputfile, xyzfile1, xyzfile2, xyzfile3, xyzfile4, xyzfile5];
         let orcaJob = new OrcaJob(inputfile.name, this.DiscordCommandUser?.username);
-        this.CalculationMessage = new BotMessage(await client.channels.fetch(dataManager.CALCULATION_CHANNEL_ID) as TextChannel);
-
+        
         try {
-            await orcaJob.RemoveDirectories();
-            await orcaJob.CreateDirectories();
-            await orcaJob.DownloadFiles(files);
+            await orcaJob.Setup(files);
 
             this.AddToMessage(`Files Received`);
-            this.CalculationMessage.AddMessage(`Running Orca Calculation on ${inputfile.name}`);
+            this.CalculationMessage.AddMessage(`Running Orca Calculation on ${inputfile.name} - ${orcaJob.JobAuthor} :atom:`);
 
             dataManager.AddJobArchive(orcaJob);
             dataManager.AddJob(orcaJob);
@@ -121,23 +114,22 @@ class Orca extends Command {
             if (client.user)
                 client.user.setActivity(`Orca Calculation ${orcaJob.JobName}`, { type: ActivityType.Playing });
 
-            this.AddToMessage(`Server will start the Orca Calculation :hourglass_flowing_sand:`);
+            this.AddToMessage(`Discorca will start the Orca Calculation :hourglass_flowing_sand:`);
 
             orcaJob.UpdateOutputFile(this.CalculationMessage);
 
             await orcaJob.RunJob();
 
+            if (!orcaJob.JobSuccess)
+                this.CalculationMessage.AddMessage(`Server has encountered Errors while running the Orca Calculation (${orcaJob.JobElapsedTime()}) :warning:`);
+            else
+                this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation (${orcaJob.JobElapsedTime()}) :white_check_mark:`);
+
             await orcaJob.SendAllFiles(this.CalculationMessage, dataManager);
             await orcaJob.PingUser(this.CalculationMessage, this.DiscordCommandUser);
 
-            if (orcaJob.JobSuccess)
-                this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation (${orcaJob.JobElapsedTime()}) :white_check_mark:`);
-            else
-                this.CalculationMessage.AddMessage(`Server has completed the Orca Calculation with Errors (${orcaJob.JobElapsedTime()}) :warning:`);
-            
-            await dataManager.RemoveJob(orcaJob);
-
-            this.QueueNextActivity(client, dataManager);
+            dataManager.RemoveJob(orcaJob);
+            dataManager.QueueNextActivity(client);
         } catch (e) {
             try {
                 if (orcaJob) {
@@ -148,29 +140,13 @@ class Orca extends Command {
                 if (e instanceof Error)
                     dataManager.AddErrorLog(e);
 
-                this.QueueNextActivity(client, dataManager);
+                dataManager.QueueNextActivity(client);
             } catch (j) {
                 if (j instanceof Error)
                     dataManager.AddErrorLog(j);
             }
         }
     };
-
-    /**
-     * Updates the Status of the Bot to the Next Job in the Queue
-     * @param client Discord Bot Client Instance
-     * @param dataManager The OrcaBotDataManager Instance
-     */
-    private QueueNextActivity(client: Client<boolean>, dataManager: OrcaBotDataManager): void {
-        if (client.user) {
-            if (Object.keys(dataManager.RUNNING_JOBS).length == 0)
-                client.user.setActivity(" ", { type: ActivityType.Custom, state: "Listening for New Orca Calculation" });
-            else {
-                let job = Object.values(dataManager.RUNNING_JOBS)[0];
-                client.user.setActivity(`Orca Calculation ${job.JobName}`, { type: ActivityType.Playing, });
-            }
-        }
-    }
 }
 
 export = Orca;

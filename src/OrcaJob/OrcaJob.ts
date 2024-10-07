@@ -7,9 +7,6 @@ import OrcaJobManager from "./OrcaJobManager";
 class OrcaJob extends Job {
 
     /* <inheritdoc> */
-    JobGlobalDirectory: string = "/DiscorcaJobs";
-
-    /* <inheritdoc> */
     JobManager: OrcaJobManager = new OrcaJobManager();
 
     /**
