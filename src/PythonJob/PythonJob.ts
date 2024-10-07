@@ -103,19 +103,23 @@ class PythonJob extends Job {
         let runner = new BashScriptRunner();
         let file = fs.readFileSync(`${this.JobDirectory}/${this.InstallFile}`, 'utf8');
         this.PipPackages = file.split("\n").filter((line) => line.length > 0);
+        let installResults = true;
 
         for (const pipPackage of this.PipPackages) {
+            if (!installResults)
+                continue;
+
             console.log(`Installing Package: ${pipPackage}`);
             await runner.RunLocally(`pip install ${pipPackage}`, true, this.JobDirectory).catch(e => {
                 e.name += `: Install Package (${pipPackage})`;
                 dataManager.AddErrorLog(e);
                 this.JobSuccess = false;
                 console.log("\n\n\nFailed to install package " + pipPackage);
-                return false;
+                installResults = false;
             });
         }
 
-        return true;
+        return installResults;
     }
 
     public async UninstallPackages(): Promise<void> {
