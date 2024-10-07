@@ -45,36 +45,12 @@ class Python extends dna_discord_framework_1.Command {
             this.AddToMessage(`Starting Python Job Setup: ${pythonpackage.name} :snake:`);
             yield pythonJob.Setup([pythonpackage]);
             this.AddToMessage(`Files Received`);
-            if (!pythonJob.PythonPackageExists()) {
-                this.AddToMessage(`File provided is not a valid Python Package. Please provide a valid Python Package to Run`);
-                pythonJob.RemoveDirectories();
-                return;
-            }
+            if (!pythonJob.PythonPackageExists())
+                return this.AddToMessage(`File provided is not a valid Python Package. Please provide a valid Python Package to Run`);
             this.AddToMessage(`Discorca will start the Python Calculation :hourglass_flowing_sand:`);
-            this.CalculationMessage.AddMessage(`Running Python Calculation ${pythonJob.JobName} :snake:`);
+            this.CalculationMessage.AddMessage(`Running Python Calculation ${pythonJob.JobName} - ${pythonJob.JobAuthor} :snake:`);
             if (!(yield pythonJob.SetupPythonEnvironment(this.CalculationMessage)))
                 return;
-            /*
-            await pythonJob.ExtractPackage();
-    
-            if (!pythonJob.PythonDefaultFilesExist()) {
-                this.AddToMessage(`Package provided is not a Valid Python Package. Please provide a valid Python Package to Run. It must container a Install.txt file and a Start.py file`);
-                return;
-            }
-    
-            this.CalculationMessage.AddMessage(`Running Python Calculation on ${pythonpackage.name} :snake:`);
-    
-            dataManager.AddJobArchive(pythonJob);
-            dataManager.AddJob(pythonJob);
-    
-            if (!(await pythonJob.InstallPackages())) {
-                this.CalculationMessage.AddMessage(`Python Package Install Failed :warning:`);
-                this.CalculationMessage.AddTextFile(pythonJob.PythonInstaller.StandardErrorLogs, "InstallErrorLog.txt");
-                this.CalculationMessage.AddMessage(`Aborting Python Calculation :no_entry:`);
-                return;
-            }
-                */
-            //this.CalculationMessage.AddMessage(`Pip Packages Installed Successfully`);
             if (client.user)
                 client.user.setActivity(`Python Calculation ${pythonJob.JobName}`, { type: discord_js_1.ActivityType.Playing });
             dataManager.AddJobArchive(pythonJob);
@@ -82,22 +58,14 @@ class Python extends dna_discord_framework_1.Command {
             this.CalculationMessage.AddMessage(`Running Start.py :hourglass_flowing_sand:`);
             yield pythonJob.RunJob();
             if (!pythonJob.JobSuccess)
-                return this.CalculationMessage.AddMessage(`Python Calculation Failed :warning:`);
-            this.CalculationMessage.AddMessage(`Python Calculation Completed Successfully (${pythonJob.JobElapsedTime()}) :white_check_mark:`);
-            try {
-                yield pythonJob.ArchiveJob(dataManager);
-                yield pythonJob.SendPythonLogs(this.CalculationMessage);
-                //await pythonJob.UninstallPackages();
-                yield pythonJob.PingUser(this.CalculationMessage, this.DiscordCommandUser);
-                dataManager.RemoveJob(pythonJob);
-                dataManager.QueueNextActivity(client);
-            }
-            catch (e) {
-                if (e instanceof Error)
-                    dataManager.AddErrorLog(e);
-                console.log("Error");
-                console.log(e);
-            }
+                this.CalculationMessage.AddMessage(`Python Calculation Failed :warning:`);
+            else
+                this.CalculationMessage.AddMessage(`Python Calculation Completed Successfully (${pythonJob.JobElapsedTime()}) :white_check_mark:`);
+            yield pythonJob.ArchiveJob(dataManager);
+            yield pythonJob.SendPythonLogs(this.CalculationMessage);
+            yield pythonJob.PingUser(this.CalculationMessage, this.DiscordCommandUser);
+            dataManager.RemoveJob(pythonJob);
+            dataManager.QueueNextActivity(client);
         });
         this.Options = [
             {

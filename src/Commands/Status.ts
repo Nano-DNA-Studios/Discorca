@@ -53,7 +53,7 @@ class Status extends Command {
         this.AddToMessage(`\nCurrent Jobs Running are: `);
 
         for (let job in jobs) 
-            this.AddToMessage(`${jobs[job].JobName} (${jobs[job].JobElapsedTime()})`);
+            this.AddToMessage(`${jobs[job].JobName} - ${jobs[job].JobManager.JobCategory} (${jobs[job].JobElapsedTime()})`);
     }
 
     /**

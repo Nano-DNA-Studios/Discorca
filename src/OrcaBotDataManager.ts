@@ -42,8 +42,6 @@ class OrcaBotDataManager extends BotDataManager {
     /**
      * A Mapping between the Discord User who sent the Command and the Server User
      */
-    // public DISCORD_USER_TO_SERVER_USER: Record<string, string> = {};
-
     public DISCORD_USER_SCP_INFO: Record<string, SyncInfo> = {};
 
     /**
@@ -174,23 +172,17 @@ class OrcaBotDataManager extends BotDataManager {
     }
 
 
+    /**
+     * Adds a Mapping of the Discord User to the Server User and the Download Location
+     * @param discordUser The Discord User who called the Command
+     * @param serverUser The Server User of the Discord User
+     * @param downloadLocation The Download Location on the Discord Users Device
+     */
     public AddSCPUser(discordUser: string, serverUser: string, downloadLocation: string) {
         let syncInfo: SyncInfo = new SyncInfo(this.HOSTNAME, this.PORT, serverUser, "", downloadLocation);
         this.DISCORD_USER_SCP_INFO[discordUser] = syncInfo;
         this.SaveData();
     }
-
-    /**
-     * Adds a Mapping of the Discord User to the Server User
-     * @param discordUser The Discord User who called the Command 
-     * @param serverUser The Server User of the Discord User
-     */
-    /*
-    public AddServerUser(discordUser: string, serverUser: string) {
-        this.DISCORD_USER_TO_SERVER_USER[discordUser] = serverUser;
-        this.SaveData();
-    }
-        */
 
     /**
      * Adds a Mapping of the Discord User to a Personalized Download Location 
@@ -289,10 +281,6 @@ class OrcaBotDataManager extends BotDataManager {
             }
         }
     }
-
-
-
-
 }
 
 export default OrcaBotDataManager;

@@ -13,10 +13,6 @@ class PythonJob extends Job {
 
     public StartFile = "Start.py";
 
-    //public PythonJobRunner: BashScriptRunner;
-
-    //public PythonInstaller: BashScriptRunner;
-
     public PipPackages: string[] = [];
 
     public PythonLogs = "";
@@ -26,8 +22,6 @@ class PythonJob extends Job {
 
         this.PythonPackage = `${this.JobName}.tar.gz`;
         this.PythonLogs = `${this.JobName}Logs.txt`;
-        //this.PythonJobRunner = new BashScriptRunner();
-        //this.PythonInstaller = new BashScriptRunner();
     }
 
     /**
@@ -136,17 +130,14 @@ class PythonJob extends Job {
         const dataManager = BotData.Instance(OrcaBotDataManager);
         let runner = new BashScriptRunner();
 
-        //This is how we generate packagess
-        //tar -zcvf name.tar.gz -C /home/mrdna/tests ./*
-        //tar -xzf file.tar.gz (Extracts the tar file)
-        //let runner = new BashScriptRunner();
-
         await runner.RunLocally(`python3 ${this.StartFile} > ${this.JobDirectory}/${this.PythonLogs}`, true, this.JobDirectory).catch(e => {
             console.log(e);
             e.name += `: Run Job (${this.JobName})`;
             dataManager.AddErrorLog(e);
             this.JobSuccess = false;
             this.JobFinished = true;
+            const errorMessage = `\nError occurred: ${e.name}\nDetails: ${e.message}\n`;
+            fs.appendFileSync(`${this.JobDirectory}/${this.PythonLogs}`, errorMessage);
             return;
         });
 
@@ -156,14 +147,10 @@ class PythonJob extends Job {
     public async SendPythonLogs(message: BotCommunication): Promise<void> {
         const dataManager = BotData.Instance(OrcaBotDataManager);
         const syncInfo: SyncInfo = dataManager.GetSCPInfo(this.JobAuthor);
-        
-        //message.AddFile(this.PythonLogs);
 
-        //return SSHManager.GetSCPCommand(syncInfo, `${this.ArchiveDirectory}/${this.ArchiveFile}`, syncInfo.DownloadLocation);
-        await this.SendFile(message, `${this.JobDirectory}/${this.PythonLogs}`, `Python Logs are too large, it can be downloaded using the command: ${SSHManager.GetSCPCommand(syncInfo, `${this.JobDirectory}/${this.PythonLogs}`, syncInfo.DownloadLocation)}`);
-        await this.SendArchive(message, `Archive file is too large, it can be downloaded using the command ${SSHManager.GetSCPCommand(syncInfo, `${this.ArchiveDirectory}/${this.ArchiveFile}`, syncInfo.DownloadLocation)}`);
+        await this.SendFile(message, `${this.JobDirectory}/${this.PythonLogs}`, `Python Logs are too large, it can be downloaded using the command: ${SSHManager.GetSCPCommand(syncInfo, `${this.JobManager.HostJobDirectory}/${this.PythonLogs}`, syncInfo.DownloadLocation)}`);
+        await this.SendArchive(message, `Archive file is too large, it can be downloaded using the command ${this.JobManager.GetHostArchiveCopyCommand(syncInfo, this.JobName, syncInfo.DownloadLocation)}`); //SSHManager.GetSCPCommand(syncInfo, `${this.JobManager.GetHostArchiveCopyCommand()}/${this.ArchiveFile}`, syncInfo.DownloadLocation)
 
-        //message.AddTextFile(this.PythonJobRunner.StandardOutputLogs, this.PythonLogs);
     }
 }
 
