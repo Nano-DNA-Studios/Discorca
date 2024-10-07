@@ -101,10 +101,12 @@ class PythonJob extends Job {
         this.PipPackages = file.split("\n").filter((line) => line.length > 0);
 
         for (const pipPackage of this.PipPackages) {
+            console.log(`Installing Package: ${pipPackage}`);
             await runner.RunLocally(`pip install ${pipPackage}`, true, this.JobDirectory).catch(e => {
                 e.name += `: Install Package (${pipPackage})`;
                 dataManager.AddErrorLog(e);
                 this.JobSuccess = false;
+                console.log("\n\n\nFailed to install package " + pipPackage);
                 return false;
             });
         }
