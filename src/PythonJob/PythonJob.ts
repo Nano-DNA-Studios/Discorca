@@ -64,11 +64,7 @@ class PythonJob extends Job {
             return false;
         }
 
-        let installResults = await this.InstallPackages();
-
-        console.log(installResults);
-
-        if (!(installResults)) {
+        if (!(await this.InstallPackages())) {
             message.AddMessage(`Python Package Install Failed :warning:`);
             message.AddMessage(`Aborting Python Calculation :no_entry:`);
             return false;
@@ -107,15 +103,15 @@ class PythonJob extends Job {
 
         for (const pipPackage of this.PipPackages) {
             if (!installResults)
-                continue;
+                break;
 
-            console.log(`Installing Package: ${pipPackage}`);
             await runner.RunLocally(`pip install ${pipPackage}`, true, this.JobDirectory).catch(e => {
                 e.name += `: Install Package (${pipPackage})`;
                 dataManager.AddErrorLog(e);
                 this.JobSuccess = false;
-                console.log("\n\n\nFailed to install package " + pipPackage);
                 installResults = false;
+                const errorMessage = `\nError occurred: ${e.name}\nDetails: ${e.message}\n`;
+                fs.appendFileSync(`${this.JobDirectory}/${this.PythonLogs}`, errorMessage);
             });
         }
 
@@ -159,8 +155,7 @@ class PythonJob extends Job {
         const syncInfo: SyncInfo = dataManager.GetSCPInfo(this.JobAuthor);
 
         await this.SendFile(message, `${this.JobDirectory}/${this.PythonLogs}`, `Python Logs are too large, it can be downloaded using the command: ${SSHManager.GetSCPCommand(syncInfo, `${this.JobManager.HostJobDirectory}/${this.PythonLogs}`, syncInfo.DownloadLocation)}`);
-        await this.SendArchive(message, `Archive file is too large, it can be downloaded using the command ${this.JobManager.GetHostArchiveCopyCommand(syncInfo, this.JobName, syncInfo.DownloadLocation)}`); //SSHManager.GetSCPCommand(syncInfo, `${this.JobManager.GetHostArchiveCopyCommand()}/${this.ArchiveFile}`, syncInfo.DownloadLocation)
-
+        await this.SendArchive(message, `Archive file is too large, it can be downloaded using the command ${this.JobManager.GetHostArchiveCopyCommand(syncInfo, this.JobName, syncInfo.DownloadLocation)}`);
     }
 }
 
