@@ -93,15 +93,20 @@ class PythonJob extends dna_discord_framework_1.Job {
             let runner = new dna_discord_framework_1.BashScriptRunner();
             let file = fs_1.default.readFileSync(`${this.JobDirectory}/${this.InstallFile}`, 'utf8');
             this.PipPackages = file.split("\n").filter((line) => line.length > 0);
+            let installResults = true;
             for (const pipPackage of this.PipPackages) {
+                if (!installResults)
+                    break;
                 yield runner.RunLocally(`pip install ${pipPackage}`, true, this.JobDirectory).catch(e => {
                     e.name += `: Install Package (${pipPackage})`;
                     dataManager.AddErrorLog(e);
                     this.JobSuccess = false;
-                    return false;
+                    installResults = false;
+                    const errorMessage = `\nError occurred: ${e.name}\nDetails: ${e.message}\n`;
+                    fs_1.default.appendFileSync(`${this.JobDirectory}/${this.PythonLogs}`, errorMessage);
                 });
             }
-            return true;
+            return installResults;
         });
     }
     UninstallPackages() {
@@ -140,7 +145,7 @@ class PythonJob extends dna_discord_framework_1.Job {
             const dataManager = dna_discord_framework_1.BotData.Instance(OrcaBotDataManager_1.default);
             const syncInfo = dataManager.GetSCPInfo(this.JobAuthor);
             yield this.SendFile(message, `${this.JobDirectory}/${this.PythonLogs}`, `Python Logs are too large, it can be downloaded using the command: ${dna_discord_framework_1.SSHManager.GetSCPCommand(syncInfo, `${this.JobManager.HostJobDirectory}/${this.PythonLogs}`, syncInfo.DownloadLocation)}`);
-            yield this.SendArchive(message, `Archive file is too large, it can be downloaded using the command ${this.JobManager.GetHostArchiveCopyCommand(syncInfo, this.JobName, syncInfo.DownloadLocation)}`); //SSHManager.GetSCPCommand(syncInfo, `${this.JobManager.GetHostArchiveCopyCommand()}/${this.ArchiveFile}`, syncInfo.DownloadLocation)
+            yield this.SendArchive(message, `Archive file is too large, it can be downloaded using the command ${this.JobManager.GetHostArchiveCopyCommand(syncInfo, this.JobName, syncInfo.DownloadLocation)}`);
         });
     }
 }

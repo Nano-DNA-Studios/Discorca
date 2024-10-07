@@ -50,7 +50,7 @@ class Python extends dna_discord_framework_1.Command {
             this.AddToMessage(`Discorca will start the Python Calculation :hourglass_flowing_sand:`);
             this.CalculationMessage.AddMessage(`Running Python Calculation ${pythonJob.JobName} - ${pythonJob.JobAuthor} :snake:`);
             if (!(yield pythonJob.SetupPythonEnvironment(this.CalculationMessage)))
-                return;
+                return yield this.SendResults(pythonJob, dataManager, this.DiscordCommandUser);
             if (client.user)
                 client.user.setActivity(`Python Calculation ${pythonJob.JobName}`, { type: discord_js_1.ActivityType.Playing });
             dataManager.AddJobArchive(pythonJob);
@@ -61,9 +61,7 @@ class Python extends dna_discord_framework_1.Command {
                 this.CalculationMessage.AddMessage(`Python Calculation Failed :warning:`);
             else
                 this.CalculationMessage.AddMessage(`Python Calculation Completed Successfully (${pythonJob.JobElapsedTime()}) :white_check_mark:`);
-            yield pythonJob.ArchiveJob(dataManager);
-            yield pythonJob.SendPythonLogs(this.CalculationMessage);
-            yield pythonJob.PingUser(this.CalculationMessage, this.DiscordCommandUser);
+            yield this.SendResults(pythonJob, dataManager, this.DiscordCommandUser);
             dataManager.RemoveJob(pythonJob);
             dataManager.QueueNextActivity(client);
         });
@@ -75,6 +73,13 @@ class Python extends dna_discord_framework_1.Command {
                 required: true,
             }
         ];
+    }
+    SendResults(pythonJob, dataManager, user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield pythonJob.ArchiveJob(dataManager);
+            yield pythonJob.SendPythonLogs(this.CalculationMessage);
+            yield pythonJob.PingUser(this.CalculationMessage, user);
+        });
     }
 }
 module.exports = Python;
