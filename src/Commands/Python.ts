@@ -57,7 +57,7 @@ class Python extends Command {
         this.CalculationMessage.AddMessage(`Running Python Calculation ${pythonJob.JobName} - ${pythonJob.JobAuthor} :snake:`);
 
         if (!(await pythonJob.SetupPythonEnvironment(this.CalculationMessage)))
-            return;
+            return await this.SendResults(pythonJob, dataManager, this.DiscordCommandUser);
 
         if (client.user)
             client.user.setActivity(`Python Calculation ${pythonJob.JobName}`, { type: ActivityType.Playing });
@@ -74,13 +74,22 @@ class Python extends Command {
         else
             this.CalculationMessage.AddMessage(`Python Calculation Completed Successfully (${pythonJob.JobElapsedTime()}) :white_check_mark:`);
 
-        await pythonJob.ArchiveJob(dataManager);
-        await pythonJob.SendPythonLogs(this.CalculationMessage);
-        await pythonJob.PingUser(this.CalculationMessage, this.DiscordCommandUser);
+        await this.SendResults(pythonJob, dataManager, this.DiscordCommandUser);
+
+        //await pythonJob.ArchiveJob(dataManager);
+        //await pythonJob.SendPythonLogs(this.CalculationMessage);
+        //await pythonJob.PingUser(this.CalculationMessage, this.DiscordCommandUser);
 
         dataManager.RemoveJob(pythonJob);
         dataManager.QueueNextActivity(client);
     };
+
+    public async SendResults (pythonJob: PythonJob, dataManager: BotDataManager, user : User)
+    {
+        await pythonJob.ArchiveJob(dataManager);
+        await pythonJob.SendPythonLogs(this.CalculationMessage);
+        await pythonJob.PingUser(this.CalculationMessage, user);
+    }
 
     Options = [
         {
