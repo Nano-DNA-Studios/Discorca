@@ -76,10 +76,6 @@ class Python extends Command {
 
         await this.SendResults(pythonJob, dataManager, this.DiscordCommandUser);
 
-        //await pythonJob.ArchiveJob(dataManager);
-        //await pythonJob.SendPythonLogs(this.CalculationMessage);
-        //await pythonJob.PingUser(this.CalculationMessage, this.DiscordCommandUser);
-
         dataManager.RemoveJob(pythonJob);
         dataManager.QueueNextActivity(client);
     };
