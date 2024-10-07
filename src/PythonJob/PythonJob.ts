@@ -64,7 +64,11 @@ class PythonJob extends Job {
             return false;
         }
 
-        if (!(await this.InstallPackages())) {
+        let installResults = await this.InstallPackages();
+
+        console.log(installResults);
+
+        if (!(installResults)) {
             message.AddMessage(`Python Package Install Failed :warning:`);
             message.AddMessage(`Aborting Python Calculation :no_entry:`);
             return false;
