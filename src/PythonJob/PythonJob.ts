@@ -99,17 +99,23 @@ class PythonJob extends Job {
         let runner = new BashScriptRunner();
         let file = fs.readFileSync(`${this.JobDirectory}/${this.InstallFile}`, 'utf8');
         this.PipPackages = file.split("\n").filter((line) => line.length > 0);
+        let installResults = true;
 
         for (const pipPackage of this.PipPackages) {
+            if (!installResults)
+                break;
+
             await runner.RunLocally(`pip install ${pipPackage}`, true, this.JobDirectory).catch(e => {
                 e.name += `: Install Package (${pipPackage})`;
                 dataManager.AddErrorLog(e);
                 this.JobSuccess = false;
-                return false;
+                installResults = false;
+                const errorMessage = `\nError occurred: ${e.name}\nDetails: ${e.message}\n`;
+                fs.appendFileSync(`${this.JobDirectory}/${this.PythonLogs}`, errorMessage);
             });
         }
 
-        return true;
+        return installResults;
     }
 
     public async UninstallPackages(): Promise<void> {
@@ -149,8 +155,7 @@ class PythonJob extends Job {
         const syncInfo: SyncInfo = dataManager.GetSCPInfo(this.JobAuthor);
 
         await this.SendFile(message, `${this.JobDirectory}/${this.PythonLogs}`, `Python Logs are too large, it can be downloaded using the command: ${SSHManager.GetSCPCommand(syncInfo, `${this.JobManager.HostJobDirectory}/${this.PythonLogs}`, syncInfo.DownloadLocation)}`);
-        await this.SendArchive(message, `Archive file is too large, it can be downloaded using the command ${this.JobManager.GetHostArchiveCopyCommand(syncInfo, this.JobName, syncInfo.DownloadLocation)}`); //SSHManager.GetSCPCommand(syncInfo, `${this.JobManager.GetHostArchiveCopyCommand()}/${this.ArchiveFile}`, syncInfo.DownloadLocation)
-
+        await this.SendArchive(message, `Archive file is too large, it can be downloaded using the command ${this.JobManager.GetHostArchiveCopyCommand(syncInfo, this.JobName, syncInfo.DownloadLocation)}`);
     }
 }
 
