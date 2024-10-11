@@ -135,6 +135,14 @@ Runs an Orca Calculation on the Server
 
 ![image](https://github.com/user-attachments/assets/c7c97d2d-7234-461c-b9d2-0554c3f000d5)
 
+## Python
+
+Runs a Python Job on the Server and returns the results
+
+### Options *(Required)*
+
+**Python Package** : The Python Package containing essential files and the code to run
+
 ## Purge
 
 Allows the User to Purge the Jobs Directory or the Job Archive Directory
@@ -177,7 +185,7 @@ Calculation Channel : The Text/Chat Channel the Bot will send Calculation Result
 
 ## Status
 
-Displays Discorca’s Status and Resource Usage
+Displays Discorca’s Status, Resource Usage and Current running jobs
 
 ### Options
 
