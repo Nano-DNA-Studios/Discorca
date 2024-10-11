@@ -91,7 +91,7 @@ class Python extends Command {
         {
             type: OptionTypesEnum.Attachment,
             name: "pythonpackage",
-            description: "The Python Job Package to run",
+            description: "The Python Package containing essential files and the code to run",
             required: true,
         }
     ];

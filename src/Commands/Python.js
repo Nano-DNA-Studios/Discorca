@@ -69,7 +69,7 @@ class Python extends dna_discord_framework_1.Command {
             {
                 type: dna_discord_framework_1.OptionTypesEnum.Attachment,
                 name: "pythonpackage",
-                description: "The Python Job Package to run",
+                description: "The Python Package containing essential files and the code to run",
                 required: true,
             }
         ];
