@@ -24,8 +24,10 @@ class PythonJob extends dna_discord_framework_1.Job {
         this.StartFile = "Start.py";
         this.PipPackages = [];
         this.PythonLogs = "";
+        this.PythonDetailedLogs = "";
         this.PythonPackage = `${this.JobName}.tar.gz`;
         this.PythonLogs = `${this.JobName}Logs.txt`;
+        this.PythonDetailedLogs = `${this.JobName}DetailedLogs.txt`;
     }
     /**
    * Creates the SCP Copy Command for the User to Copy and use in their Terminal
@@ -99,12 +101,15 @@ class PythonJob extends dna_discord_framework_1.Job {
                     break;
                 yield runner.RunLocally(`pip install ${pipPackage}`, true, this.JobDirectory).catch(e => {
                     e.name += `: Install Package (${pipPackage})`;
+                    e.message += `\nDetails:\n${runner.StandardErrorLogs}\n`;
                     dataManager.AddErrorLog(e);
                     this.JobSuccess = false;
                     installResults = false;
-                    const errorMessage = `\nError occurred: ${e.name}\nDetails: ${e.message}\n`;
+                    const errorMessage = `\nError occurred: ${e.name}\nMessage: \n${e.message}\n`;
                     fs_1.default.appendFileSync(`${this.JobDirectory}/${this.PythonLogs}`, errorMessage);
                 });
+                fs_1.default.appendFileSync(`${this.JobDirectory}/${this.PythonDetailedLogs}`, `Pip Install ${pipPackage} Standard Logs: ${runner.StandardOutputLogs}\n`);
+                fs_1.default.appendFileSync(`${this.JobDirectory}/${this.PythonDetailedLogs}`, `Pip Install ${pipPackage} Standard Error Logs: ${runner.StandardErrorLogs}\n`);
             }
             return installResults;
         });
@@ -130,13 +135,16 @@ class PythonJob extends dna_discord_framework_1.Job {
             yield runner.RunLocally(`python3 ${this.StartFile} > ${this.JobDirectory}/${this.PythonLogs}`, true, this.JobDirectory).catch(e => {
                 console.log(e);
                 e.name += `: Run Job (${this.JobName})`;
+                e.message += `\nDetails:${runner.StandardErrorLogs}\n`;
                 dataManager.AddErrorLog(e);
                 this.JobSuccess = false;
                 this.JobFinished = true;
-                const errorMessage = `\nError occurred: ${e.name}\nDetails: ${e.message}\n`;
+                const errorMessage = `\nError occurred: ${e.name}\nMessage: ${e.message}\n`;
                 fs_1.default.appendFileSync(`${this.JobDirectory}/${this.PythonLogs}`, errorMessage);
                 return;
             });
+            fs_1.default.appendFileSync(`${this.JobDirectory}/${this.PythonDetailedLogs}`, `Python Standard Logs: ${runner.StandardOutputLogs}\n`);
+            fs_1.default.appendFileSync(`${this.JobDirectory}/${this.PythonDetailedLogs}`, `Python Standard Error Logs: ${runner.StandardErrorLogs}\n`);
             this.JobFinished = true;
         });
     }

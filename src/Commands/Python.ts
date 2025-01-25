@@ -54,7 +54,7 @@ class Python extends Command {
 
         this.AddToMessage(`Discorca will start the Python Calculation :hourglass_flowing_sand:`);
 
-        this.CalculationMessage.AddMessage(`Running Python Calculation ${pythonJob.JobName} - ${pythonJob.JobAuthor} :snake:`);
+        this.CalculationMessage.AddMessage(`Running Python Calculation ${pythonJob.JobName} - ${this.DiscordCommandUser} :snake:`);//pythonJob.JobAuthor
 
         if (!(await pythonJob.SetupPythonEnvironment(this.CalculationMessage)))
             return await this.SendResults(pythonJob, dataManager, this.DiscordCommandUser);
@@ -70,7 +70,10 @@ class Python extends Command {
         await pythonJob.RunJob();
 
         if (!pythonJob.JobSuccess)
+        {
             this.CalculationMessage.AddMessage(`Python Calculation Failed :warning:`);
+            this.AddFileToMessage(`${pythonJob.JobDirectory}/${pythonJob.PythonDetailedLogs}`);
+        }    
         else
             this.CalculationMessage.AddMessage(`Python Calculation Completed Successfully (${pythonJob.JobElapsedTime()}) :white_check_mark:`);
 

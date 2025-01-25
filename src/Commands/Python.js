@@ -48,7 +48,7 @@ class Python extends dna_discord_framework_1.Command {
             if (!pythonJob.PythonPackageExists())
                 return this.AddToMessage(`File provided is not a valid Python Package. Please provide a valid Python Package to Run`);
             this.AddToMessage(`Discorca will start the Python Calculation :hourglass_flowing_sand:`);
-            this.CalculationMessage.AddMessage(`Running Python Calculation ${pythonJob.JobName} - ${pythonJob.JobAuthor} :snake:`);
+            this.CalculationMessage.AddMessage(`Running Python Calculation ${pythonJob.JobName} - ${this.DiscordCommandUser} :snake:`); //pythonJob.JobAuthor
             if (!(yield pythonJob.SetupPythonEnvironment(this.CalculationMessage)))
                 return yield this.SendResults(pythonJob, dataManager, this.DiscordCommandUser);
             if (client.user)
@@ -57,8 +57,10 @@ class Python extends dna_discord_framework_1.Command {
             dataManager.AddJob(pythonJob);
             this.CalculationMessage.AddMessage(`Running Start.py :hourglass_flowing_sand:`);
             yield pythonJob.RunJob();
-            if (!pythonJob.JobSuccess)
+            if (!pythonJob.JobSuccess) {
                 this.CalculationMessage.AddMessage(`Python Calculation Failed :warning:`);
+                this.AddFileToMessage(`${pythonJob.JobDirectory}/${pythonJob.PythonDetailedLogs}`);
+            }
             else
                 this.CalculationMessage.AddMessage(`Python Calculation Completed Successfully (${pythonJob.JobElapsedTime()}) :white_check_mark:`);
             yield this.SendResults(pythonJob, dataManager, this.DiscordCommandUser);

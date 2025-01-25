@@ -13,19 +13,25 @@ RUN cd /tmp \
     && rm node-v$NODE_VERSION-linux-x64.tar.xz
 
 # Install npm
-RUN apt-get install npm -y
-RUN apt-get install python3 -y
-RUN apt-get update && apt-get install --fix-missing python3-pip -y
+RUN apt-get update && apt-get install -y npm python3 python3-pip
+#RUN apt-get install npm -y
+#RUN apt-get install python3 -y
+#RUN apt-get update && apt-get install --fix-missing python3-pip -y
 
 # Make a Folder for the Bot and a Folder for the Orca Jobs to Run
-RUN mkdir /OrcaBot
-RUN mkdir /DiscorcaJobs
+RUN mkdir /OrcaBot && \
+    mkdir /DiscorcaJobs
+#RUN mkdir /DiscorcaJobs
 
 #Changes the owner of the Orca Jobs folder to the orca user
-RUN sudo chmod -R 775 /DiscorcaJobs
-RUN sudo chmod -R 775 /OrcaBot
-RUN sudo chown -R orca:orca /OrcaBot
-RUN sudo chown -R orca:orca /DiscorcaJobs
+RUN sudo chmod -R 775 /DiscorcaJobs && \
+    sudo chown -R orca:orca /DiscorcaJobs && \
+    sudo chown -R orca:orca /OrcaBot && \
+    sudo chmod -R 775 /OrcaBot
+
+#RUN sudo chmod -R 775 /OrcaBot
+#RUN sudo chown -R orca:orca /OrcaBot
+#RUN sudo chown -R orca:orca /DiscorcaJobs
 
 # Copy Bot Files into it's folder
 COPY . /OrcaBot

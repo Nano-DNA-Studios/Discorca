@@ -17,11 +17,14 @@ class PythonJob extends Job {
 
     public PythonLogs = "";
 
+    public PythonDetailedLogs = "";
+
     constructor(jobName: string, commandUser: string) {
         super(jobName.split(".")[0], commandUser);
 
         this.PythonPackage = `${this.JobName}.tar.gz`;
         this.PythonLogs = `${this.JobName}Logs.txt`;
+        this.PythonDetailedLogs = `${this.JobName}DetailedLogs.txt`;
     }
 
     /**
@@ -107,12 +110,17 @@ class PythonJob extends Job {
 
             await runner.RunLocally(`pip install ${pipPackage}`, true, this.JobDirectory).catch(e => {
                 e.name += `: Install Package (${pipPackage})`;
+                e.message += `\nDetails:\n${runner.StandardErrorLogs}\n`;
                 dataManager.AddErrorLog(e);
                 this.JobSuccess = false;
                 installResults = false;
-                const errorMessage = `\nError occurred: ${e.name}\nDetails: ${e.message}\n`;
+                
+                const errorMessage = `\nError occurred: ${e.name}\nMessage: \n${e.message}\n`;
                 fs.appendFileSync(`${this.JobDirectory}/${this.PythonLogs}`, errorMessage);
             });
+
+            fs.appendFileSync(`${this.JobDirectory}/${this.PythonDetailedLogs}`, `Pip Install ${pipPackage} Standard Logs: ${runner.StandardOutputLogs}\n`);
+            fs.appendFileSync(`${this.JobDirectory}/${this.PythonDetailedLogs}`, `Pip Install ${pipPackage} Standard Error Logs: ${runner.StandardErrorLogs}\n`);
         }
 
         return installResults;
@@ -139,13 +147,17 @@ class PythonJob extends Job {
         await runner.RunLocally(`python3 ${this.StartFile} > ${this.JobDirectory}/${this.PythonLogs}`, true, this.JobDirectory).catch(e => {
             console.log(e);
             e.name += `: Run Job (${this.JobName})`;
+            e.message += `\nDetails:${runner.StandardErrorLogs}\n`;
             dataManager.AddErrorLog(e);
             this.JobSuccess = false;
             this.JobFinished = true;
-            const errorMessage = `\nError occurred: ${e.name}\nDetails: ${e.message}\n`;
+            const errorMessage = `\nError occurred: ${e.name}\nMessage: ${e.message}\n`;
             fs.appendFileSync(`${this.JobDirectory}/${this.PythonLogs}`, errorMessage);
             return;
         });
+
+        fs.appendFileSync(`${this.JobDirectory}/${this.PythonDetailedLogs}`, `Python Standard Logs: ${runner.StandardOutputLogs}\n`);
+        fs.appendFileSync(`${this.JobDirectory}/${this.PythonDetailedLogs}`, `Python Standard Error Logs: ${runner.StandardErrorLogs}\n`);
 
         this.JobFinished = true;
     }
