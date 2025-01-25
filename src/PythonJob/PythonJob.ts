@@ -110,12 +110,12 @@ class PythonJob extends Job {
 
             await runner.RunLocally(`pip install ${pipPackage}`, true, this.JobDirectory).catch(e => {
                 e.name += `: Install Package (${pipPackage})`;
-                e.message += `\nDetails:\n${runner.StandardErrorLogs}\n`;
+                e.message += `\n\nDetails:\n${runner.StandardErrorLogs}\n`;
                 dataManager.AddErrorLog(e);
                 this.JobSuccess = false;
                 installResults = false;
                 
-                const errorMessage = `\nError occurred: ${e.name}\nMessage: \n${e.message}\n`;
+                const errorMessage = `Error occurred: \n${e.name}\n\nMessage: \n${e.message}\n`;
                 fs.appendFileSync(`${this.JobDirectory}/${this.PythonLogs}`, errorMessage);
             });
 
@@ -147,11 +147,11 @@ class PythonJob extends Job {
         await runner.RunLocally(`python3 ${this.StartFile} > ${this.JobDirectory}/${this.PythonLogs}`, true, this.JobDirectory).catch(e => {
             console.log(e);
             e.name += `: Run Job (${this.JobName})`;
-            e.message += `\nDetails:${runner.StandardErrorLogs}\n`;
+            e.message += `\n\nDetails:${runner.StandardErrorLogs}\n`;
             dataManager.AddErrorLog(e);
             this.JobSuccess = false;
             this.JobFinished = true;
-            const errorMessage = `\nError occurred: ${e.name}\nMessage: ${e.message}\n`;
+            const errorMessage = `Error occurred:\n ${e.name}\n\nMessage: ${e.message}\n`;
             fs.appendFileSync(`${this.JobDirectory}/${this.PythonLogs}`, errorMessage);
             return;
         });
