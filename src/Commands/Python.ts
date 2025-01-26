@@ -54,7 +54,7 @@ class Python extends Command {
 
         this.AddToMessage(`Discorca will start the Python Calculation :hourglass_flowing_sand:`);
 
-        this.CalculationMessage.AddMessage(`Running Python Calculation ${pythonJob.JobName} - ${this.DiscordCommandUser} :snake:`);//pythonJob.JobAuthor
+        this.CalculationMessage.AddMessage(`Running Python Calculation ${pythonJob.JobName} - ${pythonJob.JobAuthor} (${this.DiscordCommandUser.displayName}) :snake:`);//pythonJob.JobAuthor
 
         if (!(await pythonJob.SetupPythonEnvironment(this.CalculationMessage)))
             return await this.SendResults(pythonJob, dataManager, this.DiscordCommandUser);

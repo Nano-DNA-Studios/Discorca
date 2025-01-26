@@ -48,7 +48,7 @@ class Python extends dna_discord_framework_1.Command {
             if (!pythonJob.PythonPackageExists())
                 return this.AddToMessage(`File provided is not a valid Python Package. Please provide a valid Python Package to Run`);
             this.AddToMessage(`Discorca will start the Python Calculation :hourglass_flowing_sand:`);
-            this.CalculationMessage.AddMessage(`Running Python Calculation ${pythonJob.JobName} - ${this.DiscordCommandUser} :snake:`); //pythonJob.JobAuthor
+            this.CalculationMessage.AddMessage(`Running Python Calculation ${pythonJob.JobName} - ${pythonJob.JobAuthor} (${this.DiscordCommandUser.displayName}) :snake:`); //pythonJob.JobAuthor
             if (!(yield pythonJob.SetupPythonEnvironment(this.CalculationMessage)))
                 return yield this.SendResults(pythonJob, dataManager, this.DiscordCommandUser);
             if (client.user)

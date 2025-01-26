@@ -99,7 +99,7 @@ class PythonJob extends dna_discord_framework_1.Job {
             for (const pipPackage of this.PipPackages) {
                 if (!installResults)
                     break;
-                yield runner.RunLocally(`pip install ${pipPackage}`, true, this.JobDirectory).catch(e => {
+                yield runner.RunLocally(`pip install ${pipPackage} --force`, true, this.JobDirectory).catch(e => {
                     e.name += `: Install Package (${pipPackage})`;
                     e.message += `\n\nDetails:\n${runner.StandardErrorLogs}\n`;
                     dataManager.AddErrorLog(e);

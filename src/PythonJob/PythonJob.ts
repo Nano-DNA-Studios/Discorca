@@ -108,7 +108,7 @@ class PythonJob extends Job {
             if (!installResults)
                 break;
 
-            await runner.RunLocally(`pip install ${pipPackage}`, true, this.JobDirectory).catch(e => {
+            await runner.RunLocally(`pip install ${pipPackage} --force`, true, this.JobDirectory).catch(e => {
                 e.name += `: Install Package (${pipPackage})`;
                 e.message += `\n\nDetails:\n${runner.StandardErrorLogs}\n`;
                 dataManager.AddErrorLog(e);
