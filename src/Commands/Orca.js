@@ -90,6 +90,10 @@ class Orca extends dna_discord_framework_1.Command {
             const xyzfile5 = interaction.options.getAttachment("xyzfile5");
             this.CalculationMessage = new dna_discord_framework_1.BotMessage(yield client.channels.fetch(dataManager.CALCULATION_CHANNEL_ID));
             this.DiscordCommandUser = interaction.user;
+            let author = this.DiscordCommandUser.displayName;
+            if (interaction.member && interaction.member instanceof discord_js_1.GuildMember) {
+                author = interaction.member.nickname;
+            }
             if (!dataManager.IsDiscorcaSetup())
                 return this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
             if (!inputfile)
@@ -100,7 +104,7 @@ class Orca extends dna_discord_framework_1.Command {
             try {
                 yield orcaJob.Setup(files);
                 this.AddToMessage(`Files Received`);
-                this.CalculationMessage.AddMessage(`Running Orca Calculation on ${inputfile.name} - ${orcaJob.JobAuthor} :atom:`);
+                this.CalculationMessage.AddMessage(`Running Orca Calculation on ${inputfile.name} - ${orcaJob.JobAuthor} (${author}) :atom:`);
                 dataManager.AddJobArchive(orcaJob);
                 dataManager.AddJob(orcaJob);
                 if (client.user)

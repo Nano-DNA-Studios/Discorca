@@ -27,8 +27,8 @@ class Python extends dna_discord_framework_1.Command {
         /* <inheritdoc> */
         this.IsEphemeralResponse = true;
         /**
-             * The Message that will be sent to the Calculation Channel
-             */
+         * The Message that will be sent to the Calculation Channel
+         */
         this.CalculationMessage = new dna_discord_framework_1.DefaultBotCommunication();
         /* <inheritdoc> */
         this.RunCommand = (client, interaction, BotDataManager) => __awaiter(this, void 0, void 0, function* () {
@@ -37,18 +37,22 @@ class Python extends dna_discord_framework_1.Command {
             const channel = yield client.channels.fetch(dataManager.CALCULATION_CHANNEL_ID);
             this.CalculationMessage = new dna_discord_framework_1.BotMessage(channel);
             this.DiscordCommandUser = interaction.user;
+            let author = this.DiscordCommandUser.displayName;
+            if (interaction.member && interaction.member instanceof discord_js_1.GuildMember) {
+                author = interaction.member.nickname;
+            }
             if (!dataManager.IsDiscorcaSetup())
                 return this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
             if (!pythonpackage)
                 return this.AddToMessage("No Python Package was Provided. Please Provide a Python Package to Run");
-            let pythonJob = new PythonJob_1.default(pythonpackage.name, this.DiscordCommandUser.username);
+            let pythonJob = new PythonJob_1.default(pythonpackage.name, this.DiscordCommandUser.displayName);
             this.AddToMessage(`Starting Python Job Setup: ${pythonpackage.name} :snake:`);
             yield pythonJob.Setup([pythonpackage]);
             this.AddToMessage(`Files Received`);
             if (!pythonJob.PythonPackageExists())
                 return this.AddToMessage(`File provided is not a valid Python Package. Please provide a valid Python Package to Run`);
             this.AddToMessage(`Discorca will start the Python Calculation :hourglass_flowing_sand:`);
-            this.CalculationMessage.AddMessage(`Running Python Calculation ${pythonJob.JobName} - ${pythonJob.JobAuthor} (${this.DiscordCommandUser.displayName}) :snake:`); //pythonJob.JobAuthor
+            this.CalculationMessage.AddMessage(`Running Python Calculation ${pythonJob.JobName} - ${pythonJob.JobAuthor} (${author}) :snake:`);
             if (!(yield pythonJob.SetupPythonEnvironment(this.CalculationMessage)))
                 return yield this.SendResults(pythonJob, dataManager, this.DiscordCommandUser);
             if (client.user)

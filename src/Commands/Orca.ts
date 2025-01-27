@@ -1,5 +1,5 @@
 import { OptionTypesEnum, BotDataManager, Command, DefaultCommandHandler, BotData, BotMessage, BotCommunication, DefaultBotCommunication } from "dna-discord-framework"
-import { ActivityType, CacheType, ChatInputCommandInteraction, Client, TextChannel, User } from "discord.js";
+import { ActivityType, CacheType, ChatInputCommandInteraction, Client, GuildMember, TextChannel, User } from "discord.js";
 import OrcaBotDataManager from "../OrcaBotDataManager";
 import OrcaJob from "../OrcaJob/OrcaJob";
 
@@ -90,6 +90,11 @@ class Orca extends Command {
 
         this.CalculationMessage = new BotMessage(await client.channels.fetch(dataManager.CALCULATION_CHANNEL_ID) as TextChannel);
         this.DiscordCommandUser = interaction.user;
+        let author: string | null = this.DiscordCommandUser.displayName
+
+        if (interaction.member && interaction.member instanceof GuildMember) {
+            author = interaction.member.nickname;
+        }
 
         if (!dataManager.IsDiscorcaSetup())
             return this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
@@ -101,12 +106,12 @@ class Orca extends Command {
 
         let files = [inputfile, xyzfile1, xyzfile2, xyzfile3, xyzfile4, xyzfile5];
         let orcaJob = new OrcaJob(inputfile.name, this.DiscordCommandUser?.username);
-        
+
         try {
             await orcaJob.Setup(files);
 
             this.AddToMessage(`Files Received`);
-            this.CalculationMessage.AddMessage(`Running Orca Calculation on ${inputfile.name} - ${orcaJob.JobAuthor} :atom:`);
+            this.CalculationMessage.AddMessage(`Running Orca Calculation on ${inputfile.name} - ${orcaJob.JobAuthor} (${author}) :atom:`);
 
             dataManager.AddJobArchive(orcaJob);
             dataManager.AddJob(orcaJob);

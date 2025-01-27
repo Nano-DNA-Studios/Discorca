@@ -1,4 +1,4 @@
-import { ActivityType, CacheType, ChatInputCommandInteraction, Client, TextChannel, User } from "discord.js";
+import { ActivityType, CacheType, ChatInputCommandInteraction, Client, GuildMember, TextChannel, User } from "discord.js";
 import { Command, BotDataManager, BotData, OptionTypesEnum, BotMessage, BotCommunication, DefaultBotCommunication } from "dna-discord-framework";
 import OrcaBotDataManager from "../OrcaBotDataManager";
 import PythonJob from "../PythonJob/PythonJob";
@@ -17,8 +17,8 @@ class Python extends Command {
     public IsEphemeralResponse = true;
 
     /**
-         * The Message that will be sent to the Calculation Channel
-         */
+     * The Message that will be sent to the Calculation Channel
+     */
     CalculationMessage: BotCommunication = new DefaultBotCommunication();
 
     /**
@@ -34,6 +34,11 @@ class Python extends Command {
 
         this.CalculationMessage = new BotMessage(channel);
         this.DiscordCommandUser = interaction.user;
+        let author : string | null = this.DiscordCommandUser.displayName
+
+        if (interaction.member && interaction.member instanceof GuildMember) {
+            author = interaction.member.nickname;
+        }
 
         if (!dataManager.IsDiscorcaSetup())
             return this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
@@ -41,11 +46,11 @@ class Python extends Command {
         if (!pythonpackage)
             return this.AddToMessage("No Python Package was Provided. Please Provide a Python Package to Run");
 
-        let pythonJob = new PythonJob(pythonpackage.name, this.DiscordCommandUser.username);
+        let pythonJob = new PythonJob(pythonpackage.name, this.DiscordCommandUser.displayName);
 
         this.AddToMessage(`Starting Python Job Setup: ${pythonpackage.name} :snake:`);
 
-        await pythonJob.Setup([pythonpackage])
+        await pythonJob.Setup([pythonpackage]);
 
         this.AddToMessage(`Files Received`);
 
@@ -54,7 +59,7 @@ class Python extends Command {
 
         this.AddToMessage(`Discorca will start the Python Calculation :hourglass_flowing_sand:`);
 
-        this.CalculationMessage.AddMessage(`Running Python Calculation ${pythonJob.JobName} - ${pythonJob.JobAuthor} (${this.DiscordCommandUser.displayName}) :snake:`);//pythonJob.JobAuthor
+        this.CalculationMessage.AddMessage(`Running Python Calculation ${pythonJob.JobName} - ${pythonJob.JobAuthor} (${author}) :snake:`);
 
         if (!(await pythonJob.SetupPythonEnvironment(this.CalculationMessage)))
             return await this.SendResults(pythonJob, dataManager, this.DiscordCommandUser);
@@ -69,11 +74,10 @@ class Python extends Command {
 
         await pythonJob.RunJob();
 
-        if (!pythonJob.JobSuccess)
-        {
+        if (!pythonJob.JobSuccess) {
             this.CalculationMessage.AddMessage(`Python Calculation Failed :warning:`);
             this.AddFileToMessage(`${pythonJob.JobDirectory}/${pythonJob.PythonDetailedLogs}`);
-        }    
+        }
         else
             this.CalculationMessage.AddMessage(`Python Calculation Completed Successfully (${pythonJob.JobElapsedTime()}) :white_check_mark:`);
 
@@ -83,8 +87,7 @@ class Python extends Command {
         dataManager.QueueNextActivity(client);
     };
 
-    public async SendResults (pythonJob: PythonJob, dataManager: BotDataManager, user : User)
-    {
+    public async SendResults(pythonJob: PythonJob, dataManager: BotDataManager, user: User) {
         await pythonJob.ArchiveJob(dataManager);
         await pythonJob.SendPythonLogs(this.CalculationMessage);
         await pythonJob.PingUser(this.CalculationMessage, user);
