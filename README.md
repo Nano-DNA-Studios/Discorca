@@ -4,7 +4,7 @@ A Discord Bot that runs Orca Quantum Chemistry software under the hood. By using
 
 # About
 
-The Discorca project is my implementation of a solution in automating and making it easier to run Orca calculations on powerful devices. Developed by me and lent to the University of Waterloo Formula Nano Design Team, our goal is to design and build a Nanocar for the Nanocar Race. We’ve been given a Server in the ECE department and I have contributed my personal Linux server towards helping with calculations, but not many people were familiar with CLI’s. Therefor I proposed making this Discord Bot in a Docker container to ease the addition of new devices and make it easy to run calculations and receive their results. 
+The Discorca project is my implementation of a solution in automating and making it easier to run Orca calculations on powerful devices. A copy has been lent to the University of Waterloo Formula Nano Design Team, our goal is to design and build a Nanocar for the Nanocar Race. We’ve been given a Server in the ECE department and I have contributed my personal Linux server towards helping with calculations, but not many people were familiar with CLI’s. Therefor I proposed making this Discord Bot in a Docker container to ease the addition of new devices and make it easy to run calculations and receive their results. 
 
 To make Discorca, I used my personal Discord Building framework [DNA-Discord-Framework](https://github.com/Nano-DNA-Studios/DNA-Discord-Framework), a TypeScript/JavaScript framework I developed to make Discord Bots faster.
 
