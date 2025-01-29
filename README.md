@@ -141,7 +141,17 @@ Runs a Python Job on the Server and returns the results
 
 ### Options *(Required)*
 
-**Python Package** : The Python Package containing essential files and the code to run
+**Python File** : The Python Package or File containing essential files and the code to run
+
+**Install File** : File Listing off all the Python Packages that need to be Installed
+
+**Extra File 1** : Additional File that can be added to the Python Package
+
+**Extra File 2** : Additional File that can be added to the Python Package
+
+**Extra File 3** : Additional File that can be added to the Python Package
+
+![image](https://github.com/user-attachments/assets/08b4f375-3b9c-4f4c-9294-1a4da64a11f1)
 
 ## Purge
 
