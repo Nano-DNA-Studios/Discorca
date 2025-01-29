@@ -7,7 +7,7 @@ class PythonJob extends Job {
 
     public JobManager: JobManager = new PythonJobManager();
 
-    public PythonPackage;
+    public PythonPackage: string;
 
     public InstallFile = "Install.txt";
 
@@ -22,9 +22,23 @@ class PythonJob extends Job {
     constructor(jobName: string, commandUser: string) {
         super(jobName.split(".")[0], commandUser);
 
-        this.PythonPackage = `${this.JobName}.tar.gz`;
+        this.PythonPackage = jobName;
         this.PythonLogs = `${this.JobName}Logs.txt`;
         this.PythonDetailedLogs = `${this.JobName}DetailedLogs.txt`;
+    }
+
+    public IsValidPythonJob(): boolean {
+        if (!(this.PythonPackage.endsWith(".tar.gz") || this.PythonPackage.endsWith(".py")))
+            return false;
+
+        return fs.existsSync(`${this.JobDirectory}/${this.PythonPackage}`);
+    }
+
+    public IsPythonPackage(): boolean {
+        if (this.PythonPackage.endsWith(".tar.gz"))
+            return true;
+        else
+            return false;
     }
 
     /**
@@ -44,29 +58,31 @@ class PythonJob extends Job {
         return record;
     }
 
-    public PythonPackageExists(): boolean {
-        if (fs.existsSync(`${this.JobDirectory}/${this.PythonPackage}`))
-            return true;
-        else
-            return false;
-    }
-
     public PythonDefaultFilesExist(): boolean {
-        if (fs.existsSync(`${this.JobDirectory}/${this.InstallFile}`) && fs.existsSync(`${this.JobDirectory}/${this.StartFile}`))
-            return true;
-        else
-            return false;
+        return (fs.existsSync(`${this.JobDirectory}/${this.InstallFile}`) && fs.existsSync(`${this.JobDirectory}/${this.StartFile}`))
     }
 
     public async SetupPythonEnvironment(message: BotCommunication): Promise<boolean> {
 
-        await this.ExtractPackage();
+        if (this.IsPythonPackage())
+        {
+            await this.ExtractPackage();
 
-        if (!this.PythonDefaultFilesExist()) {
-            message.AddMessage(`Package provided is not a Valid Python Package. Please provide a valid Python Package to Run. It must container a Install.txt file and a Start.py file`);
-            return false;
+            if (!this.PythonDefaultFilesExist()) {
+                message.AddMessage(`Package provided is not a Valid Python Job. Package must contain a Install.txt file and a Start.py Python file`);
+                return false;
+            }
         }
+        else 
+        {
+            this.StartFile = this.PythonPackage;
 
+            if (!this.PythonDefaultFilesExist()) {
+                message.AddMessage(`Package provided is not a Valid Python Job. A Install.txt file and a Python File must be provided.`);
+                return false;
+            }
+        }
+    
         if (!(await this.InstallPackages())) {
             message.AddMessage(`Python Package Install Failed :warning:`);
             message.AddMessage(`Aborting Python Calculation :no_entry:`);
@@ -115,7 +131,7 @@ class PythonJob extends Job {
                 dataManager.AddErrorLog(e);
                 this.JobSuccess = false;
                 installResults = false;
-                
+
                 const errorMessage = `Error occurred: \n${e.name}\n\nMessage: \n${e.message}\n`;
                 fs.appendFileSync(`${this.JobDirectory}/${this.PythonLogs}`, errorMessage);
             });

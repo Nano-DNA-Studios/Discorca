@@ -25,9 +25,20 @@ class PythonJob extends dna_discord_framework_1.Job {
         this.PipPackages = [];
         this.PythonLogs = "";
         this.PythonDetailedLogs = "";
-        this.PythonPackage = `${this.JobName}.tar.gz`;
+        this.PythonPackage = jobName;
         this.PythonLogs = `${this.JobName}Logs.txt`;
         this.PythonDetailedLogs = `${this.JobName}DetailedLogs.txt`;
+    }
+    IsValidPythonJob() {
+        if (!(this.PythonPackage.endsWith(".tar.gz") || this.PythonPackage.endsWith(".py")))
+            return false;
+        return fs_1.default.existsSync(`${this.JobDirectory}/${this.PythonPackage}`);
+    }
+    IsPythonPackage() {
+        if (this.PythonPackage.endsWith(".tar.gz"))
+            return true;
+        else
+            return false;
     }
     /**
    * Creates the SCP Copy Command for the User to Copy and use in their Terminal
@@ -43,24 +54,24 @@ class PythonJob extends dna_discord_framework_1.Job {
         let record = { "Cores": 1 };
         return record;
     }
-    PythonPackageExists() {
-        if (fs_1.default.existsSync(`${this.JobDirectory}/${this.PythonPackage}`))
-            return true;
-        else
-            return false;
-    }
     PythonDefaultFilesExist() {
-        if (fs_1.default.existsSync(`${this.JobDirectory}/${this.InstallFile}`) && fs_1.default.existsSync(`${this.JobDirectory}/${this.StartFile}`))
-            return true;
-        else
-            return false;
+        return (fs_1.default.existsSync(`${this.JobDirectory}/${this.InstallFile}`) && fs_1.default.existsSync(`${this.JobDirectory}/${this.StartFile}`));
     }
     SetupPythonEnvironment(message) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.ExtractPackage();
-            if (!this.PythonDefaultFilesExist()) {
-                message.AddMessage(`Package provided is not a Valid Python Package. Please provide a valid Python Package to Run. It must container a Install.txt file and a Start.py file`);
-                return false;
+            if (this.IsPythonPackage()) {
+                yield this.ExtractPackage();
+                if (!this.PythonDefaultFilesExist()) {
+                    message.AddMessage(`Package provided is not a Valid Python Job. Package must contain a Install.txt file and a Start.py Python file`);
+                    return false;
+                }
+            }
+            else {
+                this.StartFile = this.PythonPackage;
+                if (!this.PythonDefaultFilesExist()) {
+                    message.AddMessage(`Package provided is not a Valid Python Job. A Install.txt file and a Python File must be provided.`);
+                    return false;
+                }
             }
             if (!(yield this.InstallPackages())) {
                 message.AddMessage(`Python Package Install Failed :warning:`);
