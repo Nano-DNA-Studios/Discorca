@@ -81,7 +81,7 @@ class Python extends dna_discord_framework_1.Command {
             {
                 type: dna_discord_framework_1.OptionTypesEnum.Attachment,
                 name: "installfile",
-                description: "The Python Package containing essential files and the code to run",
+                description: "File Listing off all the Python Packages that need to be Installed",
                 required: false,
             },
             {

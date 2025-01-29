@@ -112,7 +112,7 @@ class Python extends Command {
         {
             type: OptionTypesEnum.Attachment,
             name: "installfile",
-            description: "The Python Package containing essential files and the code to run",
+            description: "File Listing off all the Python Packages that need to be Installed",
             required: false,
         },
         {
