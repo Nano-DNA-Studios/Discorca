@@ -76,7 +76,7 @@ class Python extends Command {
 
         if (!pythonJob.JobSuccess) {
             this.CalculationMessage.AddMessage(`Python Calculation Failed :warning:`);
-            this.AddFileToMessage(`${pythonJob.JobDirectory}/${pythonJob.PythonDetailedLogs}`);
+            this.CalculationMessage.AddFile(`${pythonJob.JobDirectory}/${pythonJob.PythonDetailedLogs}`);
         }
         else
             this.CalculationMessage.AddMessage(`Python Calculation Completed Successfully (${pythonJob.JobElapsedTime()}) :white_check_mark:`);

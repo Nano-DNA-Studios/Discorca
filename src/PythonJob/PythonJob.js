@@ -65,6 +65,7 @@ class PythonJob extends dna_discord_framework_1.Job {
             if (!(yield this.InstallPackages())) {
                 message.AddMessage(`Python Package Install Failed :warning:`);
                 message.AddMessage(`Aborting Python Calculation :no_entry:`);
+                message.AddFile(`${this.JobDirectory}/${this.PythonDetailedLogs}`);
                 return false;
             }
             message.AddMessage(`Python Environment Setup Complete`);

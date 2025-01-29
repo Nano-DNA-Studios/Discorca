@@ -70,6 +70,7 @@ class PythonJob extends Job {
         if (!(await this.InstallPackages())) {
             message.AddMessage(`Python Package Install Failed :warning:`);
             message.AddMessage(`Aborting Python Calculation :no_entry:`);
+            message.AddFile(`${this.JobDirectory}/${this.PythonDetailedLogs}`);
             return false;
         }
 
