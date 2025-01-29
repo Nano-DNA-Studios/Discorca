@@ -28,38 +28,38 @@ class Python extends Command {
 
     /* <inheritdoc> */
     public RunCommand = async (client: Client<boolean>, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
+        
         const dataManager = BotData.Instance(OrcaBotDataManager);
-        const pythonpackage = interaction.options.getAttachment("pythonpackage");
         const channel = await client.channels.fetch(dataManager.CALCULATION_CHANNEL_ID) as TextChannel;
+        const pythonFile = interaction.options.getAttachment("pythonfile");
+        const installFile = interaction.options.getAttachment("installfile");
+        const extraFile1 = interaction.options.getAttachment("extrafile1");
+        const extraFile2 = interaction.options.getAttachment("extrafile2");
+        const extraFile3 = interaction.options.getAttachment("extrafile3");
 
         this.CalculationMessage = new BotMessage(channel);
         this.DiscordCommandUser = interaction.user;
-        let author : string | null = this.DiscordCommandUser.displayName
-
-        if (interaction.member && interaction.member instanceof GuildMember) {
-            author = interaction.member.nickname;
-        }
 
         if (!dataManager.IsDiscorcaSetup())
             return this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
 
-        if (!pythonpackage)
-            return this.AddToMessage("No Python Package was Provided. Please Provide a Python Package to Run");
+        if (!pythonFile)
+            return this.AddToMessage("No Python File or Package was Provided. Please Provide a Python Package or File to Run");
 
-        let pythonJob = new PythonJob(pythonpackage.name, this.DiscordCommandUser.displayName);
+        let pythonJob = new PythonJob(pythonFile.name, this.DiscordCommandUser.displayName);
 
-        this.AddToMessage(`Starting Python Job Setup: ${pythonpackage.name} :snake:`);
+        this.AddToMessage(`Starting Python Job Setup: ${pythonFile.name} :snake:`);
 
-        await pythonJob.Setup([pythonpackage]);
+        await pythonJob.Setup([pythonFile, installFile, extraFile1, extraFile2, extraFile3]);
 
         this.AddToMessage(`Files Received`);
 
-        if (!pythonJob.PythonPackageExists())
-            return this.AddToMessage(`File provided is not a valid Python Package. Please provide a valid Python Package to Run`);
+        if (!pythonJob.IsValidPythonJob())
+            return this.AddToMessage(`File provided is not a valid Python Package or File. Please provide a valid Python Package to Run`);
 
         this.AddToMessage(`Discorca will start the Python Calculation :hourglass_flowing_sand:`);
 
-        this.CalculationMessage.AddMessage(`Running Python Calculation ${pythonJob.JobName} - ${pythonJob.JobAuthor} (${author}) :snake:`);
+        this.CalculationMessage.AddMessage(`Running Python Calculation ${pythonJob.JobName} - ${pythonJob.JobAuthor} (${this.GetInteractionAuthor(interaction)}) :snake:`);
 
         if (!(await pythonJob.SetupPythonEnvironment(this.CalculationMessage)))
             return await this.SendResults(pythonJob, dataManager, this.DiscordCommandUser);
@@ -87,6 +87,15 @@ class Python extends Command {
         dataManager.QueueNextActivity(client);
     };
 
+    public GetInteractionAuthor(interaction: ChatInputCommandInteraction<CacheType>): string {
+        let author : string = interaction.user.displayName;
+
+        if (interaction.member && interaction.member instanceof GuildMember && interaction.member.nickname)
+            author = interaction.member.nickname;
+
+        return author;
+    }
+
     public async SendResults(pythonJob: PythonJob, dataManager: BotDataManager, user: User) {
         await pythonJob.ArchiveJob(dataManager);
         await pythonJob.SendPythonLogs(this.CalculationMessage);
@@ -96,10 +105,35 @@ class Python extends Command {
     Options = [
         {
             type: OptionTypesEnum.Attachment,
-            name: "pythonpackage",
-            description: "The Python Package containing essential files and the code to run",
+            name: "pythonfile",
+            description: "The Python Package or File containing essential files and the code to run",
             required: true,
-        }
+        },
+        {
+            type: OptionTypesEnum.Attachment,
+            name: "installfile",
+            description: "The Python Package containing essential files and the code to run",
+            required: false,
+        },
+        {
+            type: OptionTypesEnum.Attachment,
+            name: "extrafile1",
+            description: "Additional File that can be added to the Python Package",
+            required: false,
+        },
+        {
+            type: OptionTypesEnum.Attachment,
+            name: "extrafile2",
+            description: "Additional File that can be added to the Python Package",
+            required: false,
+        },
+        {
+            type: OptionTypesEnum.Attachment,
+            name: "extrafile3",
+            description: "Additional File that can be added to the Python Package",
+            required: false,
+        },
+        
     ];
 }
 
