@@ -45,7 +45,7 @@ class Python extends dna_discord_framework_1.Command {
                 return this.AddToMessage("Discorca has not been setup yet. Run the /setup Command to Configure Discorca");
             if (!pythonFile)
                 return this.AddToMessage("No Python File or Package was Provided. Please Provide a Python Package or File to Run");
-            let pythonJob = new PythonJob_1.default(pythonFile.name, this.DiscordCommandUser.displayName);
+            let pythonJob = new PythonJob_1.default(pythonFile.name, this.DiscordCommandUser.username);
             this.AddToMessage(`Starting Python Job Setup: ${pythonFile.name} :snake:`);
             yield pythonJob.Setup([pythonFile, installFile, extraFile1, extraFile2, extraFile3]);
             this.AddToMessage(`Files Received`);

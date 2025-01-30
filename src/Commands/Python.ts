@@ -46,7 +46,7 @@ class Python extends Command {
         if (!pythonFile)
             return this.AddToMessage("No Python File or Package was Provided. Please Provide a Python Package or File to Run");
 
-        let pythonJob = new PythonJob(pythonFile.name, this.DiscordCommandUser.displayName);
+        let pythonJob = new PythonJob(pythonFile.name, this.DiscordCommandUser.username);
 
         this.AddToMessage(`Starting Python Job Setup: ${pythonFile.name} :snake:`);
 
